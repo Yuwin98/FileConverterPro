@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/home">
+
+    <fragment
+        android:id="@+id/home"
+        android:name="com.yuwin.fileconverterpro.FileListFragment"
+        android:label="Your Images"
+        tools:layout="@layout/fragment_main_screen" >
+        <action
+            android:id="@+id/action_home_to_convert"
+            app:destination="@id/convert" />
+    </fragment>
+    <fragment
+        android:id="@+id/convert"
+        android:name="com.yuwin.fileconverterpro.ConvertFragment"
+        android:label="Convert Images"
+        tools:layout="@layout/fragment_convert" >
+        <action
+            android:id="@+id/action_convert_self"
+            app:destination="@id/convert" />
+        <action
+            android:id="@+id/action_convert_to_convertProgressFragment"
+            app:destination="@id/convertProgressFragment" />
+        <argument
+            android:name="UriList"
+            app:argType="com.yuwin.fileconverterpro.UriList" />
+        <argument
+            android:name="oldUriList"
+            app:argType="com.yuwin.fileconverterpro.UriList"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+    <fragment
+        android:id="@+id/settings"
+        android:name="com.yuwin.fileconverterpro.SettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_settings_to_convert"
+            app:destination="@id/convert" />
+    </fragment>
+    <fragment
+        android:id="@+id/info"
+        android:name="com.yuwin.fileconverterpro.InfoFragment"
+        android:label="About Us"
+        tools:layout="@layout/fragment_info" >
+        <action
+            android:id="@+id/action_info_to_convert"
+            app:destination="@id/convert" />
+    </fragment>
+    <fragment
+        android:id="@+id/convertProgressFragment"
+        android:name="com.yuwin.fileconverterpro.ConvertProgressFragment"
+        android:label="Converting..."
+        tools:layout="@layout/fragment_convert_progress" >
+        <argument
+            android:name="data"
+            app:argType="com.yuwin.fileconverterpro.ConvertInfoList" />
+    </fragment>
+</navigation>

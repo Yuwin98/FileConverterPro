@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Image Converter</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string-array name="file_types">
+        <item>PNG</item>
+        <item>JPG</item>
+        <item>JPEG</item>
+        <item>TIFF</item>
+        <item>WEBP</item>
+        <item>GIF</item>
+        <item>BMP</item>
+        <item>PDF</item>
+    </string-array>
+
+    <string-array name="text_size">
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
+</resources>

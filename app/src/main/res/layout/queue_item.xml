@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+        <import type="com.yuwin.fileconverterpro.FormatTypes"/>
+        <variable
+            name="item"
+            type="com.yuwin.fileconverterpro.ConvertInfo" />
+
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="96dp"
+            android:background="@drawable/layout_border"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/imagePreviewImageView"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:paddingStart="1dp"
+                android:paddingTop="1dp"
+                android:paddingBottom="1dp"
+                android:scaleType="centerCrop"
+                loadImageFromUri="@{item.uri}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <ImageView
+                android:id="@+id/arrowRightImageVIew"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                app:layout_constraintBottom_toBottomOf="@+id/mimeTypeTextView"
+                app:layout_constraintStart_toEndOf="@+id/mimeTypeTextView"
+                app:layout_constraintTop_toTopOf="@+id/mimeTypeTextView"
+                app:srcCompat="@drawable/ic_arrow_forward" />
+
+            <Spinner
+                android:id="@+id/fileTypeSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:entries="@array/file_types"
+                android:spinnerMode="dialog"
+                android:visibility="@{item.convertAll ? View.GONE: View.VISIBLE}"
+                android:selectedItemPosition="@={item.specificFormat}"
+                app:layout_constraintBottom_toBottomOf="@+id/arrowRightImageVIew"
+                app:layout_constraintStart_toEndOf="@+id/arrowRightImageVIew"
+                app:layout_constraintTop_toTopOf="@+id/arrowRightImageVIew"
+                />
+
+            <TextView
+                android:id="@+id/allFileConvertTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/allerta"
+                android:maxLines="1"
+                getDefaultConvertFormat="@{item.defaultConvertFormat}"
+                android:textSize="16sp"
+                android:visibility="@{item.convertAll ? View.VISIBLE: View.GONE}"
+                app:layout_constraintBottom_toBottomOf="@+id/arrowRightImageVIew"
+                app:layout_constraintStart_toEndOf="@+id/arrowRightImageVIew"
+                app:layout_constraintTop_toTopOf="@+id/arrowRightImageVIew" />
+
+            <TextView
+                android:id="@+id/mimeTypeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/allerta"
+                android:text="@{item.fileType}"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="@+id/fileSizeTextView"
+                app:layout_constraintTop_toBottomOf="@+id/fileSizeTextView" />
+
+            <TextView
+                android:id="@+id/fileNameTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/allerta"
+                android:maxLines="1"
+                android:text="@{item.convertAll.toString()}"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imagePreviewImageView"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/fileSizeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/allerta"
+                android:text="@{item.fileSize}"
+                app:layout_constraintStart_toStartOf="@+id/fileNameTextView"
+                app:layout_constraintTop_toBottomOf="@+id/fileNameTextView" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

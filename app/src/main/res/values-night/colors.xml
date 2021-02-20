@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#a55eea</color>
+    <color name="colorPrimaryDark">#8854d0</color>
+    <color name="colorAccent">#a55eea</color>
+
+    <color name="darker">#121212</color>
+    <color name="dark">#313C44</color>
+    <color name="completeGreen">#2ecc71</color>
+
+    <color name="colorBackground">#1E1F24</color>
+    <color name="colorText">#ffffff</color>
+    <color name="cancelButton">#fff</color>
+    <color name="cardBackground">#55414141</color>
+
+    <color name="backgroundColor">@color/dark</color>
+    <color name="statusBarColor">@android:color/black</color>
+    <color name="actionBarBackgroundColor">@color/darker</color>
+    <color name="navigationBarColor">@color/darker</color>
+</resources>
