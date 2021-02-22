@@ -60,7 +60,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.home,
                 R.id.settings,
                 R.id.info,
-                R.id.convert
+                R.id.convert,
+                R.id.convertedFilesFragment,
+                R.id.convertProgressFragment
             )
         )
 
@@ -83,7 +85,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val uriList = mutableListOf<Uri>();
+        val uriList = mutableListOf<Uri>()
         if(data != null && requestCode == 200 && resultCode == Activity.RESULT_OK) {
             if(data.clipData != null){
                 val count = data.clipData!!.itemCount
@@ -95,23 +97,26 @@ class MainActivity : AppCompatActivity() {
                 val imageUri = data.data!!
                 uriList.add(imageUri)
             }
-            var oldUriList: UriList? = null
-            if(data.extras?.getParcelable<UriList>("uris") != null) {
-                oldUriList = data.extras?.getParcelable("uris")
-            }
+
             val newUriList = UriList(uriList)
 
-            var action = FileListFragmentDirections.actionHomeToConvert(newUriList, oldUriList)
+            var action = FileListFragmentDirections.actionHomeToConvert(newUriList)
 
             when(navController.currentDestination?.id) {
                 R.id.convert -> {
-                    action = ConvertFragmentDirections.actionConvertSelf(newUriList, oldUriList)
+                    action = ConvertFragmentDirections.actionConvertSelf(newUriList)
                 }
                 R.id.settings -> {
-                    action = SettingsFragmentDirections.actionSettingsToConvert(newUriList, oldUriList)
+                    action = SettingsFragmentDirections.actionSettingsToConvert(newUriList)
                 }
                 R.id.info -> {
-                    action = InfoFragmentDirections.actionInfoToConvert(newUriList, oldUriList)
+                    action = InfoFragmentDirections.actionInfoToConvert(newUriList)
+                }
+                R.id.convertProgressFragment -> {
+                    action = ConvertProgressFragmentDirections.actionConvertProgressFragmentToConvert(newUriList)
+                }
+                R.id.convertedFilesFragment -> {
+                    action = ConvertedFilesFragmentDirections.actionConvertedFilesFragmentToConvert(newUriList)
                 }
             }
             findNavController(R.id.navHostFragment).navigate(action)

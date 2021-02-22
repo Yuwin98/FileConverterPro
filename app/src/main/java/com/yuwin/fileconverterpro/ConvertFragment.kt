@@ -23,6 +23,8 @@ class ConvertFragment : Fragment() {
 
     private lateinit var binding: FragmentConvertBinding
 
+    private var qualityInt: Int  = 0;
+
     private val convertViewModel : ConvertViewModel by viewModels()
     private val itemViewModel: ItemViewModel by viewModels()
 
@@ -80,10 +82,13 @@ class ConvertFragment : Fragment() {
             }
 
         })
+        convertViewModel.qualityValue.observe(viewLifecycleOwner, { quality ->
+            qualityInt = quality.toInt()
+        })
 
         binding.convertButton.setOnClickListener {
             val data = ConvertInfoList(this.data)
-            val action = ConvertFragmentDirections.actionConvertToConvertProgressFragment(data)
+            val action = ConvertFragmentDirections.actionConvertToConvertProgressFragment(data, qualityInt)
             findNavController().navigate(action)
         }
 

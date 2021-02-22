@@ -43,7 +43,6 @@
             android:id="@+id/cancelButton"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:layout_marginStart="50dp"
             android:layout_marginBottom="80dp"
             android:background="?android:attr/selectableItemBackground"
             android:fontFamily="@font/allerta"
@@ -51,23 +50,26 @@
             android:textAllCaps="false"
             android:textColor="@color/cancelButton"
             android:textSize="16sp"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:strokeColor="#000" />
 
         <Button
-            android:id="@+id/notifyButton"
+            android:id="@+id/showConvertedFilesButton"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_marginEnd="50dp"
             android:layout_marginBottom="80dp"
             android:fontFamily="@font/allerta"
-            android:text="Notify Me"
+            android:text="Show Converted Files"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:textSize="16sp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/textView3"
@@ -82,7 +84,7 @@
             app:layout_constraintTop_toBottomOf="@+id/circularProgressBar" />
 
         <com.google.android.gms.ads.AdView
-            android:id="@+id/adView"
+            android:id="@+id/convertProgressAdView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

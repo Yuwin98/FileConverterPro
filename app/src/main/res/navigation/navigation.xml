@@ -24,15 +24,14 @@
             app:destination="@id/convert" />
         <action
             android:id="@+id/action_convert_to_convertProgressFragment"
-            app:destination="@id/convertProgressFragment" />
+            app:destination="@id/convertProgressFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
         <argument
             android:name="UriList"
             app:argType="com.yuwin.fileconverterpro.UriList" />
-        <argument
-            android:name="oldUriList"
-            app:argType="com.yuwin.fileconverterpro.UriList"
-            app:nullable="true"
-            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/settings"
@@ -60,5 +59,30 @@
         <argument
             android:name="data"
             app:argType="com.yuwin.fileconverterpro.ConvertInfoList" />
+        <argument
+            android:name="quality"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_convertProgressFragment_to_convertedFilesFragment"
+            app:destination="@id/convertedFilesFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+        <action
+            android:id="@+id/action_convertProgressFragment_to_convert"
+            app:destination="@id/convert" />
+    </fragment>
+    <fragment
+        android:id="@+id/convertedFilesFragment"
+        android:name="com.yuwin.fileconverterpro.ConvertedFilesFragment"
+        android:label="Converted Files"
+        tools:layout="@layout/fragment_converted_files">
+        <action
+            android:id="@+id/action_convertedFilesFragment_to_home"
+            app:destination="@id/home" />
+        <action
+            android:id="@+id/action_convertedFilesFragment_to_convert"
+            app:destination="@id/convert" />
     </fragment>
 </navigation>
