@@ -1,10 +1,14 @@
 package com.yuwin.fileconverterpro
 
+import android.app.usage.ExternalStorageStats
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import android.os.Environment
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
+import androidx.core.content.ContextCompat
+import java.io.File
 import java.lang.String.format
 import java.text.CharacterIterator
 import java.text.StringCharacterIterator
@@ -54,6 +58,27 @@ class Util {
             }
             return FileInfo("N/A", "N/A")
         }
+
+        // Storage Details
+        fun getExternalDir(context: Context): String {
+            val externalStorageVolumes: Array<out File> =
+                    ContextCompat.getExternalFilesDirs(context.applicationContext, null)
+            return externalStorageVolumes[0].absolutePath + "/"
+        }
+
+        fun getStoragePath(storageDir: String, fileName: String, fileExtension: String): String {
+            return "$storageDir$fileName$fileExtension"
+        }
+
+        fun isExternalStorageWritable(): Boolean {
+            return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+        }
+
+        fun isExternalStorageReadable(): Boolean {
+            return Environment.getExternalStorageState() in
+                    setOf(Environment.MEDIA_MOUNTED, Environment.MEDIA_MOUNTED_READ_ONLY)
+        }
+
 
 
     }

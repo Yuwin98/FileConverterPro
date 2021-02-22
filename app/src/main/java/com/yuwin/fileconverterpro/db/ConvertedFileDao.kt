@@ -11,13 +11,13 @@ import com.yuwin.fileconverterpro.ConvertInfo
 interface ConvertedFileDao {
 
     @Query("Select * from converted_files")
-    suspend fun getAllFiles(): LiveData<List<ConvertedFile>>
+    fun getAllFiles(): List<ConvertedFile>
 
     @Insert
-    suspend fun insertFile(file: ConvertInfo)
+    suspend fun insertFile(file: ConvertedFile)
 
     @Delete
-    suspend fun deleteFile(file: ConvertInfo)
+    suspend fun deleteFile(file: ConvertedFile)
 
 
 

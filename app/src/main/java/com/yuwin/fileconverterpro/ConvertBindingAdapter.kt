@@ -16,7 +16,7 @@ class ConvertBindingAdapter {
 
         @BindingAdapter("loadImageFromUri")
         @JvmStatic
-        fun loadImageFromUri(view: ImageView, uri: Uri) {
+        fun loadImage(view: ImageView, uri: Uri) {
             Glide.with(view).load(uri).into(view)
         }
 
