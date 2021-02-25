@@ -2,15 +2,12 @@
     <string name="app_name">Image Converter</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="item_size">Image Count: %1$d/%2$d</string>
     <string-array name="file_types">
         <item>PNG</item>
         <item>JPG</item>
         <item>JPEG</item>
-        <item>TIFF</item>
         <item>WEBP</item>
-        <item>GIF</item>
-        <item>BMP</item>
         <item>PDF</item>
     </string-array>
 

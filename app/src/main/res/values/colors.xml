@@ -10,6 +10,7 @@
     <color name="completeGreen">#2ecc71</color>
     <color name="cancelButton">@color/darker</color>
     <color name="backgroundColor">@color/colorBackground</color>
+    <color name="pdfBackground">#FAFAFA</color>
 
     <color name="colorBackground">#EFEFEF</color>
     <color name="colorText">#000000</color>

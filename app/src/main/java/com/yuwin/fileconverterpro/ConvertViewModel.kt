@@ -21,11 +21,15 @@ class ConvertViewModel: ViewModel() {
     private val _qualityValue = MutableLiveData<String>()
     val qualityValue: LiveData<String> get() = _qualityValue
 
+    private val _listSize = MutableLiveData<Int>()
+    val listSize: LiveData<Int> get() = _listSize
+
     init {
         _allConvert.postValue(false)
         _qualityValue.postValue("100")
 
     }
+
 
     fun setOnConvertAllCheckChanged(value: Boolean) {
         _allConvert.postValue(value)

@@ -4,22 +4,29 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.SeekBar
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.yuwin.fileconverterpro.Constants.Companion.IMAGE_CHOOSE
 import com.yuwin.fileconverterpro.databinding.FragmentConvertBinding
 
 
 class ConvertFragment : Fragment() {
-    private val IMAGE_CHOOSE = 100
+
     private val args by navArgs<ConvertFragmentArgs>()
     private var data = mutableListOf<ConvertInfo>()
+
+    private val IMAGE_LIMIT = 50
 
     private lateinit var binding: FragmentConvertBinding
 
@@ -29,6 +36,8 @@ class ConvertFragment : Fragment() {
     private val itemViewModel: ItemViewModel by viewModels()
 
     private val convertAdapter by lazy { ConvertAdapter() }
+    private val itemTouchHelperCallBack = SimpleItemTouchCallBack(convertAdapter)
+    private val touchHelper = ItemTouchHelper(itemTouchHelperCallBack)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -36,9 +45,13 @@ class ConvertFragment : Fragment() {
         binding = FragmentConvertBinding.inflate(inflater, container, false)
         binding.viewModel = convertViewModel
         binding.lifecycleOwner = viewLifecycleOwner
+
         val uriList = args.UriList.items
         data = setupData(uriList)
         setupRecyclerView()
+
+        (requireActivity() as AppCompatActivity).supportActionBar?.title = "Convert Images (${convertAdapter.itemCount}/$IMAGE_LIMIT)"
+
 
         binding.convertAllCheckBox.setOnCheckedChangeListener { _, isChecked -> convertViewModel.setOnConvertAllCheckChanged(isChecked) }
         convertViewModel.allConvert.observe(viewLifecycleOwner, {
@@ -123,11 +136,31 @@ class ConvertFragment : Fragment() {
                 val imageUri = data.data!!
                 uriList.add(imageUri)
             }
+
+
             val myUriList = UriList(uriList)
-            val newData: MutableList<ConvertInfo> = setupData(myUriList.items)
-            val oldData: MutableList<ConvertInfo> = this.data
-            updateNewData(newData, oldData[0].convertAll, oldData[0].defaultConvertFormat )
-            newData.let{ lst1 -> oldData.let(lst1::addAll) }
+            var newData: MutableList<ConvertInfo> = setupData(myUriList.items)
+            val oldData: MutableList<ConvertInfo> = convertAdapter.getAdapterData()
+            if(newData.size + oldData.size > IMAGE_LIMIT) {
+                val take = IMAGE_LIMIT - oldData.size
+                if(take > 0) {
+                    newData = newData.take(take) as MutableList<ConvertInfo>
+                    newData = newData.toMutableList()
+                    updateNewData(newData, oldData[0].convertAll, oldData[0].defaultConvertFormat )
+                    newData.let{ lst1 -> oldData.let(lst1::addAll) }
+                }else {
+                    newData = oldData
+                }
+                (requireActivity() as AppCompatActivity).supportActionBar?.title = "Convert Images ($IMAGE_LIMIT/$IMAGE_LIMIT)"
+                Toast.makeText(activity, "Max Convert Limit $IMAGE_LIMIT", Toast.LENGTH_SHORT).show()
+            }else {
+                if(oldData.isNotEmpty()) {
+                    updateNewData(newData, oldData[0].convertAll, oldData[0].defaultConvertFormat )
+                    newData.let{ lst1 -> oldData.let(lst1::addAll) }
+                }
+                (requireActivity() as AppCompatActivity).supportActionBar?.title = "Convert Images (${newData.size}/$IMAGE_LIMIT)"
+            }
+
             this.data = newData
             convertAdapter.setData(newData)
             convertAdapter.notifyDataSetChanged()
@@ -159,6 +192,7 @@ class ConvertFragment : Fragment() {
     private fun setupRecyclerView() {
         binding.imageQueue.layoutManager = LinearLayoutManager(requireContext())
         binding.imageQueue.adapter = convertAdapter
+        touchHelper.attachToRecyclerView(binding.imageQueue)
         convertAdapter.setData(data)
     }
 

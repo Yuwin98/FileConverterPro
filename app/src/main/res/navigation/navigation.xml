@@ -72,6 +72,9 @@
         <action
             android:id="@+id/action_convertProgressFragment_to_convert"
             app:destination="@id/convert" />
+        <action
+            android:id="@+id/action_convertProgressFragment_to_home"
+            app:destination="@id/home" />
     </fragment>
     <fragment
         android:id="@+id/convertedFilesFragment"

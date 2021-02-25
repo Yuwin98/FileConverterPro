@@ -9,8 +9,6 @@
         <variable
             name="item"
             type="com.yuwin.fileconverterpro.ConvertInfo" />
-
-
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -100,7 +98,7 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/allerta"
                 android:maxLines="1"
-                android:text="@{item.convertAll.toString()}"
+                android:text="@{item.fileName}"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imagePreviewImageView"

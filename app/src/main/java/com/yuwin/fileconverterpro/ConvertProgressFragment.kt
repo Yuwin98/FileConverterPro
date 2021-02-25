@@ -9,30 +9,70 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.*
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.yuwin.fileconverterpro.databinding.FragmentConvertProgressBinding
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
-class ConvertProgressFragment : Fragment() {
+class ConvertProgressFragment : BaseFragment() {
 
     private val args by navArgs<ConvertProgressFragmentArgs>()
 
+    override var bottomNavigationVisibility = View.GONE
+
+    private var mInterstitialAd: InterstitialAd? = null
+    private var TAG = "ConvertedFilesFragment"
+    private var myAdUnitId = "ca-app-pub-9767087107670640/7400777402"
+    private var originBtn: Int = 0
 
     private val binding by lazy {FragmentConvertProgressBinding.inflate(layoutInflater)}
-    private val convertProgressViewModel: ConvertProgressViewModel by viewModels {
-        ConvertProgressViewModelFactory(context?.applicationContext as Application, args.data.items, args.quality)
+    private lateinit var  convertProgressViewModel: ConvertProgressViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val adRequest = AdRequest.Builder().build()
+        convertProgressViewModel = ViewModelProvider(requireActivity(), ConvertProgressViewModelFactory(requireActivity().application, args.data.items, args.quality)).get(ConvertProgressViewModel::class.java)
+
+        InterstitialAd.load(requireContext(),myAdUnitId, adRequest, object : InterstitialAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                Log.d(TAG, adError.message)
+                mInterstitialAd = null
+            }
+
+            override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                Log.d(TAG, "Ad was loaded.")
+                mInterstitialAd = interstitialAd
+                mInterstitialAd?.fullScreenContentCallback = object: FullScreenContentCallback() {
+                    override fun onAdDismissedFullScreenContent() {
+                        Log.d(TAG, "Ad was dismissed.")
+                        if(originBtn == 1) {
+                            originBtn = 0
+                            findNavController().navigate(R.id.action_convertProgressFragment_to_home)
+                        }else {
+                            findNavController().navigate(R.id.action_convertProgressFragment_to_convertedFilesFragment)
+                        }
+                    }
+
+                    override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
+                        Log.d(TAG, "Ad failed to show.")
+                    }
+
+                    override fun onAdShowedFullScreenContent() {
+                        Log.d(TAG, "Ad showed fullscreen content.")
+                        mInterstitialAd = null;
+                    }
+                }
+            }
+        })
+
     }
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = convertProgressViewModel
@@ -42,9 +82,7 @@ class ConvertProgressFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val mAdView: AdView = view.findViewById(R.id.convertProgressAdView)
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
+
 
         binding.circularProgressBar.apply {
                 progressMax = 100f
@@ -61,18 +99,42 @@ class ConvertProgressFragment : Fragment() {
                     binding.circularProgressBar.apply {
                         progressBarColor = ContextCompat.getColor(requireActivity(), R.color.completeGreen)
                     }
-                    binding.cancelButton.visibility = View.GONE
-                    binding.showConvertedFilesButton.visibility = View.VISIBLE
                 }
+        })
 
+        convertProgressViewModel.conversionFinished.observe(viewLifecycleOwner, { conversionFinished ->
+            if(conversionFinished) {
+                binding.cancelButton.visibility = View.GONE
+                binding.convertedFileNameTextView.visibility = View.GONE
+                binding.showConvertedFilesButton.visibility = View.VISIBLE
+                binding.backHomeButton.visibility = View.VISIBLE
+            }
         })
 
         binding.showConvertedFilesButton.setOnClickListener {
-            findNavController().navigate(R.id.convertedFilesFragment)
+            if (mInterstitialAd != null) {
+                mInterstitialAd?.show(requireActivity())
+            } else {
+                Log.d(TAG, "The interstitial ad wasn't ready yet.")
+                findNavController().navigate(R.id.action_convertProgressFragment_to_convertedFilesFragment)
+            }
         }
-
-        convertProgressViewModel.convertImages()
-
+        binding.backHomeButton.setOnClickListener {
+            if (mInterstitialAd != null) {
+                originBtn = 1
+                mInterstitialAd?.show(requireActivity())
+            } else {
+                Log.d(TAG, "The interstitial ad wasn't ready yet.")
+                findNavController().navigate(R.id.action_convertProgressFragment_to_home)
+            }
+        }
+        val data = args.data.items[0]
+        val defaultFileExtension = Util.getFileExtension(data.specificFormat, data.defaultConvertFormat, data.convertAll)
+        if (data.convertAll == true && defaultFileExtension == ".pdf" ) {
+            convertProgressViewModel.createMultiPagePdf()
+        }else {
+            convertProgressViewModel.convertFiles()
+        }
 
     }
 

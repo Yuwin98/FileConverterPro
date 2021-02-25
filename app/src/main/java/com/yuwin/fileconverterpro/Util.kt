@@ -1,6 +1,5 @@
 package com.yuwin.fileconverterpro
 
-import android.app.usage.ExternalStorageStats
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
@@ -11,6 +10,7 @@ import androidx.core.content.ContextCompat
 import java.io.File
 import java.lang.String.format
 import java.text.CharacterIterator
+import java.text.SimpleDateFormat
 import java.text.StringCharacterIterator
 import java.util.*
 import kotlin.math.abs
@@ -19,7 +19,7 @@ class Util {
 
     companion object {
 
-        fun convertBytes(bytes: Long): String? {
+        fun convertBytes(bytes: Long): String {
             val absB = if (bytes == Long.MIN_VALUE) Long.MAX_VALUE else abs(bytes)
             if (absB < 1024) {
                 return "$bytes B"
@@ -36,13 +36,28 @@ class Util {
             return format("%.1f %cB", value / 1024.0, ci.current())
         }
 
+        fun getCurrentTimeMillis(): String {
+            return System.currentTimeMillis().toString()
+        }
+
+        fun getDateString(milliSeconds: Long): String {
+            val formatter = SimpleDateFormat("dd MMM yyyy hh:mm", Locale.getDefault())
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = milliSeconds
+            return formatter.format(calendar.time)
+        }
+
+        fun getCurrentDateTime(milliSeconds: Long): Date {
+            return Date(milliSeconds)
+        }
+
         fun getMimeType(context: Context, uri: Uri): String? {
             val cr  = context.contentResolver
             val mime = MimeTypeMap.getSingleton()
             return mime.getExtensionFromMimeType(cr.getType(uri))?.toUpperCase(Locale.ROOT)
         }
 
-        fun getImageDetails(context: Context ,uri: Uri): FileInfo {
+        fun getImageDetails(context: Context, uri: Uri): FileInfo {
             val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
 
             cursor?.let {
@@ -57,6 +72,18 @@ class Util {
                 return FileInfo(fileName, fileSize)
             }
             return FileInfo("N/A", "N/A")
+        }
+
+        fun getFileExtension(specificFormat: Int?, defaultFormat: Int?, convertAll: Boolean?): String {
+            return if(convertAll == true) {
+                ".${FormatTypes.values()[defaultFormat!!].toString().toLowerCase(Locale.ROOT)}"
+            }else {
+                ".${FormatTypes.values()[specificFormat!!].toString().toLowerCase(Locale.ROOT)}"
+            }
+        }
+
+        fun createExternalDir(folderName: String) {
+
         }
 
         // Storage Details

@@ -2,13 +2,15 @@ package com.yuwin.fileconverterpro
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.yuwin.fileconverterpro.databinding.QueueItemBinding
+import java.util.*
 
-class ConvertAdapter : RecyclerView.Adapter<ConvertAdapter.ViewHolder>(){
+class ConvertAdapter: RecyclerView.Adapter<ConvertAdapter.ViewHolder>(), ItemTouchInterface{
 
-    private var data = emptyList<ConvertInfo>()
+    private var data = mutableListOf<ConvertInfo>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent)
@@ -43,8 +45,31 @@ class ConvertAdapter : RecyclerView.Adapter<ConvertAdapter.ViewHolder>(){
     fun setData(newData: List<ConvertInfo>) {
         val convertDiffUtil = ConvertDiffUtil(data, newData)
         val diffUtilResult = DiffUtil.calculateDiff(convertDiffUtil)
-        data = newData
+        data = newData.toMutableList()
         diffUtilResult.dispatchUpdatesTo(this)
+    }
+
+    override fun onItemMove(from: Int, to: Int): Boolean {
+        if (from < to) {
+            for (i in from until to) {
+                Collections.swap(data, i, i + 1)
+            }
+        } else {
+            for (i in from downTo to + 1) {
+                Collections.swap(data, i, i - 1)
+            }
+        }
+        notifyItemMoved(from, to)
+        return true
+    }
+
+    override fun onItemSwipe(position: Int) {
+        data.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+    fun getAdapterData(): MutableList<ConvertInfo> {
+        return data
     }
 
 }

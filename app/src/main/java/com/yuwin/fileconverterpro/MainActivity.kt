@@ -2,26 +2,25 @@ package com.yuwin.fileconverterpro
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
+import android.widget.Toast
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
    private lateinit var navController: NavController
    private lateinit var bottomNavigationView: BottomNavigationView
+   private val IMAGE_LIMIT = 50
+
 
 
 
@@ -52,6 +51,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val testDeviceIds = listOf("8E8E9F036820B3A24447A0A1B4D2F2DF")
+        val config = RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
+
+        MobileAds.setRequestConfiguration(config)
+        MobileAds.initialize(this)
+
+        val adRequest = AdRequest.Builder().build()
+        val mAdView: AdView = findViewById(R.id.bannerAdView)
+        mAdView.loadAd(adRequest)
+
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
         navController = findNavController(R.id.navHostFragment)
 
@@ -69,7 +79,10 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setupWithNavController(navController)
         bottomNavigationView.setOnNavigationItemSelectedListener(onNavigationViewSelectedItemListener)
         setupActionBarWithNavController(navController, appBarConfiguration)
+
     }
+
+
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
@@ -85,7 +98,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val uriList = mutableListOf<Uri>()
+        var uriList = mutableListOf<Uri>()
         if(data != null && requestCode == 200 && resultCode == Activity.RESULT_OK) {
             if(data.clipData != null){
                 val count = data.clipData!!.itemCount
@@ -98,7 +111,13 @@ class MainActivity : AppCompatActivity() {
                 uriList.add(imageUri)
             }
 
+            if(uriList.size > IMAGE_LIMIT) {
+                uriList = uriList.take(IMAGE_LIMIT) as MutableList<Uri>
+                Toast.makeText(this, "Max Convert Limit $IMAGE_LIMIT", Toast.LENGTH_SHORT).show()
+            }
+
             val newUriList = UriList(uriList)
+
 
             var action = FileListFragmentDirections.actionHomeToConvert(newUriList)
 
@@ -123,5 +142,9 @@ class MainActivity : AppCompatActivity() {
         }else if(requestCode == 200) {
             findNavController(R.id.navHostFragment).navigate(R.id.home)
         }
+    }
+
+    fun setBottomNavigationViewVisibility(visibility: Int) {
+        bottomNavigationView.visibility = visibility
     }
 }
