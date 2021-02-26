@@ -14,6 +14,7 @@
     <color name="colorDateTypeSize">#999999</color>
     <color name="cancelButton">#fff</color>
     <color name="cardBackground">#55414141</color>
+    <color name="toolsBackground">#121212</color>
 
     <color name="backgroundColor">@color/dark</color>
     <color name="statusBarColor">@android:color/black</color>

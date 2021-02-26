@@ -7,21 +7,22 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.view.animation.Animation
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.yuwin.fileconverterpro.databinding.FragmentMainScreenBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
 
 
-class FileListFragment : BaseFragment() {
+class FileListFragment : BaseFragment(), FileListClickListener {
 
     private val binding by lazy{ FragmentMainScreenBinding.inflate(layoutInflater) }
     private val viewModel by lazy { FileListViewModel(requireActivity().application) }
 
     private val sb = StringBuilder("")
 
-    private val filesListAdapter by lazy { FilesListAdapter() }
-    private val filesGridAdapter by lazy { FilesGridAdapter() }
+    private val filesListAdapter by lazy { FilesListAdapter(this) }
+    private val filesGridAdapter by lazy { FilesGridAdapter(this) }
     private var isGrid = false
 
     private var data: List<ConvertedFile>? = null
@@ -138,11 +139,18 @@ class FileListFragment : BaseFragment() {
         Log.d("convertedFiles", sb.toString())
     }
 
+    override fun onItemClick(position: Int) {
+        Log.d("filelist", "onClick $position")
+        val data = data?.get(position)
+        val action = data?.let { FileListFragmentDirections.actionHomeToImageViewFragment(it) }
+        if (action != null) {
+            findNavController().navigate(action)
+        }
+    }
 
-
-
-
-
+    override fun onItemLongClick(position: Int) {
+        Log.d("filelist", "Long Click $position")
+    }
 
 
 }

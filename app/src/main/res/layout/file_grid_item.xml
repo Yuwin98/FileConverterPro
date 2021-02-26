@@ -15,6 +15,7 @@
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/filesGridParentLayout"
             android:layout_width="100dp"
             android:layout_height="100dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -34,10 +35,10 @@
 
             <TextView
                 android:id="@+id/fileListGridTextView"
+                fileNameGridAdapter="@{convertedFile.fileName}"
                 android:layout_width="0dp"
                 android:layout_height="16dp"
                 android:backgroundTint="@color/colorDateTypeSize"
-                fileNameGridAdapter="@{convertedFile.fileName}"
                 android:fontFamily="@font/allerta"
                 android:maxLines="1"
                 android:textAlignment="center"

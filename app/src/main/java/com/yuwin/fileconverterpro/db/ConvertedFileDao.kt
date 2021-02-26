@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ConvertedFileDao {
 
-    @Query("Select * from ConvertedFile")
+    @Query("Select * from ConvertedFile Order by Date DESC")
     fun getAllFiles(): Flow<List<ConvertedFile>>
 
     @Insert
@@ -21,6 +21,9 @@ interface ConvertedFileDao {
 
     @Query("SELECT COUNT(*) FROM ConvertedFile")
     fun count(): Int
+
+    @Query("Select favorite from ConvertedFile Where Id=:id ")
+    fun isFavorite(id: Long): Boolean
 
     @Query("Delete from convertedFile")
     suspend fun deleteAll()

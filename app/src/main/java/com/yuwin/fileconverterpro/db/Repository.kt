@@ -22,8 +22,16 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
         return convertedFileDao.deleteAll()
     }
 
+    fun isFavorite(id: Long): Boolean {
+        return convertedFileDao.isFavorite(id)
+    }
+
     fun getCount(): Int {
         return convertedFileDao.count()
+    }
+
+    suspend fun updateFile(file: ConvertedFile) {
+        return convertedFileDao.updateFile(file)
     }
 
 

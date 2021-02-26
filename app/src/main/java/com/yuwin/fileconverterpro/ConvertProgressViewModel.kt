@@ -359,7 +359,7 @@ class ConvertProgressViewModel(private val app: Application, val data: List<Conv
         val uri = File(filePath).toUri()
         val date = Date(millis.toLong())
         val fileSize = Util.convertBytes(File(filePath).length())
-        return ConvertedFile(0, fileName, fileSize, filePath, extension, uri, null, date)
+        return ConvertedFile(0, fileName, fileSize, filePath, extension, uri, null, false, date)
     }
 
     private fun createConvertedPdfFile(fileName: String, filePath: String, thumbNailUri: Uri?): ConvertedFile {
@@ -367,7 +367,7 @@ class ConvertProgressViewModel(private val app: Application, val data: List<Conv
         val uri = File(filePath).toUri()
         val date = Date(millis.toLong())
         val fileSize = Util.convertBytes(File(filePath).length())
-        return ConvertedFile(0, fileName, fileSize , filePath, "pdf", uri, thumbNailUri, date)
+        return ConvertedFile(0, fileName, fileSize , filePath, "pdf", uri, thumbNailUri, false, date)
     }
 
     private fun increasePercentage(value: Int = 9) {

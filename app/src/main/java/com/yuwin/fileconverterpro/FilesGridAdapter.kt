@@ -1,39 +1,47 @@
 package com.yuwin.fileconverterpro
 
-import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.yuwin.fileconverterpro.databinding.FileGridItemBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
 
-class FilesGridAdapter: RecyclerView.Adapter<FilesGridAdapter.ViewHolder>() {
+class FilesGridAdapter(private val fileItemClick: FileListClickListener): RecyclerView.Adapter<FilesGridAdapter.ViewHolder>() {
 
     private var data = mutableListOf<ConvertedFile>()
 
-    class ViewHolder(private val binding: FileGridItemBinding): RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val binding: FileGridItemBinding, private val onItemClickListener: FileListClickListener): RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
 
-        private var animation: Animation? = null
 
         fun bind(convertedFile: ConvertedFile) {
             binding.convertedFile = convertedFile
+            binding.filesGridParentLayout.setOnClickListener(this)
+            binding.filesGridParentLayout.setOnLongClickListener(this)
             binding.executePendingBindings()
         }
 
         companion object {
-            fun from(parent: ViewGroup): ViewHolder {
+            fun from(parent: ViewGroup, onItemClickListener: FileListClickListener): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
                 val binding = FileGridItemBinding.inflate(layoutInflater)
-                return ViewHolder(binding)
+                return ViewHolder(binding, onItemClickListener)
             }
+        }
+
+        override fun onClick(v: View?) {
+            onItemClickListener.onItemClick(adapterPosition)
+        }
+
+        override fun onLongClick(v: View?): Boolean {
+            onItemClickListener.onItemLongClick(adapterPosition)
+            return true
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent)
+        return ViewHolder.from(parent, fileItemClick)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

@@ -12,6 +12,7 @@
     <color name="backgroundColor">@color/colorBackground</color>
     <color name="pdfBackground">#FAFAFA</color>
     <color name="colorDateTypeSize">#999999</color>
+    <color name="toolsBackground">#000000</color>
 
     <color name="colorBackground">#EFEFEF</color>
     <color name="colorText">#000000</color>
@@ -22,11 +23,4 @@
     <color name="navigationBarColor">@color/cardBackground</color>
     <color name="NoFilesColor">#bdc3c7</color>
 
-
-    <!--    <color name="black">#000000</color>-->
-<!--    <color name="white">#FFFFFFFF</color>-->
-
-<!--    <color name="darkThemePrimary">#332f3640</color>-->
-<!--    <color name="blackBackground">#121212</color>-->
-<!--    <color name="darkThemeSecondary">#55353b48</color>-->
 </resources>

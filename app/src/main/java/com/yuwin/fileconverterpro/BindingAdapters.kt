@@ -1,9 +1,11 @@
 package com.yuwin.fileconverterpro
 
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
+import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
@@ -14,7 +16,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class ConvertBindingAdapter {
+class BindingAdapters {
 
     companion object {
 
@@ -81,6 +83,21 @@ class ConvertBindingAdapter {
 
             }else {
                 view.text = fileName
+            }
+        }
+
+
+        @BindingAdapter("changeFavoriteIcon")
+        @JvmStatic
+        fun changeFavoriteIcon(view: ImageView, isFavorite: Boolean) {
+            if(isFavorite) {
+                view.setImageDrawable(
+                    ContextCompat.getDrawable(view.context, R.drawable.ic_favorite)
+                )
+            }else {
+                view.setImageDrawable(
+                    ContextCompat.getDrawable(view.context, R.drawable.ic_favorite_border)
+                )
             }
         }
 

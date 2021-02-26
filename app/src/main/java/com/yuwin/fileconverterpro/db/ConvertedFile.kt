@@ -29,10 +29,13 @@ data class ConvertedFile(
         val fileType: String,
 
         @ColumnInfo(name = "Uri")
-        val uri: Uri,
+        var uri: Uri,
 
-        @ColumnInfo(name = "thumbnaimUri")
+        @ColumnInfo(name = "thumbnailUri")
         val thumbnailUri: Uri?,
+
+        @ColumnInfo(name = "favorite")
+        var isFavorite: Boolean,
 
         @ColumnInfo(name = "Date")
         val date: Date

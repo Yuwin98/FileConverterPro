@@ -93,11 +93,14 @@
     </fragment>
     <fragment
         android:id="@+id/imageViewFragment"
-        android:name="com.yuwin.fileconverterpro.ImageViewFragment"
-        android:label="fragment_image_view"
-        tools:layout="@layout/fragment_image_view" >
+        android:name="com.yuwin.fileconverterpro.ImagePreviewFragment"
+        android:label="ImageView"
+        tools:layout="@layout/fragment_image_view">
         <argument
             android:name="convertedFile"
             app:argType="com.yuwin.fileconverterpro.db.ConvertedFile" />
+        <action
+            android:id="@+id/action_imageViewFragment_to_home"
+            app:destination="@id/home" />
     </fragment>
 </navigation>
