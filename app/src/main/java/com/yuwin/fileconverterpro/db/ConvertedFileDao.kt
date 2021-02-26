@@ -22,6 +22,9 @@ interface ConvertedFileDao {
     @Query("SELECT COUNT(*) FROM ConvertedFile")
     fun count(): Int
 
+    @Query("Delete from convertedFile")
+    suspend fun deleteAll()
+
 
 
 }

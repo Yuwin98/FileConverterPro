@@ -8,17 +8,20 @@
     <fragment
         android:id="@+id/home"
         android:name="com.yuwin.fileconverterpro.FileListFragment"
-        android:label="Your Images"
-        tools:layout="@layout/fragment_main_screen" >
+        android:label="Your Files"
+        tools:layout="@layout/fragment_main_screen">
         <action
             android:id="@+id/action_home_to_convert"
             app:destination="@id/convert" />
+        <action
+            android:id="@+id/action_home_to_imageViewFragment"
+            app:destination="@id/imageViewFragment" />
     </fragment>
     <fragment
         android:id="@+id/convert"
         android:name="com.yuwin.fileconverterpro.ConvertFragment"
-        android:label="Convert Images"
-        tools:layout="@layout/fragment_convert" >
+        android:label="Convert Files"
+        tools:layout="@layout/fragment_convert">
         <action
             android:id="@+id/action_convert_self"
             app:destination="@id/convert" />
@@ -87,5 +90,14 @@
         <action
             android:id="@+id/action_convertedFilesFragment_to_convert"
             app:destination="@id/convert" />
+    </fragment>
+    <fragment
+        android:id="@+id/imageViewFragment"
+        android:name="com.yuwin.fileconverterpro.ImageViewFragment"
+        android:label="fragment_image_view"
+        tools:layout="@layout/fragment_image_view" >
+        <argument
+            android:name="convertedFile"
+            app:argType="com.yuwin.fileconverterpro.db.ConvertedFile" />
     </fragment>
 </navigation>

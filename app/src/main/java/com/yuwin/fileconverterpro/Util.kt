@@ -2,6 +2,7 @@ package com.yuwin.fileconverterpro
 
 import android.content.Context
 import android.database.Cursor
+import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Environment
 import android.provider.OpenableColumns
@@ -82,9 +83,7 @@ class Util {
             }
         }
 
-        fun createExternalDir(folderName: String) {
 
-        }
 
         // Storage Details
         fun getExternalDir(context: Context): String {

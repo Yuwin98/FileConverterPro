@@ -9,12 +9,18 @@ import java.util.*
 class Converters {
 
     @TypeConverter
-    fun uriToString(uri: Uri): String {
+    fun uriToString(uri: Uri?): String {
+        if(uri == null) {
+            return ""
+        }
         return uri.toString()
     }
 
     @TypeConverter
-    fun stringToUri(uri: String): Uri {
+    fun stringToUri(uri: String?): Uri? {
+        if(uri == null) {
+            return Uri.EMPTY
+        }
         return Uri.parse(uri)
     }
 

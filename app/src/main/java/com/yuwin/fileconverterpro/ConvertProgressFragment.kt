@@ -1,14 +1,11 @@
 package com.yuwin.fileconverterpro
 
-import android.app.Application
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -30,12 +27,13 @@ class ConvertProgressFragment : BaseFragment() {
     private var originBtn: Int = 0
 
     private val binding by lazy {FragmentConvertProgressBinding.inflate(layoutInflater)}
-    private lateinit var  convertProgressViewModel: ConvertProgressViewModel
+    private lateinit var convertProgressViewModel: ConvertProgressViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val adRequest = AdRequest.Builder().build()
-        convertProgressViewModel = ViewModelProvider(requireActivity(), ConvertProgressViewModelFactory(requireActivity().application, args.data.items, args.quality)).get(ConvertProgressViewModel::class.java)
+        Log.d(TAG, "Convert Progress ViewModel Before Creation")
+        convertProgressViewModel = ViewModelProvider(this, ConvertProgressViewModelFactory(requireActivity().application, args.data.items, args.quality)).get(ConvertProgressViewModel::class.java)
 
         InterstitialAd.load(requireContext(),myAdUnitId, adRequest, object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
@@ -93,9 +91,11 @@ class ConvertProgressFragment : BaseFragment() {
                 roundBorder = true
         }
         convertProgressViewModel.completePercentage.observe(viewLifecycleOwner, { progress ->
-                binding.progressBarTextView.text = "${progress.toInt()}%"
-                binding.circularProgressBar.progress = progress.toFloat()
-                if(progress.toFloat() == 100f){
+                if(progress != null) {
+                    binding.progressBarTextView.text = "${progress.toInt()}%"
+                    binding.circularProgressBar.progress = progress.toFloat()
+                }
+                if(progress.toInt() == 100 && progress != null){
                     binding.circularProgressBar.apply {
                         progressBarColor = ContextCompat.getColor(requireActivity(), R.color.completeGreen)
                     }
@@ -112,6 +112,7 @@ class ConvertProgressFragment : BaseFragment() {
         })
 
         binding.showConvertedFilesButton.setOnClickListener {
+            binding.circularProgressBar.progress = 0f
             if (mInterstitialAd != null) {
                 mInterstitialAd?.show(requireActivity())
             } else {
@@ -120,6 +121,7 @@ class ConvertProgressFragment : BaseFragment() {
             }
         }
         binding.backHomeButton.setOnClickListener {
+            binding.circularProgressBar.progress = 0f
             if (mInterstitialAd != null) {
                 originBtn = 1
                 mInterstitialAd?.show(requireActivity())

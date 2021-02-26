@@ -18,6 +18,10 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
         return convertedFileDao.deleteFile(file)
     }
 
+    suspend fun deleteAll() {
+        return convertedFileDao.deleteAll()
+    }
+
     fun getCount(): Int {
         return convertedFileDao.count()
     }

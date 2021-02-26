@@ -30,7 +30,7 @@ class ConvertFragment : Fragment() {
 
     private lateinit var binding: FragmentConvertBinding
 
-    private var qualityInt: Int  = 0;
+    private var qualityInt: Int  = 0
 
     private val convertViewModel : ConvertViewModel by viewModels()
     private val itemViewModel: ItemViewModel by viewModels()
@@ -100,9 +100,13 @@ class ConvertFragment : Fragment() {
         })
 
         binding.convertButton.setOnClickListener {
-            val data = ConvertInfoList(this.data)
-            val action = ConvertFragmentDirections.actionConvertToConvertProgressFragment(data, qualityInt)
-            findNavController().navigate(action)
+            val data = ConvertInfoList(convertAdapter.getAdapterData())
+            if(data.items.isNotEmpty()) {
+                val action = ConvertFragmentDirections.actionConvertToConvertProgressFragment(data, qualityInt)
+                findNavController().navigate(action)
+            }else {
+                Toast.makeText(requireContext(), "Add files to convert", Toast.LENGTH_SHORT).show()
+            }
         }
 
         return binding.root
@@ -144,8 +148,7 @@ class ConvertFragment : Fragment() {
             if(newData.size + oldData.size > IMAGE_LIMIT) {
                 val take = IMAGE_LIMIT - oldData.size
                 if(take > 0) {
-                    newData = newData.take(take) as MutableList<ConvertInfo>
-                    newData = newData.toMutableList()
+                    newData = newData.take(take).toMutableList()
                     updateNewData(newData, oldData[0].convertAll, oldData[0].defaultConvertFormat )
                     newData.let{ lst1 -> oldData.let(lst1::addAll) }
                 }else {
@@ -169,7 +172,6 @@ class ConvertFragment : Fragment() {
 
     private fun setupData(uriList: List<Uri>): MutableList<ConvertInfo> {
         val data = mutableListOf<ConvertInfo>()
-        val formatList = listOf("PNG", "JPG", "JPEG", "TIFF", "WEBP", "GIF", "BMP", "PDF")
         for(uri in uriList) {
             val (fileName, fileSize) = Util.getImageDetails(requireContext(), uri)
             val fileType = Util.getMimeType(requireContext(), uri)
@@ -182,7 +184,6 @@ class ConvertFragment : Fragment() {
                     false,
                     0,
                     0,
-                    formatList
             )
             data.add(convertInfo)
         }

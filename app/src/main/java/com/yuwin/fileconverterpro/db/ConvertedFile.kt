@@ -1,11 +1,14 @@
 package com.yuwin.fileconverterpro.db
 
 import android.net.Uri
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
+@Parcelize
 @Entity
 data class ConvertedFile(
 
@@ -26,9 +29,12 @@ data class ConvertedFile(
         val fileType: String,
 
         @ColumnInfo(name = "Uri")
-        val fileUri: Uri,
+        val uri: Uri,
+
+        @ColumnInfo(name = "thumbnaimUri")
+        val thumbnailUri: Uri?,
 
         @ColumnInfo(name = "Date")
         val date: Date
 
-)
+): Parcelable

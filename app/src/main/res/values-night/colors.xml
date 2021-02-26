@@ -10,7 +10,8 @@
     <color name="pdfBackground">#FAFAFA</color>
 
     <color name="colorBackground">#1E1F24</color>
-    <color name="colorText">#ffffff</color>
+    <color name="colorText">#FAFAFA</color>
+    <color name="colorDateTypeSize">#999999</color>
     <color name="cancelButton">#fff</color>
     <color name="cardBackground">#55414141</color>
 

@@ -18,7 +18,6 @@ data class ConvertInfo
     var convertAll: Boolean?,
     var specificConvertFormat: Int?,
     var defaultConvertFormat: Int?,
-    val formatArray: List<String>
     ): Parcelable, BaseObservable() {
 
 

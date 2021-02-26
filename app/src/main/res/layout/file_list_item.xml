@@ -1,73 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="com.yuwin.fileconverterpro.Util"/>
+        <variable
+            name="convertedFile"
+            type="com.yuwin.fileconverterpro.db.ConvertedFile" />
+    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fileListRootLayout"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/fileListImageView"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/filesListParent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_folder_black_" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/fileListNameTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:fontFamily="@font/allerta"
-            android:text="Android"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/fileListImageView"
-            app:layout_constraintTop_toTopOf="@+id/fileListImageView" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/filesImageLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                app:layout_constraintBottom_toBottomOf="@+id/filesListParent"
+                app:layout_constraintStart_toStartOf="@+id/filesListParent"
+                app:layout_constraintTop_toTopOf="@+id/filesListParent">
 
-        <TextView
-            android:id="@+id/fileListCreatedDateTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:fontFamily="@font/allerta"
-            android:text="28 Jun 2020 07:58"
-            app:layout_constraintBottom_toBottomOf="@+id/fileListImageView"
-            app:layout_constraintStart_toEndOf="@+id/fileListImageView" />
+                <ImageView
+                    android:id="@+id/filesListImagePreview"
+                    loadThumbnailFromUri="@{convertedFile}"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="18dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:srcCompat="@tools:sample/avatars" />
 
-        <TextView
-            android:id="@+id/fileListContentSize"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:fontFamily="@font/allerta"
-            android:text="1 Item"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@+id/fileListCreatedDateTime"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/fileListCreatedDateTime" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <View
-            android:id="@+id/divider2"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginBottom="1dp"
-            android:background="?android:attr/listDivider"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/fileListCreatedDateTime" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/filesInfoLayout"
+                android:layout_width="0dp"
+                android:layout_height="70dp"
+                app:layout_constraintBottom_toBottomOf="@+id/filesListParent"
+                app:layout_constraintEnd_toEndOf="@+id/filesListParent"
+                app:layout_constraintStart_toEndOf="@+id/filesImageLayout"
+                app:layout_constraintTop_toTopOf="@+id/filesListParent">
+
+                <TextView
+                    android:id="@+id/filesListName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="13dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/allerta"
+                    android:maxLines="1"
+                    fileNameListAdapter="@{convertedFile.fileName}"
+                    android:textColor="@color/colorText"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="@id/filesInfoLayout"
+                    app:layout_constraintStart_toStartOf="@id/filesInfoLayout"
+                    app:layout_constraintTop_toTopOf="@id/filesInfoLayout" />
+
+                <TextView
+                    android:id="@+id/filesListCreatedDate"
+                    getDateString="@{convertedFile.date}"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/allerta"
+                    android:textColor="@color/colorDateTypeSize"
+                    android:textSize="13sp"
+                    app:layout_constraintEnd_toStartOf="@+id/filesListInfo"
+                    app:layout_constraintStart_toStartOf="@+id/filesListName"
+                    app:layout_constraintTop_toBottomOf="@+id/filesListName" />
+
+                <TextView
+                    android:id="@+id/filesListInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/allerta"
+                    android:text="@{convertedFile.fileSize}"
+                    android:textColor="@color/colorDateTypeSize"
+                    android:textSize="13sp"
+                    app:layout_constraintEnd_toEndOf="@id/filesInfoLayout"
+                    app:layout_constraintTop_toBottomOf="@+id/filesListName" />
+
+                <View
+                    android:id="@+id/divider2"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="@id/filesInfoLayout"
+                    app:layout_constraintEnd_toEndOf="@id/filesInfoLayout"
+                    app:layout_constraintStart_toStartOf="@+id/filesListCreatedDate" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

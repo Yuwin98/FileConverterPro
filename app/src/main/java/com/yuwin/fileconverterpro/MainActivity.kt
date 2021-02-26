@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             if(uriList.size > IMAGE_LIMIT) {
-                uriList = uriList.take(IMAGE_LIMIT) as MutableList<Uri>
+                uriList = uriList.take(IMAGE_LIMIT).toMutableList()
                 Toast.makeText(this, "Max Convert Limit $IMAGE_LIMIT", Toast.LENGTH_SHORT).show()
             }
 

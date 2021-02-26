@@ -11,6 +11,7 @@
     <color name="cancelButton">@color/darker</color>
     <color name="backgroundColor">@color/colorBackground</color>
     <color name="pdfBackground">#FAFAFA</color>
+    <color name="colorDateTypeSize">#999999</color>
 
     <color name="colorBackground">#EFEFEF</color>
     <color name="colorText">#000000</color>
@@ -19,6 +20,7 @@
     <color name="statusBarColor">@color/colorPrimaryDark</color>
     <color name="actionBarBackgroundColor">@color/colorPrimary</color>
     <color name="navigationBarColor">@color/cardBackground</color>
+    <color name="NoFilesColor">#bdc3c7</color>
 
 
     <!--    <color name="black">#000000</color>-->
