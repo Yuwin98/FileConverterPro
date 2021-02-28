@@ -1,19 +1,23 @@
 package com.yuwin.fileconverterpro
 
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
-import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Environment
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.fragment.app.FragmentActivity
+import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
 import java.lang.String.format
 import java.text.CharacterIterator
 import java.text.SimpleDateFormat
 import java.text.StringCharacterIterator
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 class Util {
@@ -104,6 +108,70 @@ class Util {
             return Environment.getExternalStorageState() in
                     setOf(Environment.MEDIA_MOUNTED, Environment.MEDIA_MOUNTED_READ_ONLY)
         }
+
+        fun getSendingType(context: Context ,file: ConvertedFile): String {
+
+            when(Util.getMimeType(context, file.uri)) {
+                "jpg" -> {
+                    return "image/jpg"
+                }
+                "jpeg" -> {
+                    return "image/jpeg"
+                }
+                "png" -> {
+                    return "image/png"
+                }
+                "pdf" -> {
+                    return "application/pdf"
+                }
+                "webp" -> {
+                    return "image/webp"
+                }
+            }
+            return "*/*"
+        }
+
+        fun deleteFileFromStorage(file: ConvertedFile)  {
+            val filePath = file.filePath
+            if(file.fileType == "pdf" && file.thumbnailUri != null){
+                File(file.thumbnailUri.path!!).delete()
+            }
+            File(filePath).delete()
+        }
+
+        fun startShareSheetSingle(activity: FragmentActivity, file: File, typeString: String): Intent {
+
+            val imageUri = getFileUri(activity, file)
+
+            return Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_STREAM, imageUri)
+                type = typeString
+            }
+        }
+
+        fun startShareSheetMultiple(activity: FragmentActivity, files: ArrayList<ConvertedFile>): Intent {
+            val imageUris: ArrayList<Uri> = arrayListOf()
+            files.forEach { file ->
+                val selectedFile = File(file.filePath)
+                imageUris.add(getFileUri(activity,selectedFile))
+            }
+
+            return Intent().apply {
+                action = Intent.ACTION_SEND_MULTIPLE
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris)
+                type = "*/*"
+            }
+        }
+
+        fun getFileUri(activity: FragmentActivity, file: File): Uri {
+            return FileProvider.getUriForFile(
+                    activity,
+                    "com.yuwin.fileconverterpro.fileprovider",
+                    file
+            )
+        }
+
 
 
 

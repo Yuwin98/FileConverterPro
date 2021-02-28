@@ -1,7 +1,6 @@
 package com.yuwin.fileconverterpro
 
 import android.app.Application
-import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -40,13 +39,8 @@ class ImagePreviewViewModel(private val app: Application, private val id: Long):
 
     fun deleteFile(file: ConvertedFile) {
         viewModelScope.launch(Dispatchers.IO) {
-            val filePath = file.filePath
-            if(file.fileType == "pdf" && file.thumbnailUri != null){
-                File(file.thumbnailUri.path!!).delete()
-            }
+            Util.deleteFileFromStorage(file)
             repository.deleteFile(file)
-            File(filePath).delete()
-
         }
     }
 

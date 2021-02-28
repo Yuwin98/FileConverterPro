@@ -5,10 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.yuwin.fileconverterpro.R
 
 
-class InfoFragment : Fragment() {
+class FavoriteFragment : Fragment() {
 
 
     override fun onCreateView(
@@ -16,7 +15,7 @@ class InfoFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_info, container, false)
+        return inflater.inflate(R.layout.fragment_favorite, container, false)
     }
 
 

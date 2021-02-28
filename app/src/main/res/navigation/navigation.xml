@@ -28,6 +28,8 @@
         <action
             android:id="@+id/action_convert_to_convertProgressFragment"
             app:destination="@id/convertProgressFragment"
+            app:popUpTo="@id/navigation"
+            app:popUpToInclusive="true"
             app:enterAnim="@anim/from_right"
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
@@ -43,16 +45,20 @@
         tools:layout="@layout/fragment_settings" >
         <action
             android:id="@+id/action_settings_to_convert"
-            app:destination="@id/convert" />
+            app:destination="@id/convert"
+            app:popUpTo="@id/navigation"
+            app:popUpToInclusive="true"/>
     </fragment>
     <fragment
-        android:id="@+id/info"
-        android:name="com.yuwin.fileconverterpro.InfoFragment"
-        android:label="About Us"
-        tools:layout="@layout/fragment_info" >
+        android:id="@+id/favorite"
+        android:name="com.yuwin.fileconverterpro.FavoriteFragment"
+        android:label="Favorites"
+        tools:layout="@layout/fragment_favorite">
         <action
             android:id="@+id/action_info_to_convert"
-            app:destination="@id/convert" />
+            app:destination="@id/convert"
+            app:popUpTo="@id/navigation"
+            app:popUpToInclusive="true"/>
     </fragment>
     <fragment
         android:id="@+id/convertProgressFragment"
@@ -66,30 +72,15 @@
             android:name="quality"
             app:argType="integer" />
         <action
-            android:id="@+id/action_convertProgressFragment_to_convertedFilesFragment"
-            app:destination="@id/convertedFilesFragment"
-            app:enterAnim="@anim/from_right"
-            app:exitAnim="@anim/to_left"
-            app:popEnterAnim="@anim/from_left"
-            app:popExitAnim="@anim/to_right" />
-        <action
             android:id="@+id/action_convertProgressFragment_to_convert"
-            app:destination="@id/convert" />
+            app:destination="@id/convert"
+            app:popUpTo="@id/navigation"
+            app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_convertProgressFragment_to_home"
-            app:destination="@id/home" />
-    </fragment>
-    <fragment
-        android:id="@+id/convertedFilesFragment"
-        android:name="com.yuwin.fileconverterpro.ConvertedFilesFragment"
-        android:label="Converted Files"
-        tools:layout="@layout/fragment_converted_files">
-        <action
-            android:id="@+id/action_convertedFilesFragment_to_home"
-            app:destination="@id/home" />
-        <action
-            android:id="@+id/action_convertedFilesFragment_to_convert"
-            app:destination="@id/convert" />
+            app:destination="@id/home"
+            app:popUpTo="@id/navigation"
+            app:popUpToInclusive="true"/>
     </fragment>
     <fragment
         android:id="@+id/imageViewFragment"
@@ -101,6 +92,8 @@
             app:argType="com.yuwin.fileconverterpro.db.ConvertedFile" />
         <action
             android:id="@+id/action_imageViewFragment_to_home"
-            app:destination="@id/home" />
+            app:destination="@id/home"
+            app:popUpTo="@id/navigation"
+            app:popUpToInclusive="true"/>
     </fragment>
 </navigation>

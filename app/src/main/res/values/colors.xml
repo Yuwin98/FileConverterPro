@@ -17,10 +17,13 @@
     <color name="colorBackground">#EFEFEF</color>
     <color name="colorText">#000000</color>
     <color name="cardBackground">#FAFAFA</color>
+    <color name="selectedFileItemBackground">#44E74C3C</color>
 
-    <color name="statusBarColor">@color/colorPrimaryDark</color>
     <color name="actionBarBackgroundColor">@color/colorPrimary</color>
     <color name="navigationBarColor">@color/cardBackground</color>
     <color name="NoFilesColor">#bdc3c7</color>
 
+    <color name="statusBarColor">@color/colorPrimaryDark</color>
+    <color name="contextualStatusBarColor">@android:color/black</color>
+    <color name="contextualActionBarColor">@color/darker</color>
 </resources>

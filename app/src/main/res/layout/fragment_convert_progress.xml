@@ -56,21 +56,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:strokeColor="#000" />
 
-        <Button
-            android:id="@+id/showConvertedFilesButton"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_marginBottom="24dp"
-            android:fontFamily="@font/allerta"
-            android:text="Show Converted Files"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/backHomeButton"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
         <TextView
             android:id="@+id/fileConvertProgressMessage"
             android:layout_width="wrap_content"
@@ -89,11 +74,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="80dp"
-            android:background="?android:attr/selectableItemBackground"
             android:fontFamily="@font/allerta"
             android:text="Back Home"
             android:textAllCaps="false"
-            android:textColor="@color/cancelButton"
+            android:textColor="@color/pdfBackground"
             android:textSize="16sp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

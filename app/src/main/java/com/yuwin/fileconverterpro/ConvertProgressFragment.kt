@@ -47,12 +47,8 @@ class ConvertProgressFragment : BaseFragment() {
                 mInterstitialAd?.fullScreenContentCallback = object: FullScreenContentCallback() {
                     override fun onAdDismissedFullScreenContent() {
                         Log.d(TAG, "Ad was dismissed.")
-                        if(originBtn == 1) {
-                            originBtn = 0
-                            findNavController().navigate(R.id.action_convertProgressFragment_to_home)
-                        }else {
-                            findNavController().navigate(R.id.action_convertProgressFragment_to_convertedFilesFragment)
-                        }
+                        findNavController().navigate(R.id.action_convertProgressFragment_to_home)
+
                     }
 
                     override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
@@ -106,20 +102,11 @@ class ConvertProgressFragment : BaseFragment() {
             if(conversionFinished) {
                 binding.cancelButton.visibility = View.GONE
                 binding.convertedFileNameTextView.visibility = View.GONE
-                binding.showConvertedFilesButton.visibility = View.VISIBLE
                 binding.backHomeButton.visibility = View.VISIBLE
             }
         })
 
-        binding.showConvertedFilesButton.setOnClickListener {
-            binding.circularProgressBar.progress = 0f
-            if (mInterstitialAd != null) {
-                mInterstitialAd?.show(requireActivity())
-            } else {
-                Log.d(TAG, "The interstitial ad wasn't ready yet.")
-                findNavController().navigate(R.id.action_convertProgressFragment_to_convertedFilesFragment)
-            }
-        }
+
         binding.backHomeButton.setOnClickListener {
             binding.circularProgressBar.progress = 0f
             if (mInterstitialAd != null) {
@@ -127,7 +114,7 @@ class ConvertProgressFragment : BaseFragment() {
                 mInterstitialAd?.show(requireActivity())
             } else {
                 Log.d(TAG, "The interstitial ad wasn't ready yet.")
-                findNavController().navigate(R.id.action_convertProgressFragment_to_home)
+                findNavController().navigate(ConvertProgressFragmentDirections.actionConvertProgressFragmentToHome())
             }
         }
         val data = args.data.items[0]

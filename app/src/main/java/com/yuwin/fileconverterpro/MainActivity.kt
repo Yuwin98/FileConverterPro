@@ -35,8 +35,8 @@ class MainActivity : AppCompatActivity() {
                findNavController(R.id.navHostFragment).navigate(R.id.settings)
                return@OnNavigationItemSelectedListener true
            }
-           R.id.info -> {
-               findNavController(R.id.navHostFragment).navigate(R.id.info)
+           R.id.favorites -> {
+               findNavController(R.id.navHostFragment).navigate(R.id.favorite)
                return@OnNavigationItemSelectedListener true
            }
 
@@ -69,9 +69,8 @@ class MainActivity : AppCompatActivity() {
             setOf(
                 R.id.home,
                 R.id.settings,
-                R.id.info,
+                R.id.favorite,
                 R.id.convert,
-                R.id.convertedFilesFragment,
                 R.id.convertProgressFragment
             )
         )
@@ -128,15 +127,13 @@ class MainActivity : AppCompatActivity() {
                 R.id.settings -> {
                     action = SettingsFragmentDirections.actionSettingsToConvert(newUriList)
                 }
-                R.id.info -> {
-                    action = InfoFragmentDirections.actionInfoToConvert(newUriList)
+                R.id.favorite -> {
+                    action = FavoriteFragmentDirections.actionInfoToConvert(newUriList)
                 }
                 R.id.convertProgressFragment -> {
                     action = ConvertProgressFragmentDirections.actionConvertProgressFragmentToConvert(newUriList)
                 }
-                R.id.convertedFilesFragment -> {
-                    action = ConvertedFilesFragmentDirections.actionConvertedFilesFragmentToConvert(newUriList)
-                }
+
             }
             findNavController(R.id.navHostFragment).navigate(action)
         }else if(requestCode == 200) {

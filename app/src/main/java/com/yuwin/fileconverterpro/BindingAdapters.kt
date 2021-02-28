@@ -1,10 +1,13 @@
 package com.yuwin.fileconverterpro
 
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Log
 import android.view.View
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
@@ -101,7 +104,40 @@ class BindingAdapters {
             }
         }
 
+        @BindingAdapter("changeSelectedListItemColor")
+        @JvmStatic
+        fun changeSelectedListItemColor(view: ConstraintLayout, isSelected: Boolean) {
+            if(isSelected) {
+                view.setBackgroundColor(
+                        ContextCompat.getColor(
+                                view.context,
+                                R.color.selectedFileItemBackground
+                                )
+                )
+            }else {
+                view.setBackgroundColor(
+                        ContextCompat.getColor(
+                                view.context,
+                                R.color.colorBackground
+                        )
+                )
+            }
+        }
 
+        @BindingAdapter("changeSelectedGridItemColor")
+        @JvmStatic
+        fun changeSelectedGridItemColor(view: ConstraintLayout, isSelected: Boolean) {
+            if(isSelected) {
+                view.foreground = ColorDrawable(
+                        ContextCompat.getColor(view.context, R.color.selectedFileItemBackground)
+                )
+            }else {
+                view.foreground = ColorDrawable(
+                        ContextCompat.getColor(view.context, R.color.colorBackground)
+                )
+
+            }
+        }
 
 
     }

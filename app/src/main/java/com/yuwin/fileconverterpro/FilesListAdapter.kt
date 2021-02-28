@@ -1,24 +1,22 @@
 package com.yuwin.fileconverterpro
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.yuwin.fileconverterpro.databinding.FileListItemBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
 
-class FilesListAdapter(private val fileItemClick: FileListClickListener): RecyclerView.Adapter<FilesListAdapter.ViewHolder>() {
+class FilesListAdapter(private val fileItemClick: FileListClickListener): RecyclerView.Adapter<FilesListAdapter.ViewHolder>(){
 
     private var data  = mutableListOf<ConvertedFile>()
 
-    class ViewHolder(private val binding: FileListItemBinding, private val onItemClickListener: FileListClickListener): RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
+    class ViewHolder(private val binding: FileListItemBinding, private val onItemClickListener: FileListClickListener): RecyclerView.ViewHolder(binding.root) , View.OnClickListener, View.OnLongClickListener {
 
 
         fun bind(convertedFile: ConvertedFile) {
             binding.convertedFile = convertedFile
-            binding.filesListParent.setOnClickListener(this)
-            binding.filesListParent.setOnLongClickListener(this)
+            binding.fileListRootLayout.setOnClickListener(this)
+            binding.fileListRootLayout.setOnLongClickListener(this)
             binding.executePendingBindings()
         }
 
@@ -31,12 +29,12 @@ class FilesListAdapter(private val fileItemClick: FileListClickListener): Recycl
         }
 
         override fun onClick(v: View?) {
-            onItemClickListener.onItemClick(adapterPosition)
+            onItemClickListener.onItemClick(binding.fileListRootLayout,adapterPosition)
+
         }
 
         override fun onLongClick(v: View?): Boolean {
-            onItemClickListener.onItemLongClick(adapterPosition)
-            return true
+           return onItemClickListener.onItemLongClick(binding.fileListRootLayout,adapterPosition)
         }
 
     }
@@ -59,4 +57,6 @@ class FilesListAdapter(private val fileItemClick: FileListClickListener): Recycl
         data = newData.toMutableList()
         diffUtilResults.dispatchUpdatesTo(this)
     }
+
+
 }

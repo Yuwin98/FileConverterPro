@@ -8,6 +8,7 @@
     <color name="dark">#313C44</color>
     <color name="completeGreen">#2ecc71</color>
     <color name="pdfBackground">#FAFAFA</color>
+    <color name="selectedFileItemBackground">#44a55eea</color>
 
     <color name="colorBackground">#1E1F24</color>
     <color name="colorText">#FAFAFA</color>
@@ -16,8 +17,12 @@
     <color name="cardBackground">#55414141</color>
     <color name="toolsBackground">#121212</color>
 
+
     <color name="backgroundColor">@color/dark</color>
-    <color name="statusBarColor">@android:color/black</color>
-    <color name="actionBarBackgroundColor">@color/darker</color>
+    <color name="actionBarBackgroundColor">#1c1c1c</color>
     <color name="navigationBarColor">@color/darker</color>
+
+    <color name="statusBarColor">@color/darker</color>
+    <color name="contextualStatusBarColor">@android:color/black</color>
+    <color name="contextualActionBarColor">@color/darker</color>
 </resources>

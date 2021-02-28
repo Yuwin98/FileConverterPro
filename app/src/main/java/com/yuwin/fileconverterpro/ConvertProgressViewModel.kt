@@ -47,7 +47,7 @@ class ConvertProgressViewModel(private val app: Application, val data: List<Conv
     }
 
     fun convertFiles() {
-
+        _completePercentage.postValue(0)
         itemPercentage = 80 / data.size
         val job = scope.launch {
             for(item in data) {
@@ -67,6 +67,7 @@ class ConvertProgressViewModel(private val app: Application, val data: List<Conv
     }
 
     fun createMultiPagePdf() {
+        _completePercentage.postValue(0)
         val job = scope.launch {
                 launch(Dispatchers.Default) {
                     createAndSaveMultiPagePdf(data, storageDir)
@@ -83,11 +84,15 @@ class ConvertProgressViewModel(private val app: Application, val data: List<Conv
     private fun convertAndSaveFiles(item: ConvertInfo, storageDir: String, quality: Int) {
         val inputStream = app.contentResolver.openInputStream(item.uri)
         try {
-            val bitmap = BitmapFactory.decodeStream(inputStream)
+            val options = BitmapFactory.Options()
+            options.inScaled = false
+            val bitmap = BitmapFactory.decodeStream(inputStream,null, options)
             val convertToExtension = Util.getFileExtension(item.specificConvertFormat, item.defaultConvertFormat, item.convertAll)
             val fileName = getFileName(item.fileName)
             val fileSavePath = getFileSavePath(storageDir, fileName, convertToExtension)
-            performConvert(bitmap, convertToExtension, quality, fileSavePath)
+            if (bitmap != null) {
+                performConvert(bitmap, convertToExtension, quality, fileSavePath)
+            }
 
             if(convertToExtension != ".pdf") {
                 val file = createConvertedImageFile(item, fileSavePath, convertToExtension)
@@ -355,11 +360,11 @@ class ConvertProgressViewModel(private val app: Application, val data: List<Conv
 
     private fun createConvertedImageFile(item: ConvertInfo, filePath: String, extension: String): ConvertedFile {
         val millis = Util.getCurrentTimeMillis()
-        val fileName = item.fileName
+        val fileName = File(filePath).name
         val uri = File(filePath).toUri()
         val date = Date(millis.toLong())
         val fileSize = Util.convertBytes(File(filePath).length())
-        return ConvertedFile(0, fileName, fileSize, filePath, extension, uri, null, false, date)
+        return ConvertedFile(0, fileName, fileSize, filePath, extension, uri, null, isFavorite = false, isSelected = false, date)
     }
 
     private fun createConvertedPdfFile(fileName: String, filePath: String, thumbNailUri: Uri?): ConvertedFile {
@@ -367,7 +372,7 @@ class ConvertProgressViewModel(private val app: Application, val data: List<Conv
         val uri = File(filePath).toUri()
         val date = Date(millis.toLong())
         val fileSize = Util.convertBytes(File(filePath).length())
-        return ConvertedFile(0, fileName, fileSize , filePath, "pdf", uri, thumbNailUri, false, date)
+        return ConvertedFile(0, fileName, fileSize , filePath, "pdf", uri, thumbNailUri, isFavorite = false, isSelected = false, date)
     }
 
     private fun increasePercentage(value: Int = 9) {

@@ -2,19 +2,16 @@ package com.yuwin.fileconverterpro
 
 import android.app.AlertDialog
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.yuwin.fileconverterpro.databinding.FragmentImageViewBinding
-import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
 
 
@@ -68,19 +65,8 @@ class ImagePreviewFragment : BaseFragment() {
         }
 
         binding.shareImageView.setOnClickListener {
-
-            val imageUri: Uri = FileProvider.getUriForFile(
-                requireActivity(),
-                "com.yuwin.fileconverterpro.fileprovider",
-                File(file.filePath)
-            )
-
-            val typeString = getSendingType(file)
-            val shareIntent: Intent = Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_STREAM, imageUri)
-                type = typeString
-            }
+            val typeString = Util.getSendingType(requireContext(), file)
+            val shareIntent = Util.startShareSheetSingle(requireActivity(), File(file.filePath), typeString)
             startActivity(Intent.createChooser(shareIntent, "Send To"))
         }
 
@@ -120,27 +106,7 @@ class ImagePreviewFragment : BaseFragment() {
 
     }
 
-    private fun getSendingType(file: ConvertedFile): String {
 
-        when(Util.getMimeType(requireContext(), file.uri)) {
-            "jpg" -> {
-                return "image/jpg"
-            }
-            "jpeg" -> {
-                return "image/jpeg"
-            }
-            "png" -> {
-                return "image/png"
-            }
-            "pdf" -> {
-                return "application/pdf"
-            }
-            "webp" -> {
-                return "image/webp"
-            }
-        }
-        return "*/*"
-    }
 
 
 }

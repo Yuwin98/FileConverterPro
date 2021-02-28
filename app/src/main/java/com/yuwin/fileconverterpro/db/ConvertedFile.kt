@@ -37,6 +37,9 @@ data class ConvertedFile(
         @ColumnInfo(name = "favorite")
         var isFavorite: Boolean,
 
+        @ColumnInfo(name = "isSelected")
+        var isSelected: Boolean,
+
         @ColumnInfo(name = "Date")
         val date: Date
 

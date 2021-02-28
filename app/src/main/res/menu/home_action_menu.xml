@@ -27,6 +27,25 @@
 
     </item>
 
+    <item android:id="@+id/filterby"
+        android:title="Filter By">
+
+        <menu>
+            <item android:id="@+id/jpg"
+                android:title="JPG/JPEG"/>
+
+            <item android:id="@+id/png"
+                android:title="PNG"/>
+
+            <item android:id="@+id/webp"
+                android:title="WEBP"/>
+
+            <item android:id="@+id/pdf"
+                android:title="PDF"/>
+        </menu>
+
+    </item>
+
     <item android:id="@+id/deleteAll"
         android:title="Delete All"/>
 
