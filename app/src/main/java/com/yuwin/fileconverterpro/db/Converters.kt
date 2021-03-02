@@ -26,13 +26,13 @@ class Converters {
 
     @TypeConverter
     fun dateToString(date: Date): String {
-        val df = SimpleDateFormat("d MMM yyyy HH:mm", Locale.getDefault())
+        val df = SimpleDateFormat("dd MMM yyyy HH:mm:ss.SSS", Locale.getDefault())
         return df.format(date.time)
     }
 
     @TypeConverter
     fun stringToDate(date: String): Date? {
-        val sdf = SimpleDateFormat("dd MMM yyyy hh:mm", Locale.getDefault())
+        val sdf = SimpleDateFormat("dd MMM yyyy HH:mm:ss.SSS", Locale.getDefault())
         return  sdf.parse(date)
     }
 

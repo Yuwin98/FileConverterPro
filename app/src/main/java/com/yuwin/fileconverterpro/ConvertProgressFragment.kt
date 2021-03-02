@@ -1,17 +1,15 @@
 package com.yuwin.fileconverterpro
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.*
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.gms.ads.*
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.yuwin.fileconverterpro.databinding.FragmentConvertProgressBinding
 
 
@@ -21,48 +19,19 @@ class ConvertProgressFragment : BaseFragment() {
 
     override var bottomNavigationVisibility = View.GONE
 
-    private var mInterstitialAd: InterstitialAd? = null
-    private var TAG = "ConvertedFilesFragment"
-    private var myAdUnitId = "ca-app-pub-9767087107670640/7400777402"
-    private var originBtn: Int = 0
+
+
 
     private val binding by lazy {FragmentConvertProgressBinding.inflate(layoutInflater)}
     private lateinit var convertProgressViewModel: ConvertProgressViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val adRequest = AdRequest.Builder().build()
-        Log.d(TAG, "Convert Progress ViewModel Before Creation")
+
+        (activity as MainActivity).requestInterstitial()
+
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
         convertProgressViewModel = ViewModelProvider(this, ConvertProgressViewModelFactory(requireActivity().application, args.data.items, args.quality)).get(ConvertProgressViewModel::class.java)
-
-        InterstitialAd.load(requireContext(),myAdUnitId, adRequest, object : InterstitialAdLoadCallback() {
-            override fun onAdFailedToLoad(adError: LoadAdError) {
-                Log.d(TAG, adError.message)
-                mInterstitialAd = null
-            }
-
-            override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                Log.d(TAG, "Ad was loaded.")
-                mInterstitialAd = interstitialAd
-                mInterstitialAd?.fullScreenContentCallback = object: FullScreenContentCallback() {
-                    override fun onAdDismissedFullScreenContent() {
-                        Log.d(TAG, "Ad was dismissed.")
-                        findNavController().navigate(R.id.action_convertProgressFragment_to_home)
-
-                    }
-
-                    override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
-                        Log.d(TAG, "Ad failed to show.")
-                    }
-
-                    override fun onAdShowedFullScreenContent() {
-                        Log.d(TAG, "Ad showed fullscreen content.")
-                        mInterstitialAd = null;
-                    }
-                }
-            }
-        })
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -87,45 +56,78 @@ class ConvertProgressFragment : BaseFragment() {
                 roundBorder = true
         }
         convertProgressViewModel.completePercentage.observe(viewLifecycleOwner, { progress ->
-                if(progress != null) {
-                    binding.progressBarTextView.text = "${progress.toInt()}%"
-                    binding.circularProgressBar.progress = progress.toFloat()
+            if (progress != null) {
+                binding.progressBarTextView.text = "${progress.toInt()}%"
+                binding.circularProgressBar.progress = progress.toFloat()
+            }
+            if (progress.toInt() == 100 && progress != null) {
+                binding.circularProgressBar.apply {
+                    progressBarColor = ContextCompat.getColor(requireActivity(), R.color.completeGreen)
                 }
-                if(progress.toInt() == 100 && progress != null){
-                    binding.circularProgressBar.apply {
-                        progressBarColor = ContextCompat.getColor(requireActivity(), R.color.completeGreen)
-                    }
-                }
+            }
         })
 
         convertProgressViewModel.conversionFinished.observe(viewLifecycleOwner, { conversionFinished ->
-            if(conversionFinished) {
-                binding.cancelButton.visibility = View.GONE
+            if (conversionFinished) {
+                binding.pauseButton.visibility = View.GONE
                 binding.convertedFileNameTextView.visibility = View.GONE
                 binding.backHomeButton.visibility = View.VISIBLE
+                binding.resumeButton.visibility = View.GONE
+
             }
         })
 
+        binding.pauseButton.setOnClickListener {
+            convertProgressViewModel.pauseConversion()
+            convertProgressViewModel.setConversionPaused(true)
+            binding.pauseButton.visibility = View.GONE
+            binding.backHomeButton.visibility = View.VISIBLE
+            binding.resumeButton.visibility = View.VISIBLE
+
+        }
+
+        binding.resumeButton.setOnClickListener {
+            binding.backHomeButton.visibility = View.GONE
+            binding.resumeButton.visibility = View.GONE
+            binding.pauseButton.visibility = View.VISIBLE
+            startConversion()
+        }
 
         binding.backHomeButton.setOnClickListener {
-            binding.circularProgressBar.progress = 0f
-            if (mInterstitialAd != null) {
-                originBtn = 1
-                mInterstitialAd?.show(requireActivity())
-            } else {
-                Log.d(TAG, "The interstitial ad wasn't ready yet.")
-                findNavController().navigate(ConvertProgressFragmentDirections.actionConvertProgressFragmentToHome())
-            }
+            (activity as MainActivity).showInterstitial()
         }
+
+
+
+       startConversion()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    }
+
+    private fun startConversion() {
         val data = args.data.items[0]
         val defaultFileExtension = Util.getFileExtension(data.specificFormat, data.defaultConvertFormat, data.convertAll)
-        if (data.convertAll == true && defaultFileExtension == ".pdf" ) {
+        if (data.convertAll == true && defaultFileExtension == ".mergeintopdf" ) {
+            binding.pauseButton.text = "Stop"
+            binding.resumeButton.text = "Restart"
             convertProgressViewModel.createMultiPagePdf()
         }else {
             convertProgressViewModel.convertFiles()
         }
-
     }
+
+
+    private fun elementFadeIn(delta: Long): Animation {
+        val fadeIn = AlphaAnimation(0f, 1f)
+        fadeIn.interpolator = AccelerateInterpolator()
+        fadeIn.duration = delta
+        return fadeIn
+    }
+
+
 
     private fun logData(data: ConvertInfo) {
         Log.d("debug", "Uri: ${data.uri}")

@@ -55,7 +55,7 @@ class ConvertFragment : Fragment() {
 
         binding.convertAllCheckBox.setOnCheckedChangeListener { _, isChecked -> convertViewModel.setOnConvertAllCheckChanged(isChecked) }
         convertViewModel.allConvert.observe(viewLifecycleOwner, {
-            val newData = this.data
+            val newData = convertAdapter.getAdapterData()
             val iterator = newData.iterator()
             while (iterator.hasNext()) {
                 val oldValue = iterator.next()
@@ -74,7 +74,7 @@ class ConvertFragment : Fragment() {
 
         }
         convertViewModel.defaultPosition.observe(viewLifecycleOwner, {
-            val newData = this.data
+            val newData = convertAdapter.getAdapterData()
             val iterator = newData.iterator()
             while (iterator.hasNext()) {
                 val oldValue = iterator.next()
@@ -102,6 +102,7 @@ class ConvertFragment : Fragment() {
         binding.convertButton.setOnClickListener {
             val data = ConvertInfoList(convertAdapter.getAdapterData())
             if(data.items.isNotEmpty()) {
+                
                 val action = ConvertFragmentDirections.actionConvertToConvertProgressFragment(data, qualityInt)
                 findNavController().navigate(action)
             }else {

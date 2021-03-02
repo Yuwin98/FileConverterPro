@@ -3,6 +3,7 @@ package com.yuwin.fileconverterpro
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.provider.OpenableColumns
@@ -17,8 +18,10 @@ import java.text.CharacterIterator
 import java.text.SimpleDateFormat
 import java.text.StringCharacterIterator
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.abs
+import kotlin.math.floor
+import kotlin.math.sqrt
+
 
 class Util {
 
@@ -109,7 +112,7 @@ class Util {
                     setOf(Environment.MEDIA_MOUNTED, Environment.MEDIA_MOUNTED_READ_ONLY)
         }
 
-        fun getSendingType(context: Context ,file: ConvertedFile): String {
+        fun getSendingType(context: Context, file: ConvertedFile): String {
 
             when(Util.getMimeType(context, file.uri)) {
                 "jpg" -> {
@@ -154,7 +157,7 @@ class Util {
             val imageUris: ArrayList<Uri> = arrayListOf()
             files.forEach { file ->
                 val selectedFile = File(file.filePath)
-                imageUris.add(getFileUri(activity,selectedFile))
+                imageUris.add(getFileUri(activity, selectedFile))
             }
 
             return Intent().apply {
@@ -170,6 +173,20 @@ class Util {
                     "com.yuwin.fileconverterpro.fileprovider",
                     file
             )
+        }
+
+        fun scaleBitmap(input: Bitmap, maxBytes: Long = 1024 * 1024): Bitmap {
+            val currentWidth = input.width
+            val currentHeight = input.height
+            val currentPixels = currentWidth * currentHeight
+            val maxPixels = maxBytes / 4
+            if (currentPixels <= maxPixels) {
+                return input
+            }
+            val scaleFactor = sqrt(maxPixels / currentPixels.toDouble())
+            val newWidthPx = floor(currentWidth * scaleFactor).toInt()
+            val newHeightPx = floor(currentHeight * scaleFactor).toInt()
+            return Bitmap.createScaledBitmap(input, newWidthPx, newHeightPx, true)
         }
 
 

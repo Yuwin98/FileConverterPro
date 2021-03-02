@@ -5,5 +5,6 @@ enum class FormatTypes {
     JPG,
     JPEG,
     WEBP,
-    PDF
+    PDF,
+    MergeIntoPDF
 }

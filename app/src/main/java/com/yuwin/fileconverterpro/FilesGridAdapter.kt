@@ -31,11 +31,11 @@ class FilesGridAdapter(private val fileItemClick: FileListClickListener): Recycl
         }
 
         override fun onClick(v: View?) {
-            onItemClickListener.onItemClick(binding.filesGridParentLayout, adapterPosition)
+            onItemClickListener.onItemClick(adapterPosition)
         }
 
         override fun onLongClick(v: View?): Boolean {
-            return onItemClickListener.onItemLongClick(binding.filesGridParentLayout, adapterPosition)
+            return onItemClickListener.onItemLongClick(adapterPosition)
         }
     }
 

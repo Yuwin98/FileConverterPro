@@ -9,6 +9,7 @@
         <item>JPEG</item>
         <item>WEBP</item>
         <item>PDF</item>
+        <item>MergeIntoPDF</item>
     </string-array>
 
     <string-array name="text_size">

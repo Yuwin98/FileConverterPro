@@ -40,21 +40,20 @@
             app:layout_constraintTop_toTopOf="@+id/circularProgressBar" />
 
         <Button
-            android:id="@+id/cancelButton"
+            android:id="@+id/pauseButton"
+            style="?attr/selectableItemBackground"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             android:layout_marginBottom="80dp"
-            android:background="?android:attr/selectableItemBackground"
             android:fontFamily="@font/allerta"
-            android:text="Cancel"
+            android:text="Pause"
             android:textAllCaps="false"
             android:textColor="@color/cancelButton"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:strokeColor="#000" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/fileConvertProgressMessage"
@@ -69,20 +68,24 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/circularProgressBar" />
 
+
         <Button
             android:id="@+id/backHomeButton"
+            style="?attr/selectableItemBackground"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_marginBottom="80dp"
             android:fontFamily="@font/allerta"
-            android:text="Back Home"
+            android:text="Home"
+            android:background="?attr/selectableItemBackground"
             android:textAllCaps="false"
-            android:textColor="@color/pdfBackground"
-            android:textSize="16sp"
+            android:textColor="@color/cancelButton"
+            android:textSize="18sp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintEnd_toStartOf="@+id/resumeButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:strokeColor="@color/colorPrimary" />
 
         <TextView
             android:id="@+id/convertedFileNameTextView"
@@ -100,6 +103,20 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fileConvertProgressMessage" />
+
+        <Button
+            android:id="@+id/resumeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_marginBottom="80dp"
+            android:text="Resume"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/backHomeButton" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

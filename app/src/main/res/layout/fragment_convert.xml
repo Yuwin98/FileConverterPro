@@ -90,12 +90,13 @@
         <Button
             android:id="@+id/convertButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginBottom="24dp"
             android:fontFamily="@font/allerta"
             android:text="Convert"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

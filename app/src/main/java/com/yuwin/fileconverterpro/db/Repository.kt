@@ -9,6 +9,30 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
         return convertedFileDao.getAllFiles()
     }
 
+    fun getAllFavoriteFiles(): Flow<List<ConvertedFile>> {
+        return convertedFileDao.getAllFavoriteFiles()
+    }
+
+    fun getAllFilesByName(): Flow<List<ConvertedFile>> {
+        return  convertedFileDao.getAllFilesByName()
+    }
+
+    fun getAllFilesByType(): Flow<List<ConvertedFile>> {
+        return convertedFileDao.getAllFilesByType()
+    }
+
+    fun getAllFilesByDateCreated(): Flow<List<ConvertedFile>> {
+        return convertedFileDao.getAllFilesByDateCreated()
+    }
+
+    fun getAllFilesBySize(): Flow<List<ConvertedFile>> {
+        return convertedFileDao.getAllFilesBySize()
+    }
+
+    fun filterAllFilesByType(types: List<String>): Flow<List<ConvertedFile>> {
+        return convertedFileDao.filterAllFilesByType(types)
+    }
+
     suspend fun insertFile(file: ConvertedFile) {
         Log.d("converter_files", "Inserting into database via DAO")
         return convertedFileDao.insertFile(file)

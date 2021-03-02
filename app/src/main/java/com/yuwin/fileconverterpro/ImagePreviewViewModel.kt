@@ -12,6 +12,7 @@ import com.yuwin.fileconverterpro.db.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.*
 
 class ImagePreviewViewModel(private val app: Application, private val id: Long): AndroidViewModel(app) {
 
@@ -55,7 +56,6 @@ class ImagePreviewViewModel(private val app: Application, private val id: Long):
             fileName = newFileNameWithExtension
             filePath = newPath
             uri = newUri
-
         }
         viewModelScope.launch {
             repository.updateFile(file)

@@ -10,10 +10,17 @@
         <item name="android:textColor">@color/colorText</item>
         <item name="fontFamily">@font/allerta</item>
 
-<!--        <item name="android:windowBackground">@color/colorBackground</item>-->
         <item name="android:statusBarColor">@color/statusBarColor</item>
         <item name="actionBarStyle">@style/CustomActionBarStyle</item>
 
+    </style>
+
+    <style name="DialogStyle" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:textColor">@color/colorText</item>
+        <item name="hintTextColor">@color/colorText</item>
     </style>
 
     <style name="CustomActionBarStyle" parent="Widget.MaterialComponents.ActionBar.Primary">

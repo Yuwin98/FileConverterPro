@@ -22,16 +22,15 @@ import java.io.File
 
 class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callback {
 
-    private val binding by lazy{ FragmentMainScreenBinding.inflate(layoutInflater) }
+    private var _binding: FragmentMainScreenBinding? = null
+    private val binding get() = _binding
     private val viewModel by lazy { FileListViewModel(requireActivity().application) }
 
     private val sb = StringBuilder("")
 
     private var multiSelection = false
     private var selectedFiles = arrayListOf<ConvertedFile>()
-    private var selectedLayouts = arrayListOf<ConstraintLayout>()
     private lateinit var actionMode: ActionMode
-    private lateinit var rootView: View
 
     private val filesListAdapter by lazy { FilesListAdapter(this) }
     private val filesGridAdapter by lazy { FilesGridAdapter(this) }
@@ -44,28 +43,32 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         setHasOptionsMenu(true)
+        _binding = FragmentMainScreenBinding.inflate(inflater, container, false)
+        binding?.lifecycleOwner = viewLifecycleOwner
 
-        binding.lifecycleOwner = viewLifecycleOwner
 
-
-        return binding.root
+        return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        rootView = binding.filesRecyclerView
+
 
         viewModel.readFiles.observe(viewLifecycleOwner, { items ->
             if (items.isNullOrEmpty()) {
-                binding.noFilesImageView.visibility = View.VISIBLE
-                binding.noFilesTextView.visibility = View.VISIBLE
+                binding?.let {
+                    it.noFilesImageView.visibility = View.VISIBLE
+                    it.noFilesTextView.visibility = View.VISIBLE
+                }
                 data = items
                 setupRecyclerView(isGrid)
+
             } else {
                 data = items
                 setupRecyclerView(isGrid)
+
             }
         })
 
@@ -79,21 +82,62 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
+
             R.id.viewChange -> {
                 if (!isGrid) {
                     item.setIcon(R.drawable.ic_listview)
                     item.title = "List View"
-                    setupGridRecyclerView()
                     isGrid = true
+                    setupRecyclerView(isGrid)
                 } else {
                     item.setIcon(R.drawable.ic_gridview)
                     item.title = "Grid View"
-                    setupListRecyclerView()
                     isGrid = false
+                    setupRecyclerView(isGrid)
                 }
             }
             R.id.deleteAll -> {
                 viewModel.clearDatabase()
+            }
+            R.id.sortFileSize -> {
+                viewModel.readFilesBySize.observe(viewLifecycleOwner, { items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.sortFileName -> {
+                viewModel.readFilesByName.observe(viewLifecycleOwner, {items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.sortFileDate -> {
+                viewModel.readFilesByDate.observe(viewLifecycleOwner, {items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.sortFileType -> {
+                viewModel.readFilesByType.observe(viewLifecycleOwner, {items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.filterJpg -> {
+                viewModel.filterFilesByJpgJpeg.observe(viewLifecycleOwner, {items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.filterPdf -> {
+                viewModel.filterFilesByPdf.observe(viewLifecycleOwner, {items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.filterPng -> {
+                viewModel.filterFilesByPng.observe(viewLifecycleOwner, {items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.filterWebp -> {
+                viewModel.filterFilesByWebp.observe(viewLifecycleOwner, {items ->
+                    filterSortAndUpdateData(items)
+                })
             }
         }
         return true
@@ -107,15 +151,34 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         }
     }
 
+    private fun filterSortAndUpdateData(items: List<ConvertedFile>) {
+        if(items.isNullOrEmpty()) {
+            data = items
+            binding?.let {
+                it.noFilesImageView.visibility = View.VISIBLE
+                it.noFilesTextView.visibility = View.VISIBLE
+            }
+            updateData(data!!.toMutableList())
+        }else {
+            data = items
+            updateData(data!!.toMutableList())
+        }
+    }
+
     private fun setupListRecyclerView() {
-        binding.filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.filesRecyclerView.adapter = filesListAdapter
+        binding?.let {
+            it.filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+            it.filesRecyclerView.adapter = filesListAdapter
+
+        }
         data?.let { filesListAdapter.setData(it.toMutableList()) }
     }
 
     private fun setupGridRecyclerView() {
-        binding.filesRecyclerView.layoutManager = GridLayoutManager(requireContext(), 4)
-        binding.filesRecyclerView.adapter = filesGridAdapter
+        binding?.let {
+            it.filesRecyclerView.layoutManager = GridLayoutManager(requireContext(), 4)
+            it.filesRecyclerView.adapter = filesGridAdapter
+        }
         data?.let { filesGridAdapter.setData(it.toMutableList()) }
     }
 
@@ -163,9 +226,9 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
     }
 
 
-    override fun onItemClick(layout: ConstraintLayout, position: Int) {
+    override fun onItemClick(position: Int) {
         if(multiSelection) {
-            applySelection(layout, position)
+            applySelection(position)
         }else {
             val data = data?.get(position)
             openMyFile(data)
@@ -202,25 +265,24 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
     }
 
 
-    override fun onItemLongClick(layout: ConstraintLayout, position: Int): Boolean {
+    override fun onItemLongClick(position: Int): Boolean {
         return if(!multiSelection) {
             multiSelection = true
             requireActivity().startActionMode(this)
-            applySelection(layout, position)
+            applySelection(position)
             true
         }else {
-            applySelection(layout, position)
+            applySelection(position)
             true
         }
 
     }
 
 
-    private fun applySelection(layout: ConstraintLayout, position: Int) {
+    private fun applySelection(position: Int) {
         val currentFile = data?.get(position)
         if(selectedFiles.contains(currentFile)) {
             selectedFiles.remove(currentFile)
-            selectedLayouts.remove(layout)
             data?.get(position)?.isSelected = false
             data?.let { updateData(it) }
             setActionModeTitle()
@@ -229,23 +291,12 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                 data?.get(position)?.isSelected = true
                 data?.let { updateData(it) }
                 selectedFiles.add(currentFile)
-                selectedLayouts.add(layout)
                 setActionModeTitle()
             }
         }
     }
 
-    private fun changeCardStyles(layout: ConstraintLayout, color: Int) {
-        if(!isGrid) {
-            layout.setBackgroundColor(
-                    ContextCompat.getColor(requireContext(), color)
-            )
-        }else {
-            layout.foreground = ColorDrawable(
-                    ContextCompat.getColor(requireContext(), color)
-            )
-        }
-    }
+
 
     private fun setActionModeTitle() {
         when(selectedFiles.size) {
@@ -275,6 +326,8 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
 
     override fun onActionItemClicked(actionMode: ActionMode?, item: MenuItem?): Boolean {
         when(item?.itemId) {
+            R.id.actionMoveToFolder -> {
+            }
             R.id.actionDelete -> {
                 selectedFiles.forEach {
                     viewModel.deleteSelectedFiles(it)
@@ -295,9 +348,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
     }
 
     override fun onDestroyActionMode(actionMode: ActionMode?) {
-        selectedLayouts.forEach {
-            changeCardStyles(it, R.color.colorBackground)
-        }
         data?.forEach {
             it.isSelected = false
         }
@@ -308,16 +358,28 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
     }
 
     private fun applyStatusBarColor(color: Int) {
-        requireActivity().window.statusBarColor = ContextCompat.getColor(requireActivity(), color)
+        requireActivity().window.statusBarColor = ContextCompat.getColor(requireContext(), color)
     }
 
 
     private fun showSnackBar(message: String) {
-        Snackbar.make(
-                binding.root,
+        binding?.root?.let {
+            Snackbar.make(
+                it,
                 message,
                 Snackbar.LENGTH_SHORT
-        ).setAction("Ok"){}
+            ).setAction("Ok"){}
                 .show()
+        }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding?.filesRecyclerView?.adapter = null
+        _binding = null
+    }
+
+
+
+
 }

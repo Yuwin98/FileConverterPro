@@ -4,7 +4,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 
 interface FileListClickListener {
 
-    fun onItemClick(layout: ConstraintLayout ,position: Int)
+    fun onItemClick(position: Int)
 
-    fun onItemLongClick(layout: ConstraintLayout,position: Int): Boolean
+    fun onItemLongClick(position: Int): Boolean
 }

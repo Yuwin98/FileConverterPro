@@ -12,16 +12,16 @@
         android:title="Sort By">
 
         <menu>
-            <item android:id="@+id/date"
+            <item android:id="@+id/sortFileDate"
                 android:title="Date"/>
 
-            <item android:id="@+id/size"
+            <item android:id="@+id/sortFileSize"
                 android:title="Size"/>
 
-            <item android:id="@+id/name"
+            <item android:id="@+id/sortFileName"
                 android:title="Name"/>
 
-            <item android:id="@+id/type"
+            <item android:id="@+id/sortFileType"
                 android:title="Type"/>
         </menu>
 
@@ -31,16 +31,16 @@
         android:title="Filter By">
 
         <menu>
-            <item android:id="@+id/jpg"
+            <item android:id="@+id/filterJpg"
                 android:title="JPG/JPEG"/>
 
-            <item android:id="@+id/png"
+            <item android:id="@+id/filterPng"
                 android:title="PNG"/>
 
-            <item android:id="@+id/webp"
+            <item android:id="@+id/filterWebp"
                 android:title="WEBP"/>
 
-            <item android:id="@+id/pdf"
+            <item android:id="@+id/filterPdf"
                 android:title="PDF"/>
         </menu>
 

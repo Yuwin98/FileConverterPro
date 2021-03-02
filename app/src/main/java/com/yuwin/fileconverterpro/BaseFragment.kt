@@ -3,6 +3,7 @@ package com.yuwin.fileconverterpro
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 abstract class BaseFragment: Fragment() {
 

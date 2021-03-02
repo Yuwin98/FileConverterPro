@@ -10,6 +10,24 @@ interface ConvertedFileDao {
     @Query("Select * from ConvertedFile Order by Date DESC")
     fun getAllFiles(): Flow<List<ConvertedFile>>
 
+    @Query("Select * from ConvertedFile where favorite=1")
+    fun getAllFavoriteFiles(): Flow<List<ConvertedFile>>
+
+    @Query("Select * from ConvertedFile Order By fileName ")
+    fun getAllFilesByName() : Flow<List<ConvertedFile>>
+
+    @Query("Select * from ConvertedFile Order By fileType ")
+    fun getAllFilesByType() : Flow<List<ConvertedFile>>
+
+    @Query("Select * from ConvertedFile Order By Date DESC ")
+    fun getAllFilesByDateCreated() : Flow<List<ConvertedFile>>
+
+    @Query("Select * from ConvertedFile Order By fileSizeValue DESC ")
+    fun getAllFilesBySize() : Flow<List<ConvertedFile>>
+
+    @Query("Select * from ConvertedFile where fileType in (:types) Order by Date DESC ")
+    fun filterAllFilesByType(types: List<String>) : Flow<List<ConvertedFile>>
+
     @Insert
     suspend fun insertFile(file: ConvertedFile)
 

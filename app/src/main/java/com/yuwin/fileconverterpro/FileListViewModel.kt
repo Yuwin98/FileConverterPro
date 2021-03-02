@@ -18,9 +18,26 @@ class FileListViewModel(private val app: Application): AndroidViewModel(app) {
 
     private val database: AppDatabase = AppDatabase.getInstance(app.applicationContext)
     private val repository: Repository = Repository(database.convertedFileDao())
-    private val scope = CoroutineScope(SupervisorJob())
 
     val readFiles = repository.getAllFiles().asLiveData()
+
+    val readFilesBySize = repository.getAllFilesBySize().asLiveData()
+    val readFilesByName = repository.getAllFilesByName().asLiveData()
+    val readFilesByType = repository.getAllFilesByType().asLiveData()
+    val readFilesByDate = repository.getAllFilesByDateCreated().asLiveData()
+
+    private val jpgJpeg = arrayListOf("jpg", "jpeg")
+    val filterFilesByJpgJpeg = repository.filterAllFilesByType(jpgJpeg).asLiveData()
+
+    private val pdf = arrayListOf("pdf")
+    val filterFilesByPdf = repository.filterAllFilesByType(pdf).asLiveData()
+
+    private val png = arrayListOf("png")
+    val filterFilesByPng = repository.filterAllFilesByType(png).asLiveData()
+
+    private val webp = arrayListOf("webp")
+    val filterFilesByWebp = repository.filterAllFilesByType(webp).asLiveData()
+
 
 
     fun clearDatabase() {

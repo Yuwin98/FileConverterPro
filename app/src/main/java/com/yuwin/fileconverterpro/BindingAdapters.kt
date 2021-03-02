@@ -1,5 +1,6 @@
 package com.yuwin.fileconverterpro
 
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -49,7 +50,7 @@ class BindingAdapters {
         @BindingAdapter("getDateString")
         @JvmStatic
         fun getDateString(view: TextView, date: Date) {
-            val sdf = SimpleDateFormat("d MMM yyyy HH:mm", Locale.getDefault())
+            val sdf = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
             view.text = sdf.format(date)
         }
 
@@ -132,10 +133,8 @@ class BindingAdapters {
                         ContextCompat.getColor(view.context, R.color.selectedFileItemBackground)
                 )
             }else {
-                view.foreground = ColorDrawable(
-                        ContextCompat.getColor(view.context, R.color.colorBackground)
+                view.foreground = ColorDrawable( Color.argb(0,0,0,0)
                 )
-
             }
         }
 

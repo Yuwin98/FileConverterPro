@@ -29,12 +29,12 @@ class FilesListAdapter(private val fileItemClick: FileListClickListener): Recycl
         }
 
         override fun onClick(v: View?) {
-            onItemClickListener.onItemClick(binding.fileListRootLayout,adapterPosition)
+            onItemClickListener.onItemClick(adapterPosition)
 
         }
 
         override fun onLongClick(v: View?): Boolean {
-           return onItemClickListener.onItemLongClick(binding.fileListRootLayout,adapterPosition)
+           return onItemClickListener.onItemLongClick(adapterPosition)
         }
 
     }

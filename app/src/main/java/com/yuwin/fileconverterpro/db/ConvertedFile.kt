@@ -22,6 +22,9 @@ data class ConvertedFile(
         @ColumnInfo(name = "fileSize")
         val fileSize: String,
 
+        @ColumnInfo(name = "fileSizeValue")
+        val fileSizeValue: Long,
+
         @ColumnInfo(name = "filePath")
         var filePath: String,
 
