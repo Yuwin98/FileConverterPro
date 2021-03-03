@@ -54,13 +54,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:entries="@array/file_types"
+                android:selectedItemPosition="@={item.specificFormat}"
                 android:spinnerMode="dialog"
                 android:visibility="@{item.convertAll ? View.GONE: View.VISIBLE}"
-                android:selectedItemPosition="@={item.specificFormat}"
                 app:layout_constraintBottom_toBottomOf="@+id/arrowRightImageVIew"
                 app:layout_constraintStart_toEndOf="@+id/arrowRightImageVIew"
-                app:layout_constraintTop_toTopOf="@+id/arrowRightImageVIew"
-                />
+                app:layout_constraintTop_toTopOf="@+id/arrowRightImageVIew" />
 
             <TextView
                 android:id="@+id/allFileConvertTextView"

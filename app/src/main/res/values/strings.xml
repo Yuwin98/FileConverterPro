@@ -9,6 +9,14 @@
         <item>JPEG</item>
         <item>WEBP</item>
         <item>PDF</item>
+    </string-array>
+
+    <string-array name="file_types_all">
+        <item>PNG</item>
+        <item>JPG</item>
+        <item>JPEG</item>
+        <item>WEBP</item>
+        <item>PDF</item>
         <item>MergeIntoPDF</item>
     </string-array>
 

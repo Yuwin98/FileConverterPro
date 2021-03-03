@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:spinnerMode="dialog"
-            android:entries="@array/file_types"
+            android:entries="@array/file_types_all"
             app:layout_constraintBottom_toBottomOf="@+id/convertAllCheckBox"
             app:layout_constraintStart_toEndOf="@+id/convertAllCheckBox"
             app:layout_constraintTop_toTopOf="@+id/convertAllCheckBox" />

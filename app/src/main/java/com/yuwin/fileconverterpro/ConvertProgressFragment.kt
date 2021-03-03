@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.animation.*
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.yuwin.fileconverterpro.databinding.FragmentConvertProgressBinding
 
@@ -30,7 +31,7 @@ class ConvertProgressFragment : BaseFragment() {
 
         (activity as MainActivity).requestInterstitial()
 
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         convertProgressViewModel = ViewModelProvider(this, ConvertProgressViewModelFactory(requireActivity().application, args.data.items, args.quality)).get(ConvertProgressViewModel::class.java)
     }
 
@@ -94,6 +95,8 @@ class ConvertProgressFragment : BaseFragment() {
         }
 
         binding.backHomeButton.setOnClickListener {
+            binding.backHomeButton.visibility = View.GONE
+            findNavController().navigate(R.id.action_convertProgressFragment_to_home)
             (activity as MainActivity).showInterstitial()
         }
 

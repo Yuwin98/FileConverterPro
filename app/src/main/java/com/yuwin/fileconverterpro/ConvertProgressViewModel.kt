@@ -205,7 +205,7 @@ class ConvertProgressViewModel(
             ".webp" -> {
                 val fos = FileOutputStream(filePath)
                 try {
-                    bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, quality, fos)
+                    bitmap.compress(Bitmap.CompressFormat.WEBP, quality, fos)
                 } catch (e: java.lang.Exception) {
                 } finally {
 

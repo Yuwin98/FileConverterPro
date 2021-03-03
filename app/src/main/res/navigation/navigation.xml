@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/home"
         android:name="com.yuwin.fileconverterpro.FileListFragment"
-        android:label="Your Files"
+        android:label="My Files"
         tools:layout="@layout/fragment_main_screen">
         <action
             android:id="@+id/action_home_to_convert"
@@ -16,9 +16,6 @@
         <action
             android:id="@+id/action_home_to_imageViewFragment"
             app:destination="@id/imageViewFragment" />
-        <action
-            android:id="@+id/action_home_to_createFolderBottomSheet"
-            app:destination="@id/createFolderBottomSheet" />
     </fragment>
     <fragment
         android:id="@+id/convert"
@@ -102,15 +99,4 @@
             app:popUpTo="@id/navigation"
             app:popUpToInclusive="true"/>
     </fragment>
-    <dialog
-        android:id="@+id/createFolderBottomSheet"
-        android:name="com.yuwin.fileconverterpro.CreateFolderBottomSheet"
-        android:label="fragment_create_folder_bottom_sheet"
-        tools:layout="@layout/fragment_create_folder_bottom_sheet" >
-        <action
-            android:id="@+id/action_createFolderBottomSheet_to_home"
-            app:destination="@id/home"
-            app:popUpTo="@id/home"
-            app:popUpToInclusive="true"/>
-    </dialog>
 </navigation>

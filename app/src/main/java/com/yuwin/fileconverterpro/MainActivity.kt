@@ -1,5 +1,6 @@
 package com.yuwin.fileconverterpro
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -7,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -16,20 +19,27 @@ import com.google.android.gms.ads.*
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.yuwin.fileconverterpro.misc.UiMode
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var navController: NavController
-    private lateinit var bottomNavigationView: BottomNavigationView
+    private var navController: NavController? = null
+    private var bottomNavigationView: BottomNavigationView? = null
     private val IMAGE_LIMIT = 50
     private var mInterstitialAd: InterstitialAd? = null
+    private var adRequest: AdRequest? = null
     private val myAdUnitId = "ca-app-pub-9767087107670640/7400777402"
+    private var mAdView: AdView? = null
+    private var parentView: ConstraintLayout? = null
 
     private var TAG = "MainActivity"
 
+    private var mainViewModel: MainViewModel? = null
 
-    private val onNavigationViewSelectedItemListener =
+
+
+    private var onNavigationViewSelectedItemListener =
         BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
 
             when (menuItem.itemId) {
@@ -57,18 +67,21 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.d("MainActivity1", "On Create")
+        parentView = findViewById(R.id.mainConstraintLayout)
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        setCurrentSettings()
 
         val testDeviceIds = listOf("8E8E9F036820B3A24447A0A1B4D2F2DF")
         val config = RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
 
         MobileAds.setRequestConfiguration(config)
         MobileAds.initialize(this)
-
+        mAdView = findViewById(R.id.bannerAdView)
+        adRequest = AdRequest.Builder().build()
         requestInterstitial()
 
-        val adRequest = AdRequest.Builder().build()
-        val mAdView: AdView = findViewById(R.id.bannerAdView)
-        mAdView.loadAd(adRequest)
+        mAdView?.loadAd(adRequest)
 
 
 
@@ -86,17 +99,38 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        bottomNavigationView.setupWithNavController(navController)
-        bottomNavigationView.setOnNavigationItemSelectedListener(
-            onNavigationViewSelectedItemListener
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        navController?.let { navController ->
+            bottomNavigationView?.setupWithNavController(navController)
+            bottomNavigationView?.setOnNavigationItemSelectedListener(
+                onNavigationViewSelectedItemListener
+            )
+            setupActionBarWithNavController(navController, appBarConfiguration)
+        }
 
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("MainActivity1", "On Destroy")
+        mainViewModel = null
+        mInterstitialAd  = null
+        adRequest = null
+        bottomNavigationView = null
+        navController = null
+        parentView?.removeView(mAdView)
+        parentView?.removeAllViewsInLayout()
+        mAdView?.destroy()
+        mAdView = null
+        parentView = null
     }
 
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
+        navController?.let {
+            return it.navigateUp() || super.onSupportNavigateUp()
+        }
+        return super.onSupportNavigateUp()
     }
 
     fun requestInterstitial() {
@@ -109,7 +143,6 @@ class MainActivity : AppCompatActivity() {
         val fullScreenCallback: FullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
                 Log.d(TAG, "Ad was dismissed.")
-                navController.navigate(R.id.action_convertProgressFragment_to_home)
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
@@ -124,7 +157,6 @@ class MainActivity : AppCompatActivity() {
         val adCallBack: InterstitialAdLoadCallback = object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
                 Log.d(TAG, adError.message)
-                mInterstitialAd = null
             }
 
             override fun onAdLoaded(interstitialAd: InterstitialAd) {
@@ -140,7 +172,7 @@ class MainActivity : AppCompatActivity() {
         if(mInterstitialAd != null) {
             mInterstitialAd?.show(this)
         }else {
-            navController.navigate(R.id.action_convertProgressFragment_to_home)
+            navController?.navigate(R.id.action_convertProgressFragment_to_home)
         }
     }
 
@@ -178,7 +210,7 @@ class MainActivity : AppCompatActivity() {
 
             var action = FileListFragmentDirections.actionHomeToConvert(newUriList)
 
-            when (navController.currentDestination?.id) {
+            when (navController?.currentDestination?.id) {
                 R.id.convert -> {
                     action = ConvertFragmentDirections.actionConvertSelf(newUriList)
                 }
@@ -203,6 +235,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun setBottomNavigationViewVisibility(visibility: Int) {
-        bottomNavigationView.visibility = visibility
+        bottomNavigationView?.visibility = visibility
     }
+
+    private fun setCurrentSettings() {
+        mainViewModel?.darkMode?.observe(this, { mode ->
+
+        })
+    }
+
+
+
+
 }

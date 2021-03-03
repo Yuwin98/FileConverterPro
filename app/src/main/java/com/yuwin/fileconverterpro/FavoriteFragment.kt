@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
@@ -17,7 +18,8 @@ class FavoriteFragment : BaseFragment(), FileListClickListener {
 
     private var _binding: FragmentFavoriteBinding? = null
     private val binding get() = _binding
-    private val viewModel by lazy{FavoriteViewModel(requireActivity().application)}
+
+    private var viewModel: FavoriteViewModel? = null
 
     private var data: List<ConvertedFile>? = null
 
@@ -37,8 +39,8 @@ class FavoriteFragment : BaseFragment(), FileListClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel.readFavoriteFiles.observe(viewLifecycleOwner, { items ->
+        viewModel = ViewModelProvider(this).get(FavoriteViewModel::class.java)
+        viewModel?.readFavoriteFiles?.observe(viewLifecycleOwner, { items ->
             if(items.isNullOrEmpty()) {
                 data = items
                 binding?.let {
@@ -80,6 +82,7 @@ class FavoriteFragment : BaseFragment(), FileListClickListener {
         super.onDestroyView()
         binding?.favoriteRecyclerView?.adapter = null
         _binding = null
+        viewModel = null
 
     }
 

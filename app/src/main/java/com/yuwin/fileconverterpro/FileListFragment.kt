@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,7 +25,7 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
 
     private var _binding: FragmentMainScreenBinding? = null
     private val binding get() = _binding
-    private val viewModel by lazy { FileListViewModel(requireActivity().application) }
+    private var viewModel: FileListViewModel? = null
 
     private val sb = StringBuilder("")
 
@@ -47,7 +48,7 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         setHasOptionsMenu(true)
         _binding = FragmentMainScreenBinding.inflate(inflater, container, false)
         binding?.lifecycleOwner = viewLifecycleOwner
-
+        viewModel = ViewModelProvider(this).get(FileListViewModel::class.java)
 
         return binding?.root
     }
@@ -56,7 +57,7 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         super.onViewCreated(view, savedInstanceState)
 
 
-        viewModel.readFiles.observe(viewLifecycleOwner, { items ->
+        viewModel?.readFiles?.observe(viewLifecycleOwner, { items ->
             if (items.isNullOrEmpty()) {
                 binding?.let {
                     it.noFilesImageView.visibility = View.VISIBLE
@@ -97,45 +98,45 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                 }
             }
             R.id.deleteAll -> {
-                viewModel.clearDatabase()
+                viewModel?.clearDatabase()
             }
             R.id.sortFileSize -> {
-                viewModel.readFilesBySize.observe(viewLifecycleOwner, { items ->
+                viewModel?.readFilesBySize?.observe(viewLifecycleOwner, { items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.sortFileName -> {
-                viewModel.readFilesByName.observe(viewLifecycleOwner, {items ->
+                viewModel?.readFilesByName?.observe(viewLifecycleOwner, {items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.sortFileDate -> {
-                viewModel.readFilesByDate.observe(viewLifecycleOwner, {items ->
+                viewModel?.readFilesByDate?.observe(viewLifecycleOwner, {items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.sortFileType -> {
-                viewModel.readFilesByType.observe(viewLifecycleOwner, {items ->
+                viewModel?.readFilesByType?.observe(viewLifecycleOwner, {items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.filterJpg -> {
-                viewModel.filterFilesByJpgJpeg.observe(viewLifecycleOwner, {items ->
+                viewModel?.filterFilesByJpgJpeg?.observe(viewLifecycleOwner, {items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.filterPdf -> {
-                viewModel.filterFilesByPdf.observe(viewLifecycleOwner, {items ->
+                viewModel?.filterFilesByPdf?.observe(viewLifecycleOwner, {items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.filterPng -> {
-                viewModel.filterFilesByPng.observe(viewLifecycleOwner, {items ->
+                viewModel?.filterFilesByPng?.observe(viewLifecycleOwner, {items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.filterWebp -> {
-                viewModel.filterFilesByWebp.observe(viewLifecycleOwner, {items ->
+                viewModel?.filterFilesByWebp?.observe(viewLifecycleOwner, {items ->
                     filterSortAndUpdateData(items)
                 })
             }
@@ -330,7 +331,7 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
             }
             R.id.actionDelete -> {
                 selectedFiles.forEach {
-                    viewModel.deleteSelectedFiles(it)
+                    viewModel?.deleteSelectedFiles(it)
                 }
                 showSnackBar("${selectedFiles.size} File(s) deleted")
                 multiSelection = false
@@ -375,7 +376,9 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Log.d("FileListFragment", "On Destroy View called")
         binding?.filesRecyclerView?.adapter = null
+        viewModel = null
         _binding = null
     }
 

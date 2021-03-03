@@ -4,7 +4,7 @@ class Constants {
 
     companion object {
         val IMAGE_LIMIT = 50
-        val IMAGE_CHOOSE = 10
+        val IMAGE_CHOOSE = 100
     }
 
 }

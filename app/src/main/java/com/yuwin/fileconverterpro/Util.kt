@@ -11,6 +11,9 @@ import android.webkit.MimeTypeMap
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
 import java.lang.String.format
@@ -60,7 +63,7 @@ class Util {
         }
 
         fun getMimeType(context: Context, uri: Uri): String? {
-            val cr  = context.contentResolver
+            val cr = context.contentResolver
             val mime = MimeTypeMap.getSingleton()
             return mime.getExtensionFromMimeType(cr.getType(uri))?.toUpperCase(Locale.ROOT)
         }
@@ -73,8 +76,8 @@ class Util {
                 val sizeIndex = it.getColumnIndex(OpenableColumns.SIZE)
                 it.moveToFirst()
 
-                val fileName =  it.getString(nameIndex)
-                val fileSize =  convertBytes(it.getLong(sizeIndex)).toString()
+                val fileName = it.getString(nameIndex)
+                val fileSize = convertBytes(it.getLong(sizeIndex)).toString()
                 cursor.close()
 
                 return FileInfo(fileName, fileSize)
@@ -82,20 +85,23 @@ class Util {
             return FileInfo("N/A", "N/A")
         }
 
-        fun getFileExtension(specificFormat: Int?, defaultFormat: Int?, convertAll: Boolean?): String {
-            return if(convertAll == true) {
+        fun getFileExtension(
+            specificFormat: Int?,
+            defaultFormat: Int?,
+            convertAll: Boolean?
+        ): String {
+            return if (convertAll == true) {
                 ".${FormatTypes.values()[defaultFormat!!].toString().toLowerCase(Locale.ROOT)}"
-            }else {
+            } else {
                 ".${FormatTypes.values()[specificFormat!!].toString().toLowerCase(Locale.ROOT)}"
             }
         }
 
 
-
         // Storage Details
         fun getExternalDir(context: Context): String {
             val externalStorageVolumes: Array<out File> =
-                    ContextCompat.getExternalFilesDirs(context.applicationContext, null)
+                ContextCompat.getExternalFilesDirs(context.applicationContext, null)
             return externalStorageVolumes[0].absolutePath + "/"
         }
 
@@ -114,7 +120,7 @@ class Util {
 
         fun getSendingType(context: Context, file: ConvertedFile): String {
 
-            when(Util.getMimeType(context, file.uri)) {
+            when (Util.getMimeType(context, file.uri)) {
                 "jpg" -> {
                     return "image/jpg"
                 }
@@ -134,15 +140,19 @@ class Util {
             return "*/*"
         }
 
-        fun deleteFileFromStorage(file: ConvertedFile)  {
+        fun deleteFileFromStorage(file: ConvertedFile) {
             val filePath = file.filePath
-            if(file.fileType == "pdf" && file.thumbnailUri != null){
+            if (file.fileType == "pdf" && file.thumbnailUri != null) {
                 File(file.thumbnailUri.path!!).delete()
             }
             File(filePath).delete()
         }
 
-        fun startShareSheetSingle(activity: FragmentActivity, file: File, typeString: String): Intent {
+        fun startShareSheetSingle(
+            activity: FragmentActivity,
+            file: File,
+            typeString: String
+        ): Intent {
 
             val imageUri = getFileUri(activity, file)
 
@@ -153,7 +163,10 @@ class Util {
             }
         }
 
-        fun startShareSheetMultiple(activity: FragmentActivity, files: ArrayList<ConvertedFile>): Intent {
+        fun startShareSheetMultiple(
+            activity: FragmentActivity,
+            files: ArrayList<ConvertedFile>
+        ): Intent {
             val imageUris: ArrayList<Uri> = arrayListOf()
             files.forEach { file ->
                 val selectedFile = File(file.filePath)
@@ -169,9 +182,9 @@ class Util {
 
         fun getFileUri(activity: FragmentActivity, file: File): Uri {
             return FileProvider.getUriForFile(
-                    activity,
-                    "com.yuwin.fileconverterpro.fileprovider",
-                    file
+                activity,
+                "com.yuwin.fileconverterpro.fileprovider",
+                file
             )
         }
 
@@ -189,7 +202,15 @@ class Util {
             return Bitmap.createScaledBitmap(input, newWidthPx, newHeightPx, true)
         }
 
+        fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
+            observe(lifecycleOwner, object : Observer<T> {
+                override fun onChanged(t: T?) {
+                    removeObserver(this)
+                    observer.onChanged(t)
+                }
+            })
 
+        }
 
 
     }
