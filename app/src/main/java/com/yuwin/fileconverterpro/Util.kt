@@ -120,7 +120,7 @@ class Util {
 
         fun getSendingType(context: Context, file: ConvertedFile): String {
 
-            when (Util.getMimeType(context, file.uri)) {
+            when (getMimeType(context, file.uri)) {
                 "jpg" -> {
                     return "image/jpg"
                 }

@@ -42,6 +42,10 @@ class SettingsFragment : Fragment() {
 
     }
 
+    private fun setupSeekBar() {
+        
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

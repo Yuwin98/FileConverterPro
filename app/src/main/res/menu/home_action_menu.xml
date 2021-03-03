@@ -5,7 +5,7 @@
    <item android:id="@+id/viewChange"
        android:title="Grid View"
        android:icon="@drawable/ic_gridview"
-       app:showAsAction="always"
+       app:showAsAction="ifRoom"
        />
 
     <item android:id="@+id/sortby"

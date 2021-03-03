@@ -9,12 +9,15 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.EditText
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.yuwin.fileconverterpro.databinding.FragmentMainScreenBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
@@ -98,7 +101,17 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                 }
             }
             R.id.deleteAll -> {
-                viewModel?.clearDatabase()
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Clear Database?")
+                    .setMessage("This will delete all converted files")
+                    .setPositiveButton("Clear") {dialog, id ->
+                        viewModel?.clearDatabase()
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("Cancel") {dialog, id ->
+                        dialog.dismiss()
+                    }
+                    .show()
             }
             R.id.sortFileSize -> {
                 viewModel?.readFilesBySize?.observe(viewLifecycleOwner, { items ->
@@ -239,7 +252,9 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
 
     private fun openMyFile(data: ConvertedFile?) {
         if(data?.fileType == "pdf") {
-            startPdfOpenActivity(data.filePath)
+//            startPdfOpenActivity(data.filePath)
+            val action = FileListFragmentDirections.actionHomeToPdfViewerFragment(data)
+            findNavController().navigate(action)
         }else {
             val action = data?.let { FileListFragmentDirections.actionHomeToImageViewFragment(it) }
             if (action != null) {
@@ -261,7 +276,7 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         try {
             startActivity(intent)
         }catch (e: ActivityNotFoundException) {
-            showSnackBar("There is no app to view PDF files")
+            Toast.makeText(requireContext(), "No app to view pdf files", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -328,20 +343,52 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
     override fun onActionItemClicked(actionMode: ActionMode?, item: MenuItem?): Boolean {
         when(item?.itemId) {
             R.id.actionMoveToFolder -> {
+                val editTextView = layoutInflater.inflate(R.layout.edittext_layout, null)
+                MaterialAlertDialogBuilder(requireContext())
+                    .setView(editTextView)
+                    .setTitle("Create Folder")
+                    .setMessage("This will create a folder and move selected files into it")
+                    .setPositiveButton("Create") { dialog, id ->
+                        val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
+                        val name = editText.text.toString()
+                        if (name.isNotBlank()) {
+                            dialog.dismiss()
+
+                        } else {
+                            Toast.makeText(requireContext(), "Folder Name empty", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    .setNegativeButton("Cancel") { dialog, id ->
+                        dialog.dismiss()
+                    }
+                    .show()
             }
             R.id.actionDelete -> {
-                selectedFiles.forEach {
-                    viewModel?.deleteSelectedFiles(it)
-                }
-                showSnackBar("${selectedFiles.size} File(s) deleted")
-                multiSelection = false
-                selectedFiles.clear()
-                actionMode?.finish()
+
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Delete")
+                    .setMessage("This will delete selected files")
+                    .setPositiveButton("Delete") {dialog, id ->
+                        selectedFiles.forEach {
+                            viewModel?.deleteSelectedFiles(it)
+                        }
+
+                        multiSelection = false
+                        Toast.makeText(requireContext(), "${selectedFiles.size} file(s) deleted", Toast.LENGTH_SHORT).show()
+                        selectedFiles.clear()
+                        actionMode?.finish()
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("Cancel") {dialog, id ->
+                        dialog.dismiss()
+                    }
+                    .show()
+
+
             }
             R.id.actionShare -> {
                 val shareIntent = Util.startShareSheetMultiple(requireActivity(), selectedFiles)
                 startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
-
 
             }
         }

@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_home_to_imageViewFragment"
             app:destination="@id/imageViewFragment" />
+        <action
+            android:id="@+id/action_home_to_pdfViewerFragment"
+            app:destination="@id/pdfViewerFragment" />
     </fragment>
     <fragment
         android:id="@+id/convert"
@@ -98,5 +101,17 @@
             app:destination="@id/home"
             app:popUpTo="@id/navigation"
             app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/pdfViewerFragment"
+        android:name="com.yuwin.fileconverterpro.PdfViewerFragment"
+        android:label="PDF Viewer"
+        tools:layout="@layout/fragment_pdf_viewer">
+        <argument
+            android:name="pdfFile"
+            app:argType="com.yuwin.fileconverterpro.db.ConvertedFile" />
+        <action
+            android:id="@+id/action_pdfViewerFragment_to_home"
+            app:destination="@id/home" />
     </fragment>
 </navigation>

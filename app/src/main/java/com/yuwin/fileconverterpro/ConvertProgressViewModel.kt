@@ -484,7 +484,7 @@ class ConvertProgressViewModel(
         val fileSizeString = Util.convertBytes(fileSize)
         return ConvertedFile(
             0,
-            fileName,
+            "$fileName.pdf",
             fileSizeString,
             fileSize,
             filePath,

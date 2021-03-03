@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 
-class ImagePreviewViewModel(private val app: Application, private val id: Long): AndroidViewModel(app) {
+class FilePreviewViewModel(private val app: Application, private val id: Long): AndroidViewModel(app) {
 
     private var convertedDao = AppDatabase.getInstance(app).convertedFileDao()
     private var repository = Repository(convertedDao)

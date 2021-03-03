@@ -22,7 +22,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:fontFamily="@font/allerta"
-                android:text="Interface"
+                android:text="Misc"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="@id/supportLayout"
                 app:layout_constraintTop_toBottomOf="@id/supportLayout" />
@@ -324,38 +324,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/interfaceTitle">
 
-                <TextView
-                    android:id="@+id/darkModeTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:fontFamily="@font/allerta"
-                    android:text="Dark mode"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/darkModeCardView"
-                    app:layout_constraintStart_toEndOf="@+id/darkModeCardView" />
-
-                <TextView
-                    android:id="@+id/notificationTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:fontFamily="@font/allerta"
-                    android:text="Notifications"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/notificationsCardView"
-                    app:layout_constraintStart_toEndOf="@+id/notificationsCardView" />
-
-                <TextView
-                    android:id="@+id/testSizeTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:fontFamily="@font/allerta"
-                    android:text="Text Size"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/textSizeCardView"
-                    app:layout_constraintStart_toEndOf="@+id/textSizeCardView" />
 
                 <TextView
                     android:id="@+id/textView7"
@@ -368,98 +336,6 @@
                     app:layout_constraintBottom_toBottomOf="@+id/versionCardView"
                     app:layout_constraintStart_toEndOf="@+id/versionCardView" />
 
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/textSizeSpinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="24dp"
-                    android:entries="@array/text_size"
-                    app:layout_constraintBottom_toBottomOf="@+id/testSizeTextView"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/testSizeTextView" />
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/darkModeCardView"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginTop="24dp"
-                    android:elevation="8dp"
-                    app:cardBackgroundColor="#121212"
-                    app:cardCornerRadius="5dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center">
-
-                        <ImageView
-                            android:id="@+id/darkModeIcon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_dark_mode"
-                            app:tint="@android:color/white" />
-                    </LinearLayout>
-
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/textSizeCardView"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginTop="24dp"
-                    android:elevation="8dp"
-                    app:cardBackgroundColor="#3498db"
-                    app:cardCornerRadius="5dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/notificationsCardView">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center">
-
-                        <ImageView
-                            android:id="@+id/textIcon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_title"
-                            app:tint="@android:color/white" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/notificationsCardView"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginTop="24dp"
-                    android:elevation="8dp"
-                    app:cardBackgroundColor="#f0932b"
-                    app:cardCornerRadius="5dp"
-                    app:layout_constraintStart_toStartOf="@+id/darkModeCardView"
-                    app:layout_constraintTop_toBottomOf="@+id/darkModeCardView">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center">
-
-                        <ImageView
-                            android:id="@+id/notificationIcon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_notifications"
-                            app:tint="@android:color/white" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/versionCardView"
@@ -473,7 +349,7 @@
                     app:cardCornerRadius="5dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textSizeCardView">
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -491,27 +367,7 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/darkModeSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="24dp"
-                    android:scaleX="1.2"
-                    android:scaleY="1.1"
-                    app:layout_constraintBottom_toBottomOf="@+id/darkModeTextView"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/darkModeTextView" />
 
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/notificationSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="24dp"
-                    android:scaleX="1.2"
-                    android:scaleY="1.1"
-                    app:layout_constraintBottom_toBottomOf="@+id/notificationTextView"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/notificationTextView" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

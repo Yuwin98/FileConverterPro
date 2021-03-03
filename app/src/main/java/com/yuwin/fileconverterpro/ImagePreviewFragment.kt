@@ -1,7 +1,5 @@
 package com.yuwin.fileconverterpro
 
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yuwin.fileconverterpro.databinding.FragmentImageViewBinding
-import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
 
 
@@ -25,15 +22,15 @@ class ImagePreviewFragment : BaseFragment() {
 
     override var bottomNavigationVisibility = View.GONE
 
-    private lateinit var imagePreviewViewModel: ImagePreviewViewModel
+    private lateinit var filePreviewViewModel: FilePreviewViewModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        imagePreviewViewModel = ViewModelProvider(
+        filePreviewViewModel = ViewModelProvider(
             this,
-            ImagePreviewViewModelFactory(requireActivity().application, args.convertedFile.id)
-        ).get(ImagePreviewViewModel::class.java)
+            FilePreviewViewModelFactory(requireActivity().application, args.convertedFile.id)
+        ).get(FilePreviewViewModel::class.java)
 
 
     }
@@ -45,7 +42,7 @@ class ImagePreviewFragment : BaseFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.convertedFile = args.convertedFile
-        binding.viewModel = imagePreviewViewModel
+        binding.viewModel = filePreviewViewModel
 
         return binding.root
     }
@@ -57,10 +54,10 @@ class ImagePreviewFragment : BaseFragment() {
         val file = args.convertedFile
 
         binding.favoriteOutlineImageView.setOnClickListener {
-            if (imagePreviewViewModel.isFavorite.value == true) {
-                imagePreviewViewModel.setFavorite(file, false)
+            if (filePreviewViewModel.isFavorite.value == true) {
+                filePreviewViewModel.setFavorite(file, false)
             } else {
-                imagePreviewViewModel.setFavorite(file, true)
+                filePreviewViewModel.setFavorite(file, true)
             }
         }
 
@@ -74,10 +71,10 @@ class ImagePreviewFragment : BaseFragment() {
         binding.deleteImageView.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Delete File?")
-                .setMessage("This file will be deleted")
+                .setMessage("This will delete this file")
                 .setPositiveButton("Delete") { dialog, id ->
                     dialog.dismiss()
-                    imagePreviewViewModel.deleteFile(file)
+                    filePreviewViewModel.deleteFile(file)
                     findNavController().navigate(R.id.action_imageViewFragment_to_home)
                 }
                 .setNegativeButton("Cancel") { dialog, id ->
@@ -96,7 +93,7 @@ class ImagePreviewFragment : BaseFragment() {
                     val name = editText.text.toString()
                     if (name.isNotBlank()) {
                         dialog.dismiss()
-                        imagePreviewViewModel.rename(file, name)
+                        filePreviewViewModel.rename(file, name)
                     } else {
                         Toast.makeText(requireContext(), "Name empty", Toast.LENGTH_SHORT).show()
                     }

@@ -5,10 +5,6 @@
 
     <data>
         <variable
-            name="convertedFile"
-            type="com.yuwin.fileconverterpro.db.ConvertedFile" />
-        
-        <variable
             name="viewModel"
             type="com.yuwin.fileconverterpro.FilePreviewViewModel" />
     </data>
@@ -16,24 +12,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ImagePreviewFragment">
-
-
-        <ImageView
-            android:id="@+id/selectedImageView"
-            loadImageFromUri="@{convertedFile.uri}"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:scaleType="fitCenter"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
-            tools:src="@tools:sample/avatars" />
+        tools:context=".PdfViewerFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout"
+            android:id="@+id/pdfViewToolBar"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:background="@color/toolsBackground"
@@ -100,6 +82,49 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
+        <ImageView
+            android:id="@+id/pdfPage"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/pdfViewToolBar"
+            tools:src="@tools:sample/avatars" />
 
+        <Button
+            android:id="@+id/previousButton"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:icon="@drawable/ic_arrow_back"
+            app:iconTint="@color/colorText"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/pdfPage"
+            app:layout_constraintTop_toBottomOf="@+id/pdfViewToolBar"
+            app:rippleColor="@color/darker" />
+
+        <Button
+            android:id="@+id/nextButton"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:icon="@drawable/ic_arrow_forward"
+            app:iconGravity="textEnd"
+            app:iconPadding="6dp"
+            app:iconTint="@color/colorText"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pdfViewToolBar"
+            app:rippleColor="@color/darker" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
