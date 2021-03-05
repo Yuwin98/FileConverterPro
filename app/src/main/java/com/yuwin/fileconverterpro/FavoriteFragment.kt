@@ -58,9 +58,17 @@ class FavoriteFragment : BaseFragment(), FileListClickListener {
 
     override fun onItemClick(position: Int) {
         val data = data?.get(position)
-        val action = data?.let { FavoriteFragmentDirections.actionFavoriteToImageViewFragment(it) }
-        if (action != null) {
+
+        val fileType = data?.fileType
+        if(fileType == "pdf"){
+            val action = FavoriteFragmentDirections.actionFavoriteToPdfViewerFragment(data)
             findNavController().navigate(action)
+        }else {
+            val action =
+                data?.let { FavoriteFragmentDirections.actionFavoriteToImageViewFragment(it) }
+            if (action != null) {
+                findNavController().navigate(action)
+            }
         }
     }
 

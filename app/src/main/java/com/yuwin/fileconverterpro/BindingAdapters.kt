@@ -1,18 +1,14 @@
 package com.yuwin.fileconverterpro
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.util.Log
-import android.view.View
 import android.widget.*
-import android.widget.AdapterView.OnItemSelectedListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
 import androidx.databinding.BindingAdapter
-import androidx.databinding.InverseBindingAdapter
-import androidx.databinding.InverseBindingListener
 import com.bumptech.glide.Glide
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
@@ -27,12 +23,22 @@ class BindingAdapters {
         @BindingAdapter("loadThumbnailFromUri")
         @JvmStatic
         fun loadThumbnailImage(view: ImageView, convertedFile: ConvertedFile) {
-            if(convertedFile.fileType == "pdf"){
-                Glide.with(view).load(convertedFile.thumbnailUri).into(view)
-            }else{
-                Glide.with(view).load(convertedFile.uri).into(view)
+            when (convertedFile.fileType) {
+                "pdf" -> {
+                    Glide.with(view).load(convertedFile.thumbnailUri).into(view)
+                }
+                "Directory" -> {
+                    Glide.with(view).load(R.drawable.ic_folder_black_).into(view)
+                    val folderColorList = Util.getAllFolderColors(view.context)
+                    val folderColor = folderColorList[convertedFile.directoryColor!!]
+                    ImageViewCompat.setImageTintList(view, ColorStateList.valueOf(folderColor))
+                }
+                else -> {
+                    Glide.with(view).load(convertedFile.uri).into(view)
+                }
             }
         }
+
 
         @BindingAdapter("loadImageFromUri")
         @JvmStatic
@@ -135,6 +141,14 @@ class BindingAdapters {
             }else {
                 view.foreground = ColorDrawable( Color.argb(0,0,0,0)
                 )
+            }
+        }
+
+        @BindingAdapter("changeNonFolderColor")
+        @JvmStatic
+        fun changeNonFolderColor(view: ImageView, isDirectory: Boolean) {
+            if(!isDirectory) {
+                ImageViewCompat.setImageTintList(view, null)
             }
         }
 

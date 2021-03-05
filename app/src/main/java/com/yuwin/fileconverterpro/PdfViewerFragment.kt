@@ -1,5 +1,6 @@
 package com.yuwin.fileconverterpro
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
@@ -36,10 +37,10 @@ class PdfViewerFragment : BaseFragment() {
 
     private var currentPage: PdfRenderer.Page? = null
 
-    private lateinit var _binding: FragmentPdfViewerBinding
+    private var _binding: FragmentPdfViewerBinding? = null
     private val binding get() = _binding
 
-    private lateinit var viewModel: FilePreviewViewModel
+    private var viewModel: FilePreviewViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,13 +53,13 @@ class PdfViewerFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
 
         _binding = FragmentPdfViewerBinding.inflate(layoutInflater, container, false)
 
-        _binding.lifecycleOwner = viewLifecycleOwner
-        _binding.viewModel = viewModel
-        return _binding.root
+        _binding?.lifecycleOwner = viewLifecycleOwner
+        _binding?.viewModel = viewModel
+        return _binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -70,68 +71,71 @@ class PdfViewerFragment : BaseFragment() {
             pageNumber = savedInstanceState.getInt(CURRENTPAGEINDEX, 0)
         }
 
-        binding.nextButton.setOnClickListener {
+
+
+        binding?.nextButton?.setOnClickListener {
             currentPage?.index?.plus(1)?.let { it1 -> showCurrentPage(it1) }
         }
 
-        binding.previousButton.setOnClickListener {
+        binding?.previousButton?.setOnClickListener {
             currentPage?.index?.minus(1)?.let { it1 -> showCurrentPage(it1) }
         }
 
 
         val file = args.pdfFile
 
-        binding.favoriteOutlineImageView.setOnClickListener {
-            if (viewModel.isFavorite.value == true) {
-                viewModel.setFavorite(file, false)
+        binding?.favoriteOutlineImageView?.setOnClickListener {
+            if (viewModel?.isFavorite?.value == true) {
+                viewModel?.setFavorite(file, false)
             } else {
-                viewModel.setFavorite(file, true)
+                viewModel?.setFavorite(file, true)
             }
         }
 
-        binding.shareImageView.setOnClickListener {
+        binding?.shareImageView?.setOnClickListener {
             val typeString = Util.getSendingType(requireContext(), file)
             val shareIntent =
                 Util.startShareSheetSingle(requireActivity(), File(file.filePath), typeString)
             startActivity(Intent.createChooser(shareIntent, "Send To"))
         }
 
-        binding.deleteImageView.setOnClickListener {
+        binding?.deleteImageView?.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Delete File?")
                 .setMessage("This will delete this file")
-                .setPositiveButton("Delete") { dialog, id ->
+                .setPositiveButton("Delete") { dialog, _ ->
                     dialog.dismiss()
-                    viewModel.deleteFile(file)
+                    viewModel?.deleteFile(file)
                     findNavController().navigate(R.id.action_pdfViewerFragment_to_home)
                 }
-                .setNegativeButton("Cancel") { dialog, id ->
+                .setNegativeButton("Cancel") { dialog, _ ->
                     dialog.dismiss()
                 }.show()
 
         }
 
-        binding.editImageView.setOnClickListener {
+        binding?.editImageView?.setOnClickListener {
             val editTextView = layoutInflater.inflate(R.layout.edittext_layout, null)
             MaterialAlertDialogBuilder(requireContext())
                 .setView(editTextView)
                 .setTitle("Rename File")
-                .setPositiveButton("Rename") { dialog, id ->
+                .setPositiveButton("Rename") { dialog, _ ->
                     val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
                     val name = editText.text.toString()
                     if (name.isNotBlank()) {
                         dialog.dismiss()
-                        viewModel.rename(file, name)
+                        viewModel?.rename(file, name)
                     } else {
                         Toast.makeText(requireContext(), "Name empty", Toast.LENGTH_SHORT).show()
                     }
                 }
-                .setNegativeButton("Cancel") { dialog, id ->
+                .setNegativeButton("Cancel") { dialog, _ ->
                     dialog.dismiss()
                 }
                 .show()
 
         }
+
 
     }
 
@@ -177,7 +181,7 @@ class PdfViewerFragment : BaseFragment() {
         if (bitmap != null) {
             currentPage?.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
         }
-        binding.pdfPage.setImageBitmap(bitmap)
+        binding?.pdfPage?.setImageBitmap(bitmap)
 
     }
 
@@ -185,12 +189,38 @@ class PdfViewerFragment : BaseFragment() {
         val file = File(args.pdfFile.filePath)
         fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
         pdfRenderer = PdfRenderer(fileDescriptor)
+        if(pdfRenderer.pageCount == 1) {
+            binding?.nextButton?.visibility = View.GONE
+            binding?.previousButton?.visibility = View.GONE
+        }
+    }
+
+    private fun startPdfOpenActivity(filePath: String) {
+        val file = File(filePath)
+        val uri = Util.getFileUri(requireActivity(), file)
+
+        val target = Intent()
+        target.action = Intent.ACTION_VIEW
+        target.setDataAndType(uri, "application/pdf")
+        target.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        val intent = Intent.createChooser(target, "Open PDF")
+        try {
+            startActivity(intent)
+        }catch (e: ActivityNotFoundException) {
+            Toast.makeText(requireContext(), "No app to view pdf files", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
         outState.putInt(CURRENTPAGEINDEX, pageNumber)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel = null
+        _binding = null
     }
 
 

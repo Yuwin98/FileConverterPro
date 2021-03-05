@@ -19,7 +19,6 @@ import com.google.android.gms.ads.*
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.yuwin.fileconverterpro.misc.UiMode
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -171,8 +170,6 @@ class MainActivity : AppCompatActivity() {
     fun showInterstitial() {
         if(mInterstitialAd != null) {
             mInterstitialAd?.show(this)
-        }else {
-            navController?.navigate(R.id.action_convertProgressFragment_to_home)
         }
     }
 
@@ -239,9 +236,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setCurrentSettings() {
-        mainViewModel?.darkMode?.observe(this, { mode ->
 
-        })
     }
 
 

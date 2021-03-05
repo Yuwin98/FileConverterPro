@@ -11,10 +11,11 @@ import com.yuwin.fileconverterpro.db.ConvertedFile
 import com.yuwin.fileconverterpro.db.Repository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.File
 
-class FileListViewModel(private val app: Application): AndroidViewModel(app) {
+class FileListViewModel(private val app: Application) : AndroidViewModel(app) {
 
     private val database: AppDatabase = AppDatabase.getInstance(app.applicationContext)
     private val repository: Repository = Repository(database.convertedFileDao())
@@ -39,7 +40,6 @@ class FileListViewModel(private val app: Application): AndroidViewModel(app) {
     val filterFilesByWebp = repository.filterAllFilesByType(webp).asLiveData()
 
 
-
     fun clearDatabase() {
         viewModelScope.launch {
             repository.deleteAll()
@@ -48,28 +48,65 @@ class FileListViewModel(private val app: Application): AndroidViewModel(app) {
             if (dir.isDirectory && dir.exists()) {
                 val children: Array<String> = dir.list()!!
                 for (i in children.indices) {
-                    File(dir, children[i]).delete()
+                    if (File(dir, children[i]).isDirectory) {
+                        clearDir(File(dir, children[i]))
+                    } else {
+                        File(dir, children[i]).delete()
+                    }
                 }
             }
-            if(dirPdf.exists() && dirPdf.isDirectory) {
+            if (dirPdf.exists() && dirPdf.isDirectory) {
                 val children: Array<String> = dirPdf.list()!!
                 for (i in children.indices) {
                     File(dirPdf, children[i]).delete()
                 }
+
             }
         }
 
     }
 
-    fun deleteSelectedFiles(file: ConvertedFile) {
+    private fun clearDir(directory: File) {
+        val files = directory.listFiles()
         viewModelScope.launch {
-                Util.deleteFileFromStorage(file)
-                repository.deleteFile(file)
+            files?.forEach {
+                File(it.path).delete()
+            }
+        }
+        directory.delete()
+    }
 
+    suspend fun deleteSelectedFiles(file: ConvertedFile) {
+        if (file.isDirectory) {
+
+            val dir = File(file.filePath)
+            val children: Array<String> = dir.list()!!
+            for (i in children.indices) {
+                File(dir, children[i]).delete()
+            }
+            dir.delete()
+            viewModelScope.launch {
+                repository.deleteFile(file)
+            }
+        } else {
+            Util.deleteFileFromStorage(file)
+            viewModelScope.launch {
+                repository.deleteFile(file)
+            }
         }
     }
 
+    fun updateNewFile(file: ConvertedFile) {
+        viewModelScope.launch {
+            repository.updateFile(file)
+        }
+    }
 
+    fun insertFolder(folder: ConvertedFile) {
+        viewModelScope.launch {
+            repository.insertFile(folder)
+        }
+    }
 
 
 }

@@ -19,6 +19,9 @@
         <action
             android:id="@+id/action_home_to_pdfViewerFragment"
             app:destination="@id/pdfViewerFragment" />
+        <action
+            android:id="@+id/action_home_to_directoryViewFragment"
+            app:destination="@id/directoryViewFragment" />
     </fragment>
     <fragment
         android:id="@+id/convert"
@@ -65,6 +68,9 @@
         <action
             android:id="@+id/action_favorite_to_imageViewFragment"
             app:destination="@id/imageViewFragment" />
+        <action
+            android:id="@+id/action_favorite_to_pdfViewerFragment"
+            app:destination="@id/pdfViewerFragment" />
     </fragment>
     <fragment
         android:id="@+id/convertProgressFragment"
@@ -113,5 +119,23 @@
         <action
             android:id="@+id/action_pdfViewerFragment_to_home"
             app:destination="@id/home" />
+    </fragment>
+    <fragment
+        android:id="@+id/directoryViewFragment"
+        android:name="com.yuwin.fileconverterpro.DirectoryViewFragment"
+        android:label="Files"
+        tools:layout="@layout/fragment_directory_view">
+        <action
+            android:id="@+id/action_directoryViewFragment_to_home"
+            app:destination="@id/home" />
+        <argument
+            android:name="data"
+            app:argType="com.yuwin.fileconverterpro.db.ConvertedFile" />
+        <action
+            android:id="@+id/action_directoryViewFragment_to_imageViewFragment"
+            app:destination="@id/imageViewFragment" />
+        <action
+            android:id="@+id/action_directoryViewFragment_to_pdfViewerFragment"
+            app:destination="@id/pdfViewerFragment" />
     </fragment>
 </navigation>

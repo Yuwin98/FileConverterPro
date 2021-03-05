@@ -26,4 +26,34 @@
     <color name="statusBarColor">@color/colorPrimaryDark</color>
     <color name="contextualStatusBarColor">@android:color/black</color>
     <color name="contextualActionBarColor">@color/darker</color>
+
+
+    <color name="fc1">#1abc9c</color>
+    <color name="fc2">#16a085</color>
+    <color name="fc3">#f1c40f</color>
+    <color name="fc4">#f39c12</color>
+    <color name="fc5">#2ecc71</color>
+    <color name="fc6">#27ae60</color>
+    <color name="fc7">#e67e22</color>
+    <color name="fc8">#d35400</color>
+    <color name="fc9">#3498db</color>
+    <color name="fc10">#2980b9</color>
+    <color name="fc11">#e74c3c</color>
+    <color name="fc12">#c0392b</color>
+    <color name="fc13">#9b59b6</color>
+    <color name="fc14">#8e44ad</color>
+    <color name="fc15">#2c3e50</color>
+    <color name="fc16">#f368e0</color>
+    <color name="fc17">#5f27cd</color>
+    <color name="fc18">#341f97</color>
+    <color name="fc19">#ff9f43</color>
+    <color name="fc20">#1dd1a1</color>
+    <color name="fc21">#3d3d3d</color>
+    <color name="fc22">#B33771</color>
+    <color name="fc23">#182C61</color>
+    <color name="fc24">#FC427B</color>
+    <color name="fc25">#6D214F</color>
+
+
+
 </resources>

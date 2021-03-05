@@ -12,7 +12,6 @@ import com.yuwin.fileconverterpro.db.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.*
 
 class FilePreviewViewModel(private val app: Application, private val id: Long): AndroidViewModel(app) {
 
@@ -47,7 +46,7 @@ class FilePreviewViewModel(private val app: Application, private val id: Long): 
 
     fun rename(convertedFile: ConvertedFile, newName: String) {
         val newFileNameWithExtension = "$newName.${convertedFile.fileType.replace(".","")}"
-        val newPath = Util.getStoragePath(Util.getExternalDir(app), newName, ".${convertedFile.fileType.replace(".","")}")
+        val newPath = Util.getStoragePathWithExtension(Util.getExternalDir(app), newName, ".${convertedFile.fileType.replace(".","")}")
         val newUri = File(newPath).toUri()
 
         File(convertedFile.filePath).renameTo(File(newPath))

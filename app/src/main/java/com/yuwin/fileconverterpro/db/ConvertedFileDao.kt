@@ -1,6 +1,5 @@
 package com.yuwin.fileconverterpro.db
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
@@ -12,6 +11,9 @@ interface ConvertedFileDao {
 
     @Query("Select * from ConvertedFile where favorite=1")
     fun getAllFavoriteFiles(): Flow<List<ConvertedFile>>
+
+    @Query("Select * from ConvertedFile where inDirectory=1")
+    fun getAllFilesInDirectories(): Flow<List<ConvertedFile>>
 
     @Query("Select * from ConvertedFile Order By fileName ")
     fun getAllFilesByName() : Flow<List<ConvertedFile>>
@@ -42,6 +44,9 @@ interface ConvertedFileDao {
 
     @Query("Select favorite from ConvertedFile Where Id=:id ")
     fun isFavorite(id: Long): Boolean
+
+    @Query("Select isDirectory from ConvertedFile where Id=:id")
+    fun isDirectory(id: Long): Boolean
 
     @Query("Delete from convertedFile")
     suspend fun deleteAll()

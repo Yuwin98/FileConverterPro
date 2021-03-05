@@ -9,6 +9,10 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
         return convertedFileDao.getAllFiles()
     }
 
+    fun getAllFilesInDirectory(): Flow<List<ConvertedFile>> {
+        return convertedFileDao.getAllFilesInDirectories()
+    }
+
     fun getAllFavoriteFiles(): Flow<List<ConvertedFile>> {
         return convertedFileDao.getAllFavoriteFiles()
     }
@@ -48,6 +52,10 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
 
     fun isFavorite(id: Long): Boolean {
         return convertedFileDao.isFavorite(id)
+    }
+
+    fun isDirectory(id: Long): Boolean {
+        return convertedFileDao.isDirectory(id)
     }
 
     fun getCount(): Int {

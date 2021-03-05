@@ -7,7 +7,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import com.yuwin.fileconverterpro.misc.UiMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -21,17 +20,17 @@ val Context.appDataStore: DataStore<Preferences> by preferencesDataStore(PREFERE
 class DataStoreRepository(val context: Application) {
 
     private object PreferencesKeys {
-        val UiMode = intPreferencesKey("ui_mode")
+        val Quality = intPreferencesKey("quality")
     }
 
 
-    suspend fun setUiMode(mode: UiMode) {
+    suspend fun setDefaultQuality(value: Int) {
         context.appDataStore.edit { settings ->
-            settings[PreferencesKeys.UiMode] = mode.ordinal
+            settings[PreferencesKeys.Quality] = value
         }
     }
 
-    val uiMode: Flow<Int> = context.appDataStore.data
+    val defaultQuality: Flow<Int> = context.appDataStore.data
         .catch { exception ->
             if(exception is IOException) {
                 Log.d("settings", exception.message.toString())
@@ -40,7 +39,7 @@ class DataStoreRepository(val context: Application) {
                 throw exception
             }
         }.map { preferences ->
-            val uiMode = preferences[PreferencesKeys.UiMode] ?: 0
+            val uiMode = preferences[PreferencesKeys.Quality] ?: 100
             uiMode
         }
 

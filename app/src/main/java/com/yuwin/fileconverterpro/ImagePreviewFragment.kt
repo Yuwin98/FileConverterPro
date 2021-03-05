@@ -70,14 +70,14 @@ class ImagePreviewFragment : BaseFragment() {
 
         binding.deleteImageView.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Delete File?")
+                .setTitle("Delete")
                 .setMessage("This will delete this file")
-                .setPositiveButton("Delete") { dialog, id ->
+                .setPositiveButton("Delete") { dialog, _ ->
                     dialog.dismiss()
                     filePreviewViewModel.deleteFile(file)
                     findNavController().navigate(R.id.action_imageViewFragment_to_home)
                 }
-                .setNegativeButton("Cancel") { dialog, id ->
+                .setNegativeButton("Cancel") { dialog, _ ->
                     dialog.dismiss()
                 }.show()
 
@@ -88,7 +88,7 @@ class ImagePreviewFragment : BaseFragment() {
             MaterialAlertDialogBuilder(requireContext())
                 .setView(editTextView)
                 .setTitle("Rename File")
-                .setPositiveButton("Rename") { dialog, id ->
+                .setPositiveButton("Rename") { dialog, _ ->
                     val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
                     val name = editText.text.toString()
                     if (name.isNotBlank()) {
@@ -98,7 +98,7 @@ class ImagePreviewFragment : BaseFragment() {
                         Toast.makeText(requireContext(), "Name empty", Toast.LENGTH_SHORT).show()
                     }
                 }
-                .setNegativeButton("Cancel") { dialog, id ->
+                .setNegativeButton("Cancel") { dialog, _ ->
                     dialog.dismiss()
                 }
                 .show()

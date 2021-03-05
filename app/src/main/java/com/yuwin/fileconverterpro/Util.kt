@@ -21,6 +21,7 @@ import java.text.CharacterIterator
 import java.text.SimpleDateFormat
 import java.text.StringCharacterIterator
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.sqrt
@@ -105,8 +106,25 @@ class Util {
             return externalStorageVolumes[0].absolutePath + "/"
         }
 
-        fun getStoragePath(storageDir: String, fileName: String, fileExtension: String): String {
+        fun getStoragePathWithExtension(
+            storageDir: String,
+            fileName: String,
+            fileExtension: String
+        ): String {
             return "$storageDir$fileName$fileExtension"
+        }
+
+        fun getStorageFolder(storageDir: String, folderName: String): String {
+            return "$storageDir$folderName"
+        }
+
+        fun getContentSize(value: Int): String {
+            return when (value) {
+                0 -> "0 items"
+                1 -> "1 item"
+                else -> "$value items"
+            }
+
         }
 
         fun isExternalStorageWritable(): Boolean {
@@ -163,6 +181,42 @@ class Util {
             }
         }
 
+        private fun getDirectoryFilesAsSet(file: ConvertedFile): Set<String> {
+            val paths = mutableSetOf<String>()
+            val files = File(file.filePath).listFiles()
+
+            files?.forEach {
+                paths.add(it.path)
+            }
+            return paths
+        }
+
+
+        fun filterItems(
+            file: ConvertedFile,
+            items: List<ConvertedFile>
+        ): List<ConvertedFile> {
+            val dirFiles = getDirectoryFilesAsSet(file)
+            return items.filter { it.filePath in dirFiles }
+        }
+
+
+        fun shareSheetMultipleDirectory(
+            activity: FragmentActivity,
+            files: Array<File>?
+        ): Intent {
+            val imageUris: ArrayList<Uri> = arrayListOf()
+            files?.forEach { file ->
+                imageUris.add(getFileUri(activity, file))
+            }
+
+            return Intent().apply {
+                action = Intent.ACTION_SEND_MULTIPLE
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris)
+                type = "*/*"
+            }
+        }
+
         fun startShareSheetMultiple(
             activity: FragmentActivity,
             files: ArrayList<ConvertedFile>
@@ -210,6 +264,38 @@ class Util {
                 }
             })
 
+        }
+
+        fun getAllFolderColors(context: Context): List<Int> {
+            return listOf(
+                ContextCompat.getColor(context, R.color.fc1),
+                ContextCompat.getColor(context, R.color.fc2),
+                ContextCompat.getColor(context, R.color.fc3),
+                ContextCompat.getColor(context, R.color.fc4),
+                ContextCompat.getColor(context, R.color.fc5),
+                ContextCompat.getColor(context, R.color.fc6),
+                ContextCompat.getColor(context, R.color.fc7),
+                ContextCompat.getColor(context, R.color.fc8),
+                ContextCompat.getColor(context, R.color.fc9),
+                ContextCompat.getColor(context, R.color.fc10),
+                ContextCompat.getColor(context, R.color.fc11),
+                ContextCompat.getColor(context, R.color.fc12),
+                ContextCompat.getColor(context, R.color.fc13),
+                ContextCompat.getColor(context, R.color.fc14),
+                ContextCompat.getColor(context, R.color.fc15),
+                ContextCompat.getColor(context, R.color.fc16),
+                ContextCompat.getColor(context, R.color.fc17),
+                ContextCompat.getColor(context, R.color.fc18),
+                ContextCompat.getColor(context, R.color.fc19),
+                ContextCompat.getColor(context, R.color.fc20),
+                ContextCompat.getColor(context, R.color.fc21),
+                ContextCompat.getColor(context, R.color.fc22),
+                ContextCompat.getColor(context, R.color.fc23),
+                ContextCompat.getColor(context, R.color.fc24),
+                ContextCompat.getColor(context, R.color.fc25)
+
+
+            )
         }
 
 

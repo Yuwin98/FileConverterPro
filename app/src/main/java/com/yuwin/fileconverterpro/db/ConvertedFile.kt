@@ -43,6 +43,15 @@ data class ConvertedFile(
         @ColumnInfo(name = "isSelected")
         var isSelected: Boolean,
 
+        @ColumnInfo(name = "isDirectory")
+        var isDirectory: Boolean,
+
+        @ColumnInfo(name = "inDirectory")
+        var inDirectory: Boolean,
+
+        @ColumnInfo(name = "dirColor")
+        val directoryColor: Int?,
+
         @ColumnInfo(name = "Date")
         val date: Date
 

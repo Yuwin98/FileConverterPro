@@ -4,7 +4,6 @@ import android.app.Application
 import android.graphics.*
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.*
@@ -14,7 +13,6 @@ import com.yuwin.fileconverterpro.db.Repository
 import kotlinx.coroutines.*
 import java.io.*
 import java.util.*
-import kotlin.math.ceil
 
 
 class ConvertProgressViewModel(
@@ -348,7 +346,7 @@ class ConvertProgressViewModel(
     }
 
     private fun savePdfThumbNail(bitmap: Bitmap, fileName: String): Uri? {
-        val folder = File(storageDir, "PDF")
+        val folder = File(storageDir, ".PDF")
         if (!folder.exists()) {
             folder.mkdir()
         }
@@ -429,7 +427,7 @@ class ConvertProgressViewModel(
         fileName: String,
         fileExtension: String
     ): String {
-        return Util.getStoragePath(storageDir, fileName, fileExtension)
+        return Util.getStoragePathWithExtension(storageDir, fileName, fileExtension)
     }
 
     private fun getExternalDir(): String {
@@ -466,8 +464,11 @@ class ConvertProgressViewModel(
             extension.substring(1),
             uri,
             null,
-            isFavorite = false,
-            isSelected = false,
+            false,
+            false,
+            false,
+            false,
+            null,
             date
         )
     }
@@ -493,6 +494,9 @@ class ConvertProgressViewModel(
             thumbNailUri,
             isFavorite = false,
             isSelected = false,
+            isDirectory = false,
+            inDirectory = false,
+            directoryColor = null,
             date
         )
     }
