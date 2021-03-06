@@ -62,6 +62,10 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
         return convertedFileDao.count()
     }
 
+    fun getDirectoryFileCount(filePath: String): String {
+        return convertedFileDao.directoryFileCount(filePath)
+    }
+
     suspend fun updateFile(file: ConvertedFile) {
         return convertedFileDao.updateFile(file)
     }

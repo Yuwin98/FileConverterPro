@@ -44,8 +44,9 @@
                 android:fontFamily="@font/allerta"
                 android:maxLines="1"
                 android:textAlignment="center"
-                android:textColor="@color/colorText"
-                android:textSize="10sp"
+                android:textColor="@android:color/white"
+                android:background="#CB121212"
+                android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />

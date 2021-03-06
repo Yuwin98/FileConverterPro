@@ -19,6 +19,7 @@
 
 
     <color name="backgroundColor">@color/dark</color>
+    <color name="splashScreenColor">@color/darker</color>
     <color name="actionBarBackgroundColor">#1c1c1c</color>
     <color name="navigationBarColor">@color/darker</color>
 

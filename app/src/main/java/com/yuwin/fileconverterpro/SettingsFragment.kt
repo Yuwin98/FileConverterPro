@@ -1,11 +1,16 @@
 package com.yuwin.fileconverterpro
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.SeekBar
 import androidx.lifecycle.ViewModelProvider
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
@@ -42,7 +47,6 @@ class SettingsFragment : Fragment() {
             binding?.qualityProgressTextView?.text = progress.toString()
             binding?.qualitySeekBar?.progress = progress
         })
-
         binding?.qualitySeekBar?.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -59,6 +63,53 @@ class SettingsFragment : Fragment() {
 
         })
 
+        mainViewModel?.readDefaultFormat?.observeOnce(viewLifecycleOwner, {
+            binding?.defaultFormatSpinner?.setSelection(it)
+        })
+        binding?.defaultFormatSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                mainViewModel?.setFormatType(position)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+
+        }
+
+        binding?.rateUsTextView?.setOnClickListener {
+            openReviewUrl()
+        }
+
+        mainViewModel?.readCurrentStorage?.observe(viewLifecycleOwner, {path ->
+            binding?.currentStoragePath?.text = path
+        })
+
+
+//        Log.d("AppStoragePath",)
+
+    }
+
+    private fun openReviewUrl() {
+        val uri: Uri = Uri.parse("market://details?id=${requireContext().applicationContext.packageName}")
+        val goToMarket = Intent(Intent.ACTION_VIEW, uri)
+        goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or
+                Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        try {
+            startActivity(goToMarket)
+        } catch (e: ActivityNotFoundException) {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("http://play.google.com/store/apps/details?id=${requireContext().applicationContext.packageName}")
+                )
+            )
+        }
     }
 
 

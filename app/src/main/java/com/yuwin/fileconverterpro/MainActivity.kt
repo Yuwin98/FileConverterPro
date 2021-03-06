@@ -1,14 +1,19 @@
 package com.yuwin.fileconverterpro
 
-import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -19,7 +24,14 @@ import com.google.android.gms.ads.*
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.play.core.review.ReviewInfo
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import java.util.*
+import java.util.jar.Manifest
+
+private const val MEDIA_LOCATION_PERMISSION_REQUEST_CODE = 999
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     private val IMAGE_LIMIT = 50
     private var mInterstitialAd: InterstitialAd? = null
     private var adRequest: AdRequest? = null
-    private val myAdUnitId = "ca-app-pub-9767087107670640/7400777402"
+    private val myAdUnitId = "ca-app-pub-3940256099942544/1033173712"
     private var mAdView: AdView? = null
     private var parentView: ConstraintLayout? = null
 
@@ -36,7 +48,8 @@ class MainActivity : AppCompatActivity() {
 
     private var mainViewModel: MainViewModel? = null
 
-
+    private lateinit var manager: ReviewManager
+    private lateinit var reviewInfo: ReviewInfo
 
     private var onNavigationViewSelectedItemListener =
         BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
@@ -56,7 +69,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.chooseImage -> {
-                    chooseImages()
+                    chooseImageIfPermissionGranted()
                     return@OnNavigationItemSelectedListener true
                 }
             }
@@ -65,24 +78,20 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setTheme(R.style.Theme_FileConverterPro)
         setContentView(R.layout.activity_main)
         Log.d("MainActivity1", "On Create")
         parentView = findViewById(R.id.mainConstraintLayout)
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         setCurrentSettings()
+        manager = ReviewManagerFactory.create(this)
 
-        val testDeviceIds = listOf("8E8E9F036820B3A24447A0A1B4D2F2DF")
-        val config = RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
-
-        MobileAds.setRequestConfiguration(config)
         MobileAds.initialize(this)
         mAdView = findViewById(R.id.bannerAdView)
         adRequest = AdRequest.Builder().build()
         requestInterstitial()
 
         mAdView?.loadAd(adRequest)
-
-
 
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
@@ -106,7 +115,11 @@ class MainActivity : AppCompatActivity() {
             setupActionBarWithNavController(navController, appBarConfiguration)
         }
 
-
+        mainViewModel?.readReviewPrompted?.observeOnce(this, {
+            if(!it) {
+                promptReview()
+            }
+        })
     }
 
     override fun onDestroy() {
@@ -131,6 +144,37 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onSupportNavigateUp()
     }
+
+    private fun promptReview() {
+        mainViewModel?.readAppOpenedTimes?.observeOnce(this, {
+            if(it == 2) {
+                inAppReviewRequest()
+                mainViewModel?.incrementAppOpenedTimes()
+            }else {
+                mainViewModel?.incrementAppOpenedTimes()
+            }
+        })
+    }
+
+    private fun inAppReviewRequest() {
+        val request = manager.requestReviewFlow()
+        request.addOnCompleteListener { req ->
+            if (req.isSuccessful) {
+                reviewInfo = req.result
+                startInAppReview(reviewInfo)
+            }
+        }
+    }
+
+    private fun startInAppReview(reviewInfo: ReviewInfo) {
+        val flow = manager.launchReviewFlow(this, reviewInfo)
+        flow.addOnCompleteListener { _ ->
+            mainViewModel?.setReviewPrompted(true)
+            Log.d("AppReviewFC", "App review Completed")
+
+        }
+    }
+
 
     fun requestInterstitial() {
         val adRequest = AdRequest.Builder().build()
@@ -180,6 +224,55 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         intent.action = Intent.ACTION_GET_CONTENT
         startActivityForResult(Intent.createChooser(intent, "Select Images"), 200)
+    }
+
+    private fun chooseImageIfPermissionGranted() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            chooseImages()
+        } else {
+            if (isTherePermissionForMediaAccess(this)) {
+                chooseImages()
+            } else {
+                requestPermissionForMediaAccess(this)
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun isTherePermissionForMediaAccess(context: Context): Boolean {
+        val permission = ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.ACCESS_MEDIA_LOCATION
+        )
+        return permission == PackageManager.PERMISSION_GRANTED
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun requestPermissionForMediaAccess(context: Context) {
+        ActivityCompat.requestPermissions(
+            context as Activity,
+            arrayOf(android.Manifest.permission.ACCESS_MEDIA_LOCATION),
+            MEDIA_LOCATION_PERMISSION_REQUEST_CODE
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        when(requestCode){
+            MEDIA_LOCATION_PERMISSION_REQUEST_CODE -> {
+                if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    chooseImages()
+                }else {
+                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

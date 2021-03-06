@@ -18,6 +18,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.yuwin.fileconverterpro.Constants.Companion.IMAGE_CHOOSE
+import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentConvertBinding
 
 
@@ -28,11 +29,12 @@ class ConvertFragment : Fragment() {
 
     private val IMAGE_LIMIT = 50
 
-    private lateinit var binding: FragmentConvertBinding
+    private var binding: FragmentConvertBinding? = null
 
     private var qualityInt: Int  = 0
 
     private val convertViewModel : ConvertViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
     private val itemViewModel: ItemViewModel by viewModels()
 
     private val convertAdapter by lazy { ConvertAdapter() }
@@ -40,11 +42,11 @@ class ConvertFragment : Fragment() {
     private val touchHelper = ItemTouchHelper(itemTouchHelperCallBack)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+                              savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
         binding = FragmentConvertBinding.inflate(inflater, container, false)
-        binding.viewModel = convertViewModel
-        binding.lifecycleOwner = viewLifecycleOwner
+        binding?.viewModel = convertViewModel
+        binding?.lifecycleOwner = viewLifecycleOwner
 
         val uriList = args.UriList.items
         data = setupData(uriList)
@@ -52,8 +54,11 @@ class ConvertFragment : Fragment() {
 
         (requireActivity() as AppCompatActivity).supportActionBar?.title = "Convert Images (${convertAdapter.itemCount}/$IMAGE_LIMIT)"
 
+        mainViewModel.readDefaultFormat.observeOnce(viewLifecycleOwner, {
+            binding?.convertAllSpinner?.setSelection(it)
+        })
 
-        binding.convertAllCheckBox.setOnCheckedChangeListener { _, isChecked -> convertViewModel.setOnConvertAllCheckChanged(isChecked) }
+        binding?.convertAllCheckBox?.setOnCheckedChangeListener { _, isChecked -> convertViewModel.setOnConvertAllCheckChanged(isChecked) }
         convertViewModel.allConvert.observe(viewLifecycleOwner, {
             val newData = convertAdapter.getAdapterData()
             val iterator = newData.iterator()
@@ -64,7 +69,7 @@ class ConvertFragment : Fragment() {
             updateData(newData)
         })
 
-        binding.convertAllSpinner.onItemSelectedListener = object : OnItemSelectedListener {
+        binding?.convertAllSpinner?.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 convertViewModel.setDefaultSpinnerPosition(position)
             }
@@ -82,8 +87,11 @@ class ConvertFragment : Fragment() {
             }
             updateData(newData)
         })
+        mainViewModel.readQuality.observe(viewLifecycleOwner, {
+            binding?.qualitySeekBar?.progress = it
+        })
 
-        binding.qualitySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        binding?.qualitySeekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 convertViewModel.setQualityValue(progress.toString())
             }
@@ -99,7 +107,7 @@ class ConvertFragment : Fragment() {
             qualityInt = quality.toInt()
         })
 
-        binding.convertButton.setOnClickListener {
+        binding?.convertButton?.setOnClickListener {
             val data = ConvertInfoList(convertAdapter.getAdapterData())
             if(data.items.isNotEmpty()) {
                 
@@ -110,7 +118,7 @@ class ConvertFragment : Fragment() {
             }
         }
 
-        return binding.root
+        return binding?.root
     }
 
 
@@ -192,9 +200,9 @@ class ConvertFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        binding.imageQueue.layoutManager = LinearLayoutManager(requireContext())
-        binding.imageQueue.adapter = convertAdapter
-        touchHelper.attachToRecyclerView(binding.imageQueue)
+        binding?.imageQueue?.layoutManager = LinearLayoutManager(requireContext())
+        binding?.imageQueue?.adapter = convertAdapter
+        touchHelper.attachToRecyclerView(binding?.imageQueue)
         convertAdapter.setData(data)
     }
 
@@ -220,6 +228,13 @@ class ConvertFragment : Fragment() {
         intent.putExtra("uris", args.UriList)
         intent.action = Intent.ACTION_GET_CONTENT
         startActivityForResult(Intent.createChooser(intent, "Select Images"), IMAGE_CHOOSE)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding?.imageQueue?.adapter = null
+        binding = null
+
     }
 
 

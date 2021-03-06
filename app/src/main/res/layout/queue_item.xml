@@ -17,7 +17,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="96dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/layout_border"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -26,13 +26,13 @@
 
             <ImageView
                 android:id="@+id/imagePreviewImageView"
+                loadImageFromUri="@{item.uri}"
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:paddingStart="1dp"
                 android:paddingTop="1dp"
                 android:paddingBottom="1dp"
                 android:scaleType="centerCrop"
-                loadImageFromUri="@{item.uri}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -46,7 +46,8 @@
                 app:layout_constraintBottom_toBottomOf="@+id/mimeTypeTextView"
                 app:layout_constraintStart_toEndOf="@+id/mimeTypeTextView"
                 app:layout_constraintTop_toTopOf="@+id/mimeTypeTextView"
-                app:srcCompat="@drawable/ic_arrow_forward" />
+                app:srcCompat="@drawable/ic_arrow_forward"
+                app:tint="@color/colorText" />
 
             <Spinner
                 android:id="@+id/fileTypeSpinner"
@@ -63,13 +64,13 @@
 
             <TextView
                 android:id="@+id/allFileConvertTextView"
+                getDefaultConvertFormat="@{item.defaultConvertFormat}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:ellipsize="end"
                 android:fontFamily="@font/allerta"
                 android:maxLines="1"
-                getDefaultConvertFormat="@{item.defaultConvertFormat}"
                 android:textSize="16sp"
                 android:visibility="@{item.convertAll ? View.VISIBLE: View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@+id/arrowRightImageVIew"
@@ -81,9 +82,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/allerta"
                 android:text="@{item.fileType}"
                 android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/fileSizeTextView"
                 app:layout_constraintTop_toBottomOf="@+id/fileSizeTextView" />
 

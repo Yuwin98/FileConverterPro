@@ -92,6 +92,10 @@ class PdfViewerFragment : BaseFragment() {
             }
         }
 
+        binding?.openInPdfAppImageView?.setOnClickListener {
+            startPdfApp(file.filePath)
+        }
+
         binding?.shareImageView?.setOnClickListener {
             val typeString = Util.getSendingType(requireContext(), file)
             val shareIntent =
@@ -149,12 +153,29 @@ class PdfViewerFragment : BaseFragment() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+
+    override fun onDestroy() {
+        super.onDestroy()
         try {
             closePdfRenderer()
         } catch (exception: IOException) {
             exception.printStackTrace()
+        }
+    }
+
+    private fun startPdfApp(filePath: String) {
+        val file = File(filePath)
+        val uri = Util.getFileUri(requireActivity(), file)
+
+        val target = Intent()
+        target.action = Intent.ACTION_VIEW
+        target.setDataAndType(uri, "application/pdf")
+        target.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        val intent = Intent.createChooser(target, "Open PDF")
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(requireContext(), "No app to view pdf files", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -15,6 +15,7 @@
     <color name="toolsBackground">#000000</color>
 
     <color name="colorBackground">#EFEFEF</color>
+    <color name="splashScreenColor">@android:color/white</color>
     <color name="colorText">#000000</color>
     <color name="cardBackground">#FAFAFA</color>
     <color name="selectedFileItemBackground">#44E74C3C</color>

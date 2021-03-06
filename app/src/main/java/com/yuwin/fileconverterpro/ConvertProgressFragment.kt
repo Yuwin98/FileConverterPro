@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -70,6 +71,7 @@ class ConvertProgressFragment : BaseFragment() {
 
         convertProgressViewModel.conversionFinished.observe(viewLifecycleOwner, { conversionFinished ->
             if (conversionFinished) {
+                (requireActivity() as AppCompatActivity).supportActionBar?.title = "Conversion Finished"
                 binding.pauseButton.visibility = View.GONE
                 binding.convertedFileNameTextView.visibility = View.GONE
                 binding.backHomeButton.visibility = View.VISIBLE

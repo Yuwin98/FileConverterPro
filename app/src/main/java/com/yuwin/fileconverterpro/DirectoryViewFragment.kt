@@ -1,7 +1,6 @@
 package com.yuwin.fileconverterpro
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -59,7 +58,8 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener {
                 data = items
                 setupRecyclerView()
             } else {
-                data = Util.filterItems(args.data, items)
+                val convertedFile = args.data
+                data = Util.filterItemsIn(File(convertedFile.filePath), items)
                 setupRecyclerView()
             }
         })

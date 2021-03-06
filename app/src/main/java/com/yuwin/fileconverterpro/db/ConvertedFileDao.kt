@@ -42,6 +42,9 @@ interface ConvertedFileDao {
     @Query("SELECT COUNT(*) FROM ConvertedFile")
     fun count(): Int
 
+    @Query("Select fileSize from ConvertedFile where filePath=:path")
+    fun directoryFileCount(path: String): String
+
     @Query("Select favorite from ConvertedFile Where Id=:id ")
     fun isFavorite(id: Long): Boolean
 

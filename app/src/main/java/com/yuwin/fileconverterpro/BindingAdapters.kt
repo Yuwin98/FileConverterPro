@@ -152,6 +152,20 @@ class BindingAdapters {
             }
         }
 
+        @BindingAdapter("getFileInfo")
+        @JvmStatic
+        fun getFileInfo(view: TextView, file: ConvertedFile) {
+            if(file.isDirectory) {
+                val files = File(file.filePath).listFiles()
+                if(files != null) {
+                    val fileSize = Util.getContentSize(files.size)
+                    view.text = fileSize
+                }
+            }else {
+                view.text = file.fileSize
+            }
+        }
+
 
     }
 }

@@ -25,15 +25,28 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/favoriteOutlineImageView"
+                android:id="@+id/openInPdfAppImageView"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                changeFavoriteIcon="@{viewModel.isFavorite()}"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/editImageView"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/favoriteOutlineImageView"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/pdf" />
+
+            <ImageView
+                android:id="@+id/favoriteOutlineImageView"
+                changeFavoriteIcon="@{viewModel.isFavorite()}"
+                android:layout_width="32dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/openInPdfAppImageView"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -49,7 +62,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/shareImageView"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/favoriteOutlineImageView"
+                app:layout_constraintStart_toEndOf="@+id/openInPdfAppImageView"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton

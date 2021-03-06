@@ -1,17 +1,12 @@
 package com.yuwin.fileconverterpro
 
 import android.app.Application
-import android.view.View
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.android.material.snackbar.Snackbar
 import com.yuwin.fileconverterpro.db.AppDatabase
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import com.yuwin.fileconverterpro.db.Repository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -66,6 +61,22 @@ class FileListViewModel(private val app: Application) : AndroidViewModel(app) {
 
     }
 
+    fun removeFromDatabaseIfNotExistInDirectory(
+        filepath: String,
+        databaseFiles: List<ConvertedFile>
+    ) {
+        val filteredFiles = Util.filterItemsNotIn(File(filepath), databaseFiles)
+        filteredFiles.forEach {
+            if(it.isDirectory || it.inDirectory) {
+                return
+            }else {
+                viewModelScope.launch {
+                    repository.deleteFile(it)
+                }
+            }
+        }
+    }
+
     private fun clearDir(directory: File) {
         val files = directory.listFiles()
         viewModelScope.launch {
@@ -77,24 +88,12 @@ class FileListViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun deleteSelectedFiles(file: ConvertedFile) {
-        if (file.isDirectory) {
-
-            val dir = File(file.filePath)
-            val children: Array<String> = dir.list()!!
-            for (i in children.indices) {
-                File(dir, children[i]).delete()
-            }
-            dir.delete()
-            viewModelScope.launch {
-                repository.deleteFile(file)
-            }
-        } else {
-            Util.deleteFileFromStorage(file)
-            viewModelScope.launch {
-                repository.deleteFile(file)
-            }
+        Util.deleteFileFromStorage(file)
+        viewModelScope.launch {
+            repository.deleteFile(file)
         }
     }
+
 
     fun updateNewFile(file: ConvertedFile) {
         viewModelScope.launch {

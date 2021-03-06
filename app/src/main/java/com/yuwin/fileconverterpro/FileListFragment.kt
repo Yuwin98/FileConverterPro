@@ -12,12 +12,16 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.play.core.review.ReviewInfo
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.yuwin.fileconverterpro.databinding.FragmentMainScreenBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import kotlinx.coroutines.launch
@@ -32,18 +36,21 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
     private var _binding: FragmentMainScreenBinding? = null
     private val binding get() = _binding
     private var viewModel: FileListViewModel? = null
-
-    private val sb = StringBuilder("")
+    private val mainViewModel: MainViewModel by viewModels()
 
     private var multiSelection = false
     private var selectedFiles = arrayListOf<ConvertedFile>()
     private lateinit var actionMode: ActionMode
+
+    private var menu: Menu? = null
 
     private val filesListAdapter by lazy { FilesListAdapter(this) }
     private val filesGridAdapter by lazy { FilesGridAdapter(this) }
     private var isGrid = false
 
     private var data: List<ConvertedFile>? = null
+
+
 
 
     override fun onCreateView(
@@ -55,12 +62,22 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         binding?.lifecycleOwner = viewLifecycleOwner
         viewModel = ViewModelProvider(this).get(FileListViewModel::class.java)
 
+
         return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        mainViewModel.readIfGridEnabled.observe(viewLifecycleOwner, {
+            isGrid = it
+            if(isGrid) {
+                menu?.findItem(R.id.viewChange)?.setIcon(R.drawable.ic_listview)
+            }else {
+                menu?.findItem(R.id.viewChange)?.setIcon(R.drawable.ic_gridview)
+            }
+
+        })
 
         viewModel?.readFiles?.observe(viewLifecycleOwner, { items ->
             if (items.isNullOrEmpty()) {
@@ -72,8 +89,23 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                 setupRecyclerView(isGrid)
 
             } else {
-                data = items
-                data = items.filter { file -> !file.inDirectory }
+
+                val rootPath = Util.getExternalDir(requireContext())
+//                viewModel?.removeFromDatabaseIfNotExistInDirectory(rootPath,items)
+                data = Util.filterItemsIn(File(rootPath), items)
+                data = data!!.filter { file -> !file.inDirectory }
+                if (data?.isEmpty() == true) {
+                    binding?.let {
+                        it.noFilesImageView.visibility = View.VISIBLE
+                        it.noFilesTextView.visibility = View.VISIBLE
+                    }
+                } else {
+                    binding?.let {
+                        it.noFilesImageView.visibility = View.GONE
+                        it.noFilesTextView.visibility = View.GONE
+                    }
+                }
+
                 setupRecyclerView(isGrid)
 
             }
@@ -83,8 +115,10 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
 
     }
 
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.home_action_menu, menu)
+        this.menu = menu
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -95,11 +129,13 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                     item.setIcon(R.drawable.ic_listview)
                     item.title = "List View"
                     isGrid = true
+                    mainViewModel.setIsGrid(true)
                     setupRecyclerView(isGrid)
                 } else {
                     item.setIcon(R.drawable.ic_gridview)
                     item.title = "Grid View"
                     isGrid = false
+                    mainViewModel.setIsGrid(false)
                     setupRecyclerView(isGrid)
                 }
             }
@@ -168,6 +204,8 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         }
     }
 
+
+
     private fun filterSortAndUpdateData(items: List<ConvertedFile>) {
         if (items.isNullOrEmpty()) {
             data = items
@@ -177,7 +215,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
             }
             updateData(data!!.toMutableList())
         } else {
-            data = items
             data = items.filter { file -> !file.inDirectory }
             binding?.let {
                 it.noFilesImageView.visibility = View.GONE
@@ -219,33 +256,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         filesListAdapter.notifyDataSetChanged()
     }
 
-    private fun convertDatabaseData(item: ConvertedFile) {
-        sb.clear()
-
-        sb.append("\n")
-        sb.append("ID: ${item.id}")
-        sb.append("\n")
-
-        sb.append("File Name: ${item.fileName}")
-        sb.append("\n")
-
-        sb.append("File Type: ${item.fileType}")
-        sb.append("\n")
-
-        sb.append("File Size: ${item.fileSize}")
-        sb.append("\n")
-
-        sb.append("File Path: ${item.filePath}")
-        sb.append("\n")
-
-        sb.append("File Uri: ${item.uri}")
-        sb.append("\n")
-
-        sb.append("Date Created: ${item.date}")
-        sb.append("\n")
-
-        Log.d("convertedFiles", sb.toString())
-    }
 
 
     override fun onItemClick(position: Int) {
@@ -280,21 +290,7 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
 
     }
 
-    private fun startPdfOpenActivity(filePath: String) {
-        val file = File(filePath)
-        val uri = Util.getFileUri(requireActivity(), file)
 
-        val target = Intent()
-        target.action = Intent.ACTION_VIEW
-        target.setDataAndType(uri, "application/pdf")
-        target.flags = FLAG_GRANT_READ_URI_PERMISSION or FLAG_GRANT_WRITE_URI_PERMISSION
-        val intent = Intent.createChooser(target, "Open PDF")
-        try {
-            startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            Toast.makeText(requireContext(), "No app to view pdf files", Toast.LENGTH_SHORT).show()
-        }
-    }
 
 
     override fun onItemLongClick(position: Int): Boolean {
@@ -395,8 +391,12 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                     .setMessage("This will delete selected files")
                     .setPositiveButton("Delete") { dialog, _ ->
                         selectedFiles.forEach {
-                            lifecycleScope.launch {
-                                viewModel?.deleteSelectedFiles(it)
+                            if (!it.isDirectory) {
+                                lifecycleScope.launch {
+                                    viewModel?.deleteSelectedFiles(it)
+                                }
+                            } else {
+                                deleteDirectoryAndFiles(it)
                             }
                         }
 
@@ -430,16 +430,17 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                         startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
                     }
                     1 -> {
-                        if(selectedFiles.size > 1) {
+                        if (selectedFiles.size > 1) {
                             Toast.makeText(
                                 requireContext(),
                                 "Files and folders cannot mix when sharing",
                                 Toast.LENGTH_SHORT
                             ).show()
                             return true
-                        }else {
+                        } else {
                             val files = File(selectedFiles[0].filePath).listFiles()
-                            val shareIntent = Util.shareSheetMultipleDirectory(requireActivity(), files)
+                            val shareIntent =
+                                Util.shareSheetMultipleDirectory(requireActivity(), files)
                             startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
                         }
 
@@ -457,6 +458,24 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
             }
         }
         return true
+    }
+
+    private fun deleteDirectoryAndFiles(file: ConvertedFile) {
+        if (file.isDirectory) {
+            viewModel?.readFiles?.observe(viewLifecycleOwner, {
+                val databaseFiles = Util.filterItemsIn(File(file.filePath), it)
+                databaseFiles.forEach {
+                    lifecycleScope.launch {
+                        viewModel?.deleteSelectedFiles(it)
+                    }
+                }
+                lifecycleScope.launch {
+                    viewModel?.deleteSelectedFiles(file)
+                }
+            })
+            val dir = File(file.filePath)
+            dir.delete()
+        }
     }
 
     private fun moveSelectedFilesToDirectory(

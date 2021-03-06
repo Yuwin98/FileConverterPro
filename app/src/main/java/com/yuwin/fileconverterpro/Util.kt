@@ -181,23 +181,38 @@ class Util {
             }
         }
 
-        private fun getDirectoryFilesAsSet(file: ConvertedFile): Set<String> {
+        private fun getDirectoryFilesAsSet(file: File): Set<String> {
             val paths = mutableSetOf<String>()
-            val files = File(file.filePath).listFiles()
+            val files = file.listFiles()
 
             files?.forEach {
-                paths.add(it.path)
+                if(it.isDirectory) {
+                    paths.add(it.path)
+                    val dirPaths = getDirectoryFilesAsSet(it)
+                    paths.addAll(dirPaths)
+                }else {
+                    paths.add(it.path)
+                }
+
             }
             return paths
         }
 
 
-        fun filterItems(
-            file: ConvertedFile,
+        fun filterItemsIn(
+            file: File,
             items: List<ConvertedFile>
         ): List<ConvertedFile> {
             val dirFiles = getDirectoryFilesAsSet(file)
             return items.filter { it.filePath in dirFiles }
+        }
+
+        fun filterItemsNotIn(
+            file: File,
+            items: List<ConvertedFile>
+        ): List<ConvertedFile> {
+            val dirFiles = getDirectoryFilesAsSet(file)
+            return items.filter { it.filePath !in dirFiles }
         }
 
 
