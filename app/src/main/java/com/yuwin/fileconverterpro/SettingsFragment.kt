@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.SeekBar
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentSettingsBinding
@@ -40,6 +41,14 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+//
+//        val externalStorageVolumes: Array<out File> =
+//            ContextCompat.get(requireContext().applicationContext, null)
+
+        if(Util.isExternalStorageWritable()) {
+            Log.d("Storage2", " Storage Writable")
+            Environment.DIRECTORY_DOCUMENTS
+        }
 
 
         mainViewModel?.readQuality?.observeOnce(viewLifecycleOwner, { progress ->

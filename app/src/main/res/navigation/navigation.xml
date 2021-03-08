@@ -86,13 +86,17 @@
         <action
             android:id="@+id/action_convertProgressFragment_to_convert"
             app:destination="@id/convert"
-            app:popUpTo="@id/navigation"
-            app:popUpToInclusive="true"/>
+            app:popUpTo="@id/home"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_convertProgressFragment_to_home"
             app:destination="@id/home"
             app:popUpTo="@id/navigation"
             app:popUpToInclusive="true"/>
+        <argument
+            android:name="pdfQuality"
+            app:argType="integer"
+            android:defaultValue="0" />
     </fragment>
     <fragment
         android:id="@+id/imageViewFragment"

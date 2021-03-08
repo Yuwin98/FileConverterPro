@@ -1,9 +1,14 @@
 package com.yuwin.fileconverterpro
 
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.graphics.pdf.PdfRenderer
 import android.net.Uri
+import android.os.ParcelFileDescriptor
+import android.util.Log
+import android.view.View
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -42,15 +47,45 @@ class BindingAdapters {
 
         @BindingAdapter("loadImageFromUri")
         @JvmStatic
-        fun loadImage(view: ImageView, uri:Uri) {
-                Glide.with(view).load(uri).into(view)
+        fun loadImage(view: ImageView, uri: Uri) {
+            Glide.with(view).load(uri).into(view)
+        }
 
+        @BindingAdapter("loadImagePDFThumbnail")
+        @JvmStatic
+        fun loadImagePDFThumbnail(view: ImageView, item: ConvertInfo) {
+            if(item.fileType != "PDF") {
+                Glide.with(view).load(item.uri).into(view)
+            }else {
+                Glide.with(view).load(R.drawable.pdf).into(view)
+            }
+        }
+
+        private fun loadPDFThumbnail(path: ConvertInfo): Bitmap? {
+            val file = File(path.filePath)
+            val fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+            val renderer  = PdfRenderer(fileDescriptor)
+            val page = renderer.openPage(0)
+            var bitmap = page?.let {
+                Bitmap.createBitmap(
+                    it.width,
+                    it.height,
+                    Bitmap.Config.ARGB_8888
+                )
+            }
+            bitmap = bitmap?.let { Util.scaleBitmap(it, 256 * 256) }
+
+            return bitmap
         }
 
         @BindingAdapter("getDefaultConvertFormat")
         @JvmStatic
-        fun getDefaultConvertFormat(view: TextView, ordinal: Int) {
-            view.text = FormatTypes.values()[ordinal].toString()
+        fun getDefaultConvertFormat(view: TextView, item: ConvertInfo) {
+            if(item.isPdfConversion == true) {
+                view.text = FormatTypesPDF.values()[item.defaultConvertFormat!!].toString()
+            }else {
+                view.text = FormatTypes.values()[item.defaultConvertFormat!!].toString()
+            }
         }
 
         @BindingAdapter("getDateString")
@@ -163,6 +198,44 @@ class BindingAdapters {
                 }
             }else {
                 view.text = file.fileSize
+            }
+        }
+
+
+        @BindingAdapter("spinnerVisibility")
+        @JvmStatic
+        fun spinnerVisibility(view: Spinner, item: ConvertInfo) {
+            if(item.fileType == "PDF" && item.convertAll == false) {
+                Log.d("mimeTypePDF", "A pdf conversion")
+                when(view.id) {
+                    R.id.fileTypeSpinner -> {
+                        view.visibility  = View.GONE
+                    }
+                    R.id.pdfTypeSpinner -> {
+                        view.visibility = View.VISIBLE
+                    }
+                }
+
+            }else if(item.convertAll == false) {
+                Log.d("mimeTypePDF", "Image conversion")
+
+                when(view.id) {
+                    R.id.fileTypeSpinner -> {
+                        view.visibility  = View.VISIBLE
+                    }
+                    R.id.pdfTypeSpinner -> {
+                        view.visibility = View.GONE
+                    }
+                }
+            }else {
+                when(view.id) {
+                    R.id.fileTypeSpinner -> {
+                        view.visibility  = View.GONE
+                    }
+                    R.id.pdfTypeSpinner -> {
+                        view.visibility = View.GONE
+                    }
+                }
             }
         }
 

@@ -4,102 +4,169 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View"/>
         <variable
             name="viewModel"
             type="com.yuwin.fileconverterpro.ConvertViewModel" />
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/convertNestedScrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="com.yuwin.fileconverterpro.ConvertFragment">
+        android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/imageQueue"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="320dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="10dp"
-            android:background="@drawable/layout_border"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="match_parent"
+            tools:context="com.yuwin.fileconverterpro.ConvertFragment">
 
-        <CheckBox
-            android:id="@+id/convertAllCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/allerta"
-            android:text="Convert All Into :"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageQueue" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/imageQueue"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/layout_border"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <Spinner
-            android:id="@+id/convertAllSpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:spinnerMode="dialog"
-            android:entries="@array/file_types_all"
-            app:layout_constraintBottom_toBottomOf="@+id/convertAllCheckBox"
-            app:layout_constraintStart_toEndOf="@+id/convertAllCheckBox"
-            app:layout_constraintTop_toTopOf="@+id/convertAllCheckBox" />
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/allerta"
-            android:text="Quality"
-            android:padding="4dp"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/convertAllCheckBox" />
+            <CheckBox
+                android:id="@+id/convertAllCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/allerta"
+                android:text="Convert All Into :"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageQueue" />
 
-        <SeekBar
-            android:id="@+id/qualitySeekBar"
-            android:layout_width="240dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:max="100"
-            android:progress="100"
-            app:layout_constraintBottom_toBottomOf="@+id/textView"
-            app:layout_constraintStart_toEndOf="@+id/textView"
-            app:layout_constraintTop_toTopOf="@+id/textView"
-            app:layout_constraintVertical_bias="0.47000003" />
+            <Spinner
+                android:id="@+id/convertAllSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:entries="@array/file_types_all"
+                android:spinnerMode="dialog"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/convertAllCheckBox"
+                app:layout_constraintStart_toEndOf="@+id/convertAllCheckBox"
+                app:layout_constraintTop_toTopOf="@+id/convertAllCheckBox" />
 
-        <TextView
-            android:id="@+id/qualityValueTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:fontFamily="@font/allerta"
-            android:text="@{viewModel.qualityValue}"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="@+id/qualitySeekBar"
-            app:layout_constraintStart_toEndOf="@+id/qualitySeekBar"
-            app:layout_constraintTop_toTopOf="@+id/qualitySeekBar"
-            app:layout_constraintVertical_bias="1.0" />
 
-        <Button
-            android:id="@+id/convertButton"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_marginBottom="24dp"
-            android:fontFamily="@font/allerta"
-            android:text="Convert"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/allerta"
+                    android:padding="4dp"
+                    android:text="Quality"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/convertAllCheckBox" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <SeekBar
+                    android:id="@+id/qualitySeekBar"
+                    android:layout_width="240dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:max="100"
+                    android:progress="100"
+                    app:layout_constraintBottom_toBottomOf="@+id/textView"
+                    app:layout_constraintStart_toEndOf="@+id/textView"
+                    app:layout_constraintTop_toTopOf="@+id/textView"
+                    app:layout_constraintVertical_bias="0.47000003" />
+
+                <TextView
+                    android:id="@+id/qualityValueTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:fontFamily="@font/allerta"
+                    android:text="@{viewModel.qualityValue}"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/qualitySeekBar"
+                    app:layout_constraintStart_toEndOf="@+id/qualitySeekBar"
+                    app:layout_constraintTop_toTopOf="@+id/qualitySeekBar"
+                    app:layout_constraintVertical_bias="1.0" />
+
+                <TextView
+                    android:id="@+id/pdfQualityTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="@font/allerta"
+                    android:text="PDF Quality :"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="@+id/textView"
+                    app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+            <Spinner
+                android:id="@+id/pdfQualitySpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:entries="@array/pdf_quality"
+                android:spinnerMode="dialog"
+                app:layout_constraintBottom_toBottomOf="@+id/pdfQualityTextView"
+                app:layout_constraintStart_toEndOf="@+id/pdfQualityTextView"
+                app:layout_constraintTop_toTopOf="@+id/pdfQualityTextView" />
+
+
+            <Button
+                android:id="@+id/convertButton"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginTop="48dp"
+                android:layout_marginBottom="24dp"
+                android:fontFamily="@font/allerta"
+                android:text="Convert"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/pdfQualityTextView" />
+
+
+            <TextView
+                android:id="@+id/pdfQualityDefaultText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:fontFamily="@font/allerta"
+                android:text="72 PPI"
+                android:textSize="16sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/pdfQualityTextView"
+                app:layout_constraintStart_toEndOf="@+id/pdfQualityTextView"
+                app:layout_constraintTop_toTopOf="@+id/pdfQualityTextView" />
+
+            <Spinner
+                android:id="@+id/convertAllPdfSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:entries="@array/file_type_all_pdf"
+                android:spinnerMode="dialog"
+                app:layout_constraintBottom_toBottomOf="@+id/convertAllCheckBox"
+                app:layout_constraintStart_toEndOf="@+id/convertAllCheckBox"
+                app:layout_constraintTop_toTopOf="@+id/convertAllCheckBox" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+
 </layout>

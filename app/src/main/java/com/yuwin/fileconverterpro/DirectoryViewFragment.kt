@@ -1,21 +1,27 @@
 package com.yuwin.fileconverterpro
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yuwin.fileconverterpro.databinding.FragmentDirectoryViewBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 
 
-class DirectoryViewFragment : BaseFragment(), FileListClickListener {
+class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.Callback {
     override var bottomNavigationVisibility: Int = View.GONE
 
     private val args by navArgs<DirectoryViewFragmentArgs>()
@@ -27,15 +33,24 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener {
     private val binding get() = _binding
 
     private var viewModel: DirectoryPreviewViewModel? = null
+    private val mainViewModel: MainViewModel by viewModels()
+
 
     private val filesListAdapter by lazy { FilesListAdapter(this) }
 
+    private var multiSelection = false
+    private var selectedFiles = arrayListOf<ConvertedFile>()
+    private lateinit var actionMode: ActionMode
+
+
+
+    private var menu: Menu? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
+        setHasOptionsMenu(true)
         (requireActivity() as AppCompatActivity).supportActionBar?.title =
             args.data.fileName.toUpperCase(
                 Locale.ROOT
@@ -69,6 +84,14 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener {
 
 
     override fun onItemClick(position: Int) {
+        if(multiSelection) {
+            applySelection(position)
+        }else {
+            openMyFile(position)
+        }
+    }
+
+    private fun openMyFile(position: Int) {
         val data = data[position]
 
         val fileType = data.fileType
@@ -84,7 +107,45 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener {
     }
 
     override fun onItemLongClick(position: Int): Boolean {
-        return false
+        return if (!multiSelection) {
+            multiSelection = true
+            requireActivity().startActionMode(this)
+            applySelection(position)
+            true
+        } else {
+            applySelection(position)
+            true
+        }
+    }
+
+    private fun applySelection(position: Int) {
+        val currentFile = data.get(position)
+        if (selectedFiles.contains(currentFile)) {
+            selectedFiles.remove(currentFile)
+            data[position].isSelected = false
+            updateData(data)
+            setActionModeTitle()
+        } else {
+            data[position].isSelected = true
+            updateData(data)
+            selectedFiles.add(currentFile)
+            setActionModeTitle()
+        }
+    }
+
+    private fun setActionModeTitle() {
+        when (selectedFiles.size) {
+            0 -> {
+                multiSelection = false
+                actionMode.finish()
+            }
+            1 -> {
+                actionMode.title = "1 item selected"
+            }
+            else -> {
+                actionMode.title = "${selectedFiles.size} items selected"
+            }
+        }
     }
 
 
@@ -98,12 +159,171 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener {
 
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.home_action_menu, menu)
+        this.menu = menu
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+
+            R.id.deleteAll -> {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Clear Directory")
+                    .setMessage("This will delete all converted files in this directory")
+                    .setPositiveButton("Clear") { dialog, _ ->
+                        viewModel?.clearDirectory(data)
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("Cancel") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+            R.id.sortFileSize -> {
+                mainViewModel.readFilesBySize.observe(viewLifecycleOwner, { items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.sortFileName -> {
+                mainViewModel.readFilesByName.observe(viewLifecycleOwner, { items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.sortFileDate -> {
+                mainViewModel.readFilesByDate.observe(viewLifecycleOwner, { items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.sortFileType -> {
+                mainViewModel.readFilesByType.observe(viewLifecycleOwner, { items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.filterJpg -> {
+                mainViewModel.filterFilesByJpgJpeg.observe(viewLifecycleOwner, { items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.filterPdf -> {
+                mainViewModel.filterFilesByPdf.observe(viewLifecycleOwner, { items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.filterPng -> {
+                mainViewModel.filterFilesByPng.observe(viewLifecycleOwner, { items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+            R.id.filterWebp -> {
+                mainViewModel.filterFilesByWebp.observe(viewLifecycleOwner, { items ->
+                    filterSortAndUpdateData(items)
+                })
+            }
+        }
+        return true
+    }
+
+    private fun filterSortAndUpdateData(items: List<ConvertedFile>) {
+        if (items.isNullOrEmpty()) {
+            data = items
+            updateData(data.toMutableList())
+        } else {
+            val convertedFile = args.data
+            data = Util.filterItemsIn(File(convertedFile.filePath), items)
+            updateData(data.toMutableList())
+        }
+    }
+
+    private fun updateData(newData: List<ConvertedFile>) {
+        filesListAdapter.setData(newData.toMutableList())
+        filesListAdapter.notifyDataSetChanged()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("heart", "Pause called")
+        if (this::actionMode.isInitialized) {
+            actionMode.finish()
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding?.directoryRecyclerView?.adapter = null
         _binding = null
         viewModel = null
     }
+
+    override fun onCreateActionMode(actionMode: ActionMode, menu: Menu?): Boolean {
+        actionMode.menuInflater?.inflate(R.menu.directory_action_menu, menu)
+        applyStatusBarColor(R.color.contextualStatusBarColor)
+        this.actionMode = actionMode
+        return true
+    }
+
+    override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+        return true
+    }
+
+    override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.actionDelete -> {
+
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Delete")
+                    .setMessage("This will delete selected files")
+                    .setPositiveButton("Delete") { dialog, _ ->
+                        selectedFiles.forEach {
+                            if (!it.isDirectory) {
+                                lifecycleScope.launch {
+                                    viewModel?.deleteSelectedFiles(it)
+                                }
+                            }
+                        }
+
+                        multiSelection = false
+                        Toast.makeText(
+                            requireContext(),
+                            "${selectedFiles.size} file(s) deleted",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        selectedFiles.clear()
+                        actionMode.finish()
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("Cancel") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
+
+
+            }
+            R.id.actionShare -> {
+                val shareIntent =
+                    Util.startShareSheetMultiple(requireActivity(), selectedFiles)
+                startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
+            }
+
+
+
+    }
+    return true
+}
+
+override fun onDestroyActionMode(mode: ActionMode?) {
+    data.forEach {
+        it.isSelected = false
+    }
+    updateData(data)
+    applyStatusBarColor(R.color.statusBarColor)
+    selectedFiles.clear()
+    multiSelection = false
+}
+
+private fun applyStatusBarColor(color: Int) {
+    requireActivity().window.statusBarColor = ContextCompat.getColor(requireContext(), color)
+}
 
 
 }

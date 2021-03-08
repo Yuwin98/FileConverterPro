@@ -22,6 +22,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
+import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentMainScreenBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import kotlinx.coroutines.launch
@@ -29,6 +30,7 @@ import java.io.File
 import java.io.IOException
 import java.lang.Exception
 import java.util.*
+import kotlin.properties.Delegates
 
 
 class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callback {
@@ -62,6 +64,10 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         binding?.lifecycleOwner = viewLifecycleOwner
         viewModel = ViewModelProvider(this).get(FileListViewModel::class.java)
 
+        mainViewModel.readIfGridEnabled.observe(viewLifecycleOwner, {
+            Log.d("isGrid", it.toString())
+            isGrid = it
+        })
 
         return binding?.root
     }
@@ -69,15 +75,7 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mainViewModel.readIfGridEnabled.observe(viewLifecycleOwner, {
-            isGrid = it
-            if(isGrid) {
-                menu?.findItem(R.id.viewChange)?.setIcon(R.drawable.ic_listview)
-            }else {
-                menu?.findItem(R.id.viewChange)?.setIcon(R.drawable.ic_gridview)
-            }
 
-        })
 
         viewModel?.readFiles?.observe(viewLifecycleOwner, { items ->
             if (items.isNullOrEmpty()) {
@@ -91,7 +89,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
             } else {
 
                 val rootPath = Util.getExternalDir(requireContext())
-//                viewModel?.removeFromDatabaseIfNotExistInDirectory(rootPath,items)
                 data = Util.filterItemsIn(File(rootPath), items)
                 data = data!!.filter { file -> !file.inDirectory }
                 if (data?.isEmpty() == true) {
@@ -107,11 +104,9 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                 }
 
                 setupRecyclerView(isGrid)
-
             }
         })
 
-        setupRecyclerView(isGrid)
 
     }
 
@@ -153,42 +148,42 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                     .show()
             }
             R.id.sortFileSize -> {
-                viewModel?.readFilesBySize?.observe(viewLifecycleOwner, { items ->
+                mainViewModel.readFilesBySize.observe(viewLifecycleOwner, { items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.sortFileName -> {
-                viewModel?.readFilesByName?.observe(viewLifecycleOwner, { items ->
+                mainViewModel.readFilesByName.observe(viewLifecycleOwner, { items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.sortFileDate -> {
-                viewModel?.readFilesByDate?.observe(viewLifecycleOwner, { items ->
+                mainViewModel.readFilesByDate.observe(viewLifecycleOwner, { items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.sortFileType -> {
-                viewModel?.readFilesByType?.observe(viewLifecycleOwner, { items ->
+                mainViewModel.readFilesByType.observe(viewLifecycleOwner, { items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.filterJpg -> {
-                viewModel?.filterFilesByJpgJpeg?.observe(viewLifecycleOwner, { items ->
+                mainViewModel.filterFilesByJpgJpeg.observe(viewLifecycleOwner, { items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.filterPdf -> {
-                viewModel?.filterFilesByPdf?.observe(viewLifecycleOwner, { items ->
+                mainViewModel.filterFilesByPdf.observe(viewLifecycleOwner, { items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.filterPng -> {
-                viewModel?.filterFilesByPng?.observe(viewLifecycleOwner, { items ->
+                mainViewModel.filterFilesByPng.observe(viewLifecycleOwner, { items ->
                     filterSortAndUpdateData(items)
                 })
             }
             R.id.filterWebp -> {
-                viewModel?.filterFilesByWebp?.observe(viewLifecycleOwner, { items ->
+                mainViewModel.filterFilesByWebp.observe(viewLifecycleOwner, { items ->
                     filterSortAndUpdateData(items)
                 })
             }

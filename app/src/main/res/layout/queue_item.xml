@@ -26,7 +26,7 @@
 
             <ImageView
                 android:id="@+id/imagePreviewImageView"
-                loadImageFromUri="@{item.uri}"
+                loadImagePDFThumbnail="@{item}"
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:paddingStart="1dp"
@@ -51,20 +51,20 @@
 
             <Spinner
                 android:id="@+id/fileTypeSpinner"
+                spinnerVisibility="@{item}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:entries="@array/file_types"
                 android:selectedItemPosition="@={item.specificFormat}"
                 android:spinnerMode="dialog"
-                android:visibility="@{item.convertAll ? View.GONE: View.VISIBLE}"
                 app:layout_constraintBottom_toBottomOf="@+id/arrowRightImageVIew"
                 app:layout_constraintStart_toEndOf="@+id/arrowRightImageVIew"
                 app:layout_constraintTop_toTopOf="@+id/arrowRightImageVIew" />
 
             <TextView
                 android:id="@+id/allFileConvertTextView"
-                getDefaultConvertFormat="@{item.defaultConvertFormat}"
+                getDefaultConvertFormat="@{item}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
@@ -115,6 +115,19 @@
                 android:text="@{item.fileSize}"
                 app:layout_constraintStart_toStartOf="@+id/fileNameTextView"
                 app:layout_constraintTop_toBottomOf="@+id/fileNameTextView" />
+
+            <Spinner
+                android:id="@+id/pdfTypeSpinner"
+                spinnerVisibility="@{item}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:entries="@array/file_type_pdf"
+                android:selectedItemPosition="@={item.specificFormat}"
+                android:spinnerMode="dialog"
+                app:layout_constraintBottom_toBottomOf="@+id/arrowRightImageVIew"
+                app:layout_constraintStart_toEndOf="@+id/arrowRightImageVIew"
+                app:layout_constraintTop_toTopOf="@+id/arrowRightImageVIew" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

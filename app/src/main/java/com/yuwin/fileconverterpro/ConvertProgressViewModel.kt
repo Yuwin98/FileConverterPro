@@ -3,10 +3,16 @@ package com.yuwin.fileconverterpro
 import android.app.Application
 import android.graphics.*
 import android.graphics.pdf.PdfDocument
+import android.graphics.pdf.PdfRenderer
 import android.net.Uri
+import android.os.ParcelFileDescriptor
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.yuwin.fileconverterpro.db.AppDatabase
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import com.yuwin.fileconverterpro.db.Repository
@@ -18,11 +24,12 @@ import java.util.*
 class ConvertProgressViewModel(
     private val app: Application,
     val data: List<ConvertInfo>,
-    private val quality: Int
+    private val quality: Int,
+    private val pdfQuality: Int
 ) : AndroidViewModel(app) {
 
-    private val _completePercentage = MutableLiveData<Int>()
-    val completePercentage: LiveData<Int> get() = _completePercentage
+    private val _completePercentage = MutableLiveData<Double>()
+    val completePercentage: LiveData<Double> get() = _completePercentage
 
     private val _conversionFinished = MutableLiveData<Boolean>()
     val conversionFinished: LiveData<Boolean> get() = _conversionFinished
@@ -41,26 +48,27 @@ class ConvertProgressViewModel(
 
     private val convertedFileList = mutableListOf<ConvertedFile>()
 
-    private var scope = CoroutineScope(SupervisorJob())
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private lateinit var job: DisposableHandle
 
     private var pausedAt: Int = 0
     private var currentIndex: Int = 0
     private var originalSize: Int = data.size
+    private val maxPercentage = 95.0
 
     private val storageDir = getExternalDir()
-    private var itemPercentage: Float = 0f
+    private var itemPercentage: Double = 0.0
 
 
     init {
-        _completePercentage.postValue(0)
+        _completePercentage.postValue(0.0)
         _conversionFinished.postValue(false)
     }
 
     fun convertFiles() {
         var data = this.data
-        itemPercentage = (95 / originalSize).toFloat()
-        if(conversionPaused.value == true) {
+        itemPercentage = (maxPercentage / originalSize)
+        if (conversionPaused.value == true) {
             data = data.subList(pausedAt, originalSize)
             this.scope = CoroutineScope(SupervisorJob())
         }
@@ -100,7 +108,7 @@ class ConvertProgressViewModel(
     fun createMultiPagePdf() {
 
         val data = data
-        _completePercentage.postValue(0)
+        _completePercentage.postValue(0.0)
 
         if (conversionPaused.value == true) {
             this.scope = CoroutineScope(Job())
@@ -111,7 +119,7 @@ class ConvertProgressViewModel(
 
         job = scope.launch {
             _convertedProgressMessage.postValue("Your files are being converted")
-            launch {
+            withContext(Dispatchers.Default) {
                 createAndSaveMultiPagePdf(data, storageDir)
             }
 
@@ -119,7 +127,7 @@ class ConvertProgressViewModel(
         }.invokeOnCompletion { throwable ->
             if (throwable is CancellationException) {
                 _conversionPaused.postValue(true)
-                _convertedFileName.postValue("Conversion Paused")
+                _convertedFileName.postValue("Conversion Stopped")
             } else {
                 fillRemainingPercentage()
                 _conversionFinished.postValue(true)
@@ -128,13 +136,290 @@ class ConvertProgressViewModel(
         }
     }
 
+    fun mergePDF() {
+        val data = this.data
+
+        if (conversionPaused.value == true) {
+            this.scope = CoroutineScope(Job())
+            _conversionPaused.postValue(false)
+        }
+
+        _convertedProgressMessage.postValue("Merging starting...")
+
+        job = scope.launch {
+            _convertedProgressMessage.postValue("Your files are being merged")
+            withContext(Dispatchers.Default) {
+                mergeAndSavePdfFile(data, storageDir)
+            }
+
+
+        }.invokeOnCompletion { throwable ->
+            if (throwable is CancellationException) {
+                _conversionPaused.postValue(true)
+                _convertedFileName.postValue("Merging Stopped")
+            } else {
+                fillRemainingPercentage()
+                _conversionFinished.postValue(true)
+                _convertedProgressMessage.postValue("File Merging Complete")
+            }
+        }
+    }
+
+
+    private suspend fun mergeAndSavePdfFile(data: List<ConvertInfo>, storageDir: String) {
+        val getPageSize = getPdfQuality(1)
+        val pageWidth = getPageSize.first
+        val pageHeight = getPageSize.second
+        var fileDescriptor: ParcelFileDescriptor
+        var pdfRenderer: PdfRenderer
+        val document = PdfDocument()
+        val fileName = Util.getCurrentTimeMillis()
+        val filePath = "${storageDir}${fileName}.pdf"
+        var thumbNail: Bitmap? = null
+        var pageNum = 0
+        var itemCount = 0
+
+        data.forEachIndexed { _, file ->
+            fileDescriptor = app.contentResolver.openFileDescriptor(file.uri, "r")!!
+            pdfRenderer = PdfRenderer(fileDescriptor)
+            itemCount += pdfRenderer.pageCount
+
+            fileDescriptor.close()
+            pdfRenderer.close()
+        }
+
+        val itemIncreasePercentage = (95.0 / itemCount)
+
+        data.forEachIndexed { _, file ->
+
+            withContext(Dispatchers.Default) {
+                fileDescriptor = withContext(Dispatchers.IO) {
+                    app.contentResolver.openFileDescriptor(
+                        file.uri,
+                        "r"
+                    )!!
+                }
+                pdfRenderer = withContext(Dispatchers.IO) { PdfRenderer(fileDescriptor) }
+
+                val pageCount = pdfRenderer.pageCount
+
+                for (i in 0 until pageCount) {
+                    withContext(Dispatchers.Default) {
+                        val currentPage = pdfRenderer.openPage(i)
+                        var bitmap = currentPage?.let { page ->
+                            Bitmap.createBitmap(
+                                page.width, page.height,
+                                Bitmap.Config.ARGB_8888
+                            )
+                        }
+
+                        if (bitmap != null) {
+                            bitmap.eraseColor(Color.WHITE)
+                            val tempCanvas = Canvas(bitmap)
+                            tempCanvas.drawBitmap(bitmap, 0f, 0f, null)
+
+                            currentPage.render(
+                                bitmap,
+                                null,
+                                null,
+                                PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+                            )
+                            if (pageNum == 0) {
+                                thumbNail = withContext(Dispatchers.Default) {
+                                    scaleBitmapToAspectRatio(
+                                        bitmap!!,
+                                        132,
+                                        132
+                                    )
+                                }
+                            }
+
+
+                            bitmap =
+                                scaleBitmapToAspectRatio(bitmap, pageHeight, pageWidth)
+                            val pageInfo: PdfDocument.PageInfo = PdfDocument.PageInfo
+                                .Builder(pageWidth + 50, pageHeight + 50, pageNum)
+                                .setContentRect(Rect(0, 0, pageWidth + 50, pageHeight + 50))
+                                .create()
+                            val page: PdfDocument.Page = document.startPage(pageInfo)
+                            val canvas: Canvas = page.canvas
+                            val xOffset = ((canvas.width - bitmap.width) / 2).toFloat()
+                            val yOffset = ((canvas.height - bitmap.height) / 2).toFloat()
+                            val canvasColor =
+                                Paint(
+                                    ContextCompat.getColor(
+                                        app.applicationContext,
+                                        R.color.pdfBackground
+                                    )
+                                )
+                            canvas.drawBitmap(bitmap, xOffset, yOffset, canvasColor)
+                            document.finishPage(page)
+
+                            pageNum += 1
+                            currentPage.close()
+                        }
+                        increasePercentage(itemIncreasePercentage)
+                    }
+                }
+            }
+            _convertedFileName.postValue("${file.fileName}:Converted")
+            pdfRenderer.close()
+            fileDescriptor.close()
+        }
+
+        try {
+
+            var thumbNailUri: Uri? = null
+            if (thumbNail != null) {
+                withContext(Dispatchers.IO) {
+                    thumbNailUri = savePdfThumbNail(thumbNail!!, fileName)
+                }
+            }
+
+            val fos = withContext(Dispatchers.IO) {
+                getOutputStream(filePath)
+            }
+
+            withContext(Dispatchers.IO) { writeDocument(document, fos) }
+            val file = createConvertedPdfFile(fileName, filePath, thumbNailUri)
+
+            viewModelScope.launch(Dispatchers.IO) {
+                convertedFileList.add(file)
+                repository.insertFile(file)
+            }
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            document.close()
+        }
+
+
+    }
+
+    fun pdfIntoImage() {
+        val data = this.data
+        if (conversionPaused.value == true) {
+            this.scope = CoroutineScope(SupervisorJob())
+            _conversionPaused.postValue(false)
+        }
+        scope.launch {
+
+            convertAndSaveIntoImages(data, storageDir, quality)
+
+        }.invokeOnCompletion { throwable ->
+            if (throwable is CancellationException) {
+                _conversionPaused.postValue(true)
+                _convertedFileName.postValue("Conversion Stopped")
+            } else {
+                fillRemainingPercentage()
+                _conversionFinished.postValue(true)
+                _convertedProgressMessage.postValue("File Conversion Complete")
+            }
+        }
+
+    }
+
     fun pauseConversion() {
         scope.cancel()
+    }
+
+    private suspend fun convertAndSaveIntoImages(
+        data: List<ConvertInfo>,
+        storageDir: String,
+        quality: Int
+    ) {
+        val getPageSize = getPdfQuality(0)
+        val pageWidth = getPageSize.first
+        val pageHeight = getPageSize.second
+        var fileDescriptor: ParcelFileDescriptor
+        var pdfRenderer: PdfRenderer
+        val rootFileName = Util.getCurrentTimeMillis()
+        var itemCount = 0
+
+        var pageNum = 0
+
+        data.forEachIndexed { _, file ->
+            fileDescriptor = app.contentResolver.openFileDescriptor(file.uri, "r")!!
+            pdfRenderer = PdfRenderer(fileDescriptor)
+            itemCount += pdfRenderer.pageCount
+
+            fileDescriptor.close()
+            pdfRenderer.close()
+        }
+
+        val itemIncreasePercentage = (95.0 / itemCount)
+        data.forEachIndexed { _, file ->
+
+            fileDescriptor =
+                withContext(Dispatchers.IO) {
+                    app.contentResolver.openFileDescriptor(file.uri, "r")!!
+                }
+            pdfRenderer = withContext(Dispatchers.IO) { PdfRenderer(fileDescriptor) }
+
+            val pageCount = pdfRenderer.pageCount
+
+            for (i in 0 until pageCount) {
+                withContext(Dispatchers.Default) {
+                    val currentPage = pdfRenderer.openPage(i)
+                    var bitmap = currentPage?.let { page ->
+                        Bitmap.createBitmap(
+                            page.width, page.height,
+                            Bitmap.Config.ARGB_8888
+                        )
+                    }
+
+
+                    if (bitmap != null) {
+                        bitmap.eraseColor(Color.WHITE)
+                        val canvas = Canvas(bitmap)
+                        canvas.drawBitmap(bitmap, 0f, 0f, null)
+
+                        currentPage.render(
+                            bitmap,
+                            null,
+                            null,
+                            PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+                        )
+
+                        bitmap = scaleBitmapToAspectRatio(bitmap, pageHeight, pageWidth)
+
+                        val convertToExtension = Util.getFileExtension(
+                            file.specificConvertFormat,
+                            file.defaultConvertFormat,
+                            file.convertAll,
+                            file.isPdfConversion
+                        )
+                        val fileName = "$rootFileName-img-$pageNum"
+                        val fileSavePath = getFileSavePath(storageDir, fileName, convertToExtension)
+                        performConvert(bitmap, convertToExtension, quality, fileSavePath)
+                        val currentImageFile = createConvertedImageFile(
+                            fileSavePath,
+                            convertToExtension
+                        )
+                        saveConvertedFile(currentImageFile)
+                        _convertedFileName.postValue("${fileName}:Converted")
+                    }
+
+
+                    pageNum += 1
+                    currentPage.close()
+                    increasePercentage(itemIncreasePercentage)
+                }
+            }
+
+            pdfRenderer.close()
+            fileDescriptor.close()
+
+        }
+
     }
 
 
     private fun convertAndSaveFiles(item: ConvertInfo, storageDir: String, quality: Int) {
         val inputStream = app.contentResolver.openInputStream(item.uri)
+
         try {
             val options = BitmapFactory.Options()
             options.inScaled = false
@@ -143,7 +428,8 @@ class ConvertProgressViewModel(
             val convertToExtension = Util.getFileExtension(
                 item.specificConvertFormat,
                 item.defaultConvertFormat,
-                item.convertAll
+                item.convertAll,
+                item.isPdfConversion
             )
             val fileName = getFileName(item.fileName)
             val fileSavePath = getFileSavePath(storageDir, fileName, convertToExtension)
@@ -162,6 +448,7 @@ class ConvertProgressViewModel(
             inputStream?.close()
         }
     }
+
 
     private fun saveConvertedFile(file: ConvertedFile) {
         if (file.fileType != "pdf") {
@@ -211,7 +498,7 @@ class ConvertProgressViewModel(
                 }
             }
             ".pdf" -> {
-                if(scope.isActive) {
+                if (scope.isActive) {
                     createAndSaveSinglePagePdf(bitmap, this.storageDir)
                 }
             }
@@ -222,18 +509,21 @@ class ConvertProgressViewModel(
 
 
     private fun createAndSaveSinglePagePdf(inputBitmap: Bitmap, storageDir: String) {
-        val pageHeight = 1920
-        val pageWidth = 1080
+        val getPageSize = getPdfQuality(pdfQuality)
+        val pageWidth = getPageSize.first
+        val pageHeight = getPageSize.second
         val bitmap = scaleBitmapToAspectRatio(inputBitmap, pageHeight, pageWidth)
         val fileName = Util.getCurrentTimeMillis()
         val filePath = "${storageDir}${fileName}.pdf"
         val document = PdfDocument()
         val pageInfo: PdfDocument.PageInfo =
-            PdfDocument.PageInfo.Builder(bitmap.width + 50, bitmap.height + 50, 1)
-                .setContentRect(Rect(0, 0, bitmap.width + 50, bitmap.height + 50)).create()
+            PdfDocument.PageInfo.Builder(pageWidth + 50, pageHeight + 50, 1)
+                .setContentRect(Rect(0, 0, pageWidth + 50, pageHeight + 50)).create()
         val page: PdfDocument.Page = document.startPage(pageInfo)
         val canvas: Canvas = page.canvas
-        canvas.drawBitmap(bitmap, 25f, 25f, null)
+        val xOffset = ((canvas.width - bitmap.width) / 2).toFloat()
+        val yOffset = ((canvas.height - bitmap.height) / 2).toFloat()
+        canvas.drawBitmap(bitmap, xOffset, yOffset, null)
         document.finishPage(page)
         val thumbNail: Bitmap = scaleBitmapToAspectRatio(inputBitmap, 132, 132)
 
@@ -262,58 +552,66 @@ class ConvertProgressViewModel(
     }
 
     private suspend fun createAndSaveMultiPagePdf(items: List<ConvertInfo>, storageDir: String) {
-        itemPercentage = ((95 / items.size).toFloat())
+        itemPercentage = (95 / items.size).toDouble()
         val fileName = Util.getCurrentTimeMillis()
         val filePath = "${storageDir}${fileName}.pdf"
         val document = PdfDocument()
-        val (width, height) = withContext(Dispatchers.Default) { getMaxWidthAndHeight(items) }
         var thumbNail: Bitmap? = null
+        val getPdfSize = getPdfQuality(pdfQuality)
+        val pageWidth = getPdfSize.first
+        val pageHeight = getPdfSize.second
 
-        val pageHeight = 1920
-        val pageWidth = 1080
 
         items.forEachIndexed { index, item ->
-            val inputStream = app.contentResolver.openInputStream(item.uri)
-            try {
-                var bitmap = withContext(Dispatchers.IO) { BitmapFactory.decodeStream(inputStream) }
-                if (index == 0) {
-                    thumbNail = withContext(Dispatchers.Default) {
+            withContext(Dispatchers.IO) {
+                val inputStream = app.contentResolver.openInputStream(item.uri)
+                try {
+                    var bitmap =
+                        withContext(Dispatchers.IO) { BitmapFactory.decodeStream(inputStream) }
+                    if (index == 0) {
+                        thumbNail = withContext(Dispatchers.Default) {
+                            scaleBitmapToAspectRatio(
+                                bitmap,
+                                132,
+                                132
+                            )
+                        }
+                    }
+
+                    bitmap = withContext(Dispatchers.Default) {
                         scaleBitmapToAspectRatio(
                             bitmap,
-                            132,
-                            132
+                            pageHeight,
+                            pageWidth
                         )
                     }
-                }
 
-                bitmap = withContext(Dispatchers.Default) {
-                    scaleBitmapToAspectRatio(
-                        bitmap,
-                        pageHeight,
-                        pageWidth
-                    )
+                    val pageInfo: PdfDocument.PageInfo = PdfDocument.PageInfo
+                        .Builder(pageWidth + 50, pageHeight + 50, index + 1)
+                        .setContentRect(Rect(0, 0, pageWidth + 50, pageHeight + 50)).create()
+                    val page: PdfDocument.Page = document.startPage(pageInfo)
+                    val canvas: Canvas = page.canvas
+                    val xOffset = ((canvas.width - bitmap.width) / 2).toFloat()
+                    val yOffset = ((canvas.height - bitmap.height) / 2).toFloat()
+                    val canvasColor =
+                        Paint(
+                            ContextCompat.getColor(
+                                app.applicationContext,
+                                R.color.pdfBackground
+                            )
+                        )
+                    canvas.drawBitmap(bitmap, xOffset, yOffset, canvasColor)
+                    document.finishPage(page)
+                    _convertedFileName.postValue("${item.fileName}:Converted")
+                    increasePercentage(itemPercentage)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    inputStream?.close()
                 }
-
-                val pageInfo: PdfDocument.PageInfo = PdfDocument.PageInfo
-                    .Builder(pageWidth + 50, pageHeight + 50, index + 1)
-                    .setContentRect(Rect(0, 0, pageWidth + 50, pageHeight + 50)).create()
-                val page: PdfDocument.Page = document.startPage(pageInfo)
-                val canvas: Canvas = page.canvas
-                val xOffset = ((canvas.width - bitmap.width) / 2).toFloat()
-                val yOffset = ((canvas.height - bitmap.height) / 2).toFloat()
-                val canvasColor =
-                    Paint(ContextCompat.getColor(app.applicationContext, R.color.pdfBackground))
-                canvas.drawBitmap(bitmap, xOffset, yOffset, canvasColor)
-                document.finishPage(page)
-                _convertedFileName.postValue("${item.fileName}:Converted")
-                increasePercentage(itemPercentage)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                inputStream?.close()
             }
-
         }
+
 
 
         try {
@@ -379,30 +677,6 @@ class ConvertProgressViewModel(
         doc.writeTo(fos)
     }
 
-    private fun getMaxWidthAndHeight(items: List<ConvertInfo>): Pair<Int, Int> {
-        var width = 0
-        var height = 0
-        for (item in items) {
-            val inputStream = app.contentResolver.openInputStream(item.uri)
-
-            try {
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                if (width < bitmap.width)
-                    width = bitmap.width
-
-                if (height < bitmap.height)
-                    height = bitmap.height
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                inputStream?.close()
-            }
-        }
-
-        return Pair(width, height)
-    }
-
     private fun scaleBitmapToAspectRatio(
         targetBmp: Bitmap,
         reqHeightInPixels: Int,
@@ -417,6 +691,25 @@ class ConvertProgressViewModel(
         return Bitmap.createBitmap(targetBmp, 0, 0, targetBmp.width, targetBmp.height, matrix, true)
     }
 
+    private fun getPdfQuality(value: Int): Pair<Int, Int> {
+        when (value) {
+            0 -> {
+                return Pair(595, 842)
+            }
+            1 -> {
+                return Pair(1654, 2339)
+            }
+            2 -> {
+                return Pair(2480, 3508)
+            }
+            3 -> {
+                return Pair(3307, 4677)
+            }
+            else -> {
+                return Pair(595, 842)
+            }
+        }
+    }
 
     private fun getFileName(fileName: String): String {
         return File(fileName).nameWithoutExtension
@@ -434,18 +727,8 @@ class ConvertProgressViewModel(
         return Util.getExternalDir(app.applicationContext)
     }
 
-    fun progressToString(): String {
-        return completePercentage.value.toString()
-    }
-
     private fun fillRemainingPercentage() {
-        val currentPercentage = completePercentage.value
-        if (currentPercentage != null) {
-            if (currentPercentage < 100) {
-                val remaining = 100 - currentPercentage
-                _completePercentage.postValue(completePercentage.value?.plus(remaining))
-            }
-        }
+        _completePercentage.postValue(100.0)
     }
 
     private fun createConvertedImageFile(filePath: String, extension: String): ConvertedFile {
@@ -501,9 +784,8 @@ class ConvertProgressViewModel(
         )
     }
 
-    private fun increasePercentage(value: Float = 1f) {
-        val intValue = value.toInt()
-        _completePercentage.postValue(completePercentage.value?.plus(intValue))
+    private fun increasePercentage(value: Double = 1.0) {
+        _completePercentage.postValue(completePercentage.value?.plus(value))
     }
 
     fun setConversionPaused(value: Boolean) {
@@ -513,7 +795,7 @@ class ConvertProgressViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        _completePercentage.postValue(0)
+        _completePercentage.postValue(0.0)
         scope.cancel()
     }
 

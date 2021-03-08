@@ -1,8 +1,10 @@
 <resources>
-    <string name="app_name">Image Converter</string>
+    <string name="app_name">Image-PDF Converter</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="item_size">Image Count: %1$d/%2$d</string>
+    <string name="stopText">Stop</string>
+    <string name="restartText">Restart</string>
     <string-array name="file_types">
         <item>PNG</item>
         <item>JPG</item>
@@ -18,6 +20,26 @@
         <item>WEBP</item>
         <item>PDF</item>
         <item>MergeIntoPDF</item>
+    </string-array>
+
+    <string-array name="file_type_pdf">
+        <item>PNG</item>
+        <item>JPG</item>
+        <item>WEBP</item>
+    </string-array>
+
+    <string-array name="file_type_all_pdf">
+        <item>PNG</item>
+        <item>JPG</item>
+        <item>WEBP</item>
+        <item>MergePDF</item>
+    </string-array>
+
+    <string-array name="pdf_quality">
+        <item>72 PPI</item>
+        <item>200 PPI</item>
+        <item>300 PPI</item>
+        <item>400 PPI</item>
     </string-array>
 
     <string-array name="text_size">

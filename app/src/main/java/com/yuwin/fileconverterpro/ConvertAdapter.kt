@@ -1,12 +1,14 @@
 package com.yuwin.fileconverterpro
 
+import android.R
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.yuwin.fileconverterpro.databinding.QueueItemBinding
 import java.util.*
+
 
 class ConvertAdapter: RecyclerView.Adapter<ConvertAdapter.ViewHolder>(), ItemTouchInterface{
 
@@ -25,7 +27,8 @@ class ConvertAdapter: RecyclerView.Adapter<ConvertAdapter.ViewHolder>(), ItemTou
         return data.size
     }
 
-    class ViewHolder(private val binding: QueueItemBinding): RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val binding: QueueItemBinding):
+        RecyclerView.ViewHolder(binding.root) {
 
         fun bind(convertInfo: ConvertInfo) {
             binding.item = convertInfo
@@ -65,6 +68,7 @@ class ConvertAdapter: RecyclerView.Adapter<ConvertAdapter.ViewHolder>(), ItemTou
 
     override fun onItemSwipe(position: Int) {
         data.removeAt(position)
+
         notifyItemRemoved(position)
     }
 

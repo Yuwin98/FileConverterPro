@@ -24,6 +24,9 @@ class ConvertViewModel: ViewModel() {
     private val _listSize = MutableLiveData<Int>()
     val listSize: LiveData<Int> get() = _listSize
 
+    private val _isPDFConversion = MutableLiveData<Boolean>()
+    val isPdfConversion: LiveData<Boolean> get() = _isPDFConversion
+
     init {
         _allConvert.postValue(false)
         _qualityValue.postValue("100")
@@ -41,6 +44,10 @@ class ConvertViewModel: ViewModel() {
 
     fun setQualityValue(value: String) {
         _qualityValue.postValue(value)
+    }
+
+    fun setIsPdfConversion(value: Boolean) {
+        _isPDFConversion.postValue(value)
     }
 
 

@@ -24,14 +24,16 @@ import com.google.android.gms.ads.*
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import java.util.*
-import java.util.jar.Manifest
 
 private const val MEDIA_LOCATION_PERMISSION_REQUEST_CODE = 999
+private const val IMAGE_REQUEST_CODE = 200
+private const val PDF_REQUEST_CODE = 500
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,30 +53,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var manager: ReviewManager
     private lateinit var reviewInfo: ReviewInfo
 
-    private var onNavigationViewSelectedItemListener =
-        BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
 
-            when (menuItem.itemId) {
-                R.id.home -> {
-                    findNavController(R.id.navHostFragment).navigate(R.id.home)
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.settings -> {
-                    findNavController(R.id.navHostFragment).navigate(R.id.settings)
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.favorites -> {
-                    findNavController(R.id.navHostFragment).navigate(R.id.favorite)
-                    return@OnNavigationItemSelectedListener true
-                }
-
-                R.id.chooseImage -> {
-                    chooseImageIfPermissionGranted()
-                    return@OnNavigationItemSelectedListener true
-                }
-            }
-            false
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -137,6 +116,14 @@ class MainActivity : AppCompatActivity() {
         parentView = null
     }
 
+    override fun onBackPressed() {
+        if(navController?.currentDestination?.id == R.id.convertProgressFragment) {
+            navController?.navigate(R.id.action_convertProgressFragment_to_home)
+            showInterstitial()
+            return
+        }
+        super.onBackPressed()
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         navController?.let {
@@ -144,6 +131,51 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onSupportNavigateUp()
     }
+
+    private fun convertChoices() {
+        val items = arrayOf("Image Conversion", "PDF Conversion")
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Converstion Type")
+            .setItems(items) { dialog, which ->
+               when(which) {
+                   0 -> {
+                        chooseImageIfPermissionGranted()
+                       dialog.dismiss()
+                   }
+                   1 -> {
+                       choosePdfIfPermissionGranted()
+                       dialog.dismiss()
+                   }
+               }
+            }
+            .show()
+
+    }
+
+    private var onNavigationViewSelectedItemListener =
+        BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
+
+            when (menuItem.itemId) {
+                R.id.home -> {
+                    findNavController(R.id.navHostFragment).navigate(R.id.home)
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.settings -> {
+                    findNavController(R.id.navHostFragment).navigate(R.id.settings)
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.favorites -> {
+                    findNavController(R.id.navHostFragment).navigate(R.id.favorite)
+                    return@OnNavigationItemSelectedListener true
+                }
+
+                R.id.chooseImage -> {
+                    convertChoices()
+                    return@OnNavigationItemSelectedListener true
+                }
+            }
+            false
+        }
 
     private fun promptReview() {
         mainViewModel?.readAppOpenedTimes?.observeOnce(this, {
@@ -218,12 +250,23 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+
+
+    private fun choosePdf() {
+        val intent = Intent()
+        intent.type = "application/pdf"
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        intent.action = Intent.ACTION_GET_CONTENT
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        startActivityForResult(Intent.createChooser(intent, "Select PDF"), PDF_REQUEST_CODE)
+    }
+
     private fun chooseImages() {
         val intent = Intent()
         intent.type = "image/*"
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(Intent.createChooser(intent, "Select Images"), 200)
+        startActivityForResult(Intent.createChooser(intent, "Select Images"), IMAGE_REQUEST_CODE)
     }
 
     private fun chooseImageIfPermissionGranted() {
@@ -232,6 +275,18 @@ class MainActivity : AppCompatActivity() {
         } else {
             if (isTherePermissionForMediaAccess(this)) {
                 chooseImages()
+            } else {
+                requestPermissionForMediaAccess(this)
+            }
+        }
+    }
+
+    private fun choosePdfIfPermissionGranted() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+           choosePdf()
+        } else {
+            if (isTherePermissionForMediaAccess(this)) {
+                choosePdf()
             } else {
                 requestPermissionForMediaAccess(this)
             }
@@ -251,7 +306,9 @@ class MainActivity : AppCompatActivity() {
     private fun requestPermissionForMediaAccess(context: Context) {
         ActivityCompat.requestPermissions(
             context as Activity,
-            arrayOf(android.Manifest.permission.ACCESS_MEDIA_LOCATION),
+            arrayOf(android.Manifest.permission.ACCESS_MEDIA_LOCATION,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            android.Manifest.permission.READ_EXTERNAL_STORAGE),
             MEDIA_LOCATION_PERMISSION_REQUEST_CODE
         )
     }
@@ -278,7 +335,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         var uriList = mutableListOf<Uri>()
-        if (data != null && requestCode == 200 && resultCode == Activity.RESULT_OK) {
+        if (data != null && (requestCode == IMAGE_REQUEST_CODE || requestCode == PDF_REQUEST_CODE) && resultCode == Activity.RESULT_OK) {
             if (data.clipData != null) {
                 val count = data.clipData!!.itemCount
                 for (i in 0 until count) {
@@ -292,7 +349,7 @@ class MainActivity : AppCompatActivity() {
 
             if (uriList.size > IMAGE_LIMIT) {
                 uriList = uriList.take(IMAGE_LIMIT).toMutableList()
-                Toast.makeText(this, "Max Convert Limit $IMAGE_LIMIT", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Max Convert Limit $IMAGE_LIMIT reached", Toast.LENGTH_SHORT).show()
             }
 
             val newUriList = UriList(uriList)
@@ -319,7 +376,7 @@ class MainActivity : AppCompatActivity() {
 
             }
             findNavController(R.id.navHostFragment).navigate(action)
-        } else if (requestCode == 200) {
+        } else if (requestCode == IMAGE_REQUEST_CODE || requestCode == PDF_REQUEST_CODE) {
             findNavController(R.id.navHostFragment).navigate(R.id.home)
         }
     }

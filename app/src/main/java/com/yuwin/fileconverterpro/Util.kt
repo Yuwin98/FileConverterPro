@@ -89,12 +89,21 @@ class Util {
         fun getFileExtension(
             specificFormat: Int?,
             defaultFormat: Int?,
-            convertAll: Boolean?
+            convertAll: Boolean?,
+            isPdfConversion: Boolean?
         ): String {
-            return if (convertAll == true) {
-                ".${FormatTypes.values()[defaultFormat!!].toString().toLowerCase(Locale.ROOT)}"
-            } else {
-                ".${FormatTypes.values()[specificFormat!!].toString().toLowerCase(Locale.ROOT)}"
+            return if(isPdfConversion == true) {
+                if (convertAll == true) {
+                    ".${FormatTypesPDF.values()[defaultFormat!!].toString().toLowerCase(Locale.ROOT)}"
+                } else {
+                    ".${FormatTypesPDF.values()[specificFormat!!].toString().toLowerCase(Locale.ROOT)}"
+                }
+            }else {
+                if (convertAll == true) {
+                    ".${FormatTypes.values()[defaultFormat!!].toString().toLowerCase(Locale.ROOT)}"
+                } else {
+                    ".${FormatTypes.values()[specificFormat!!].toString().toLowerCase(Locale.ROOT)}"
+                }
             }
         }
 
@@ -105,6 +114,13 @@ class Util {
                 ContextCompat.getExternalFilesDirs(context.applicationContext, null)
             return externalStorageVolumes[0].absolutePath + "/"
         }
+
+        fun getExternalCache(context: Context): String {
+            val externalStorageVolumes: Array<out File> =
+                ContextCompat.getExternalCacheDirs(context.applicationContext)
+            return externalStorageVolumes[0].absolutePath + "/"
+        }
+
 
         fun getStoragePathWithExtension(
             storageDir: String,

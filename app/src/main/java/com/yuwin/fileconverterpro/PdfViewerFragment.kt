@@ -216,22 +216,6 @@ class PdfViewerFragment : BaseFragment() {
         }
     }
 
-    private fun startPdfOpenActivity(filePath: String) {
-        val file = File(filePath)
-        val uri = Util.getFileUri(requireActivity(), file)
-
-        val target = Intent()
-        target.action = Intent.ACTION_VIEW
-        target.setDataAndType(uri, "application/pdf")
-        target.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-        val intent = Intent.createChooser(target, "Open PDF")
-        try {
-            startActivity(intent)
-        }catch (e: ActivityNotFoundException) {
-            Toast.makeText(requireContext(), "No app to view pdf files", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
