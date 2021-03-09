@@ -94,5 +94,15 @@ class MainViewModel(app: Application): AndroidViewModel(app) {
         }
     }
 
+    // Read Write Premium Status
+
+    val readIsPremium = repository.isPremiumMember.asLiveData()
+
+    fun setPremiumStatus(value: Int) {
+        viewModelScope.launch {
+            repository.setPremium(value)
+        }
+    }
+
 
 }

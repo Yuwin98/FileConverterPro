@@ -35,12 +35,12 @@
 
                 <ImageView
                     android:id="@+id/filesListImagePreview"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginStart="18dp"
-                    android:scaleType="centerCrop"
                     changeNonFolderColor="@{convertedFile.directory}"
                     loadThumbnailFromUri="@{convertedFile}"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="12dp"
+                    android:scaleType="centerCrop"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"

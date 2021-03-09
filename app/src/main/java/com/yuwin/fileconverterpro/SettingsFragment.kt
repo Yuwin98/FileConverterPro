@@ -41,15 +41,16 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//
-//        val externalStorageVolumes: Array<out File> =
-//            ContextCompat.get(requireContext().applicationContext, null)
 
-        if(Util.isExternalStorageWritable()) {
-            Log.d("Storage2", " Storage Writable")
-            Environment.DIRECTORY_DOCUMENTS
-        }
-
+        mainViewModel?.readIsPremium?.observe(viewLifecycleOwner, { isPremium ->
+            if(isPremium == 1) {
+                binding?.goPremiumCardView?.visibility = View.GONE
+                binding?.goPremiumTextView?.visibility = View.GONE
+            }else {
+                binding?.goPremiumCardView?.visibility = View.VISIBLE
+                binding?.goPremiumTextView?.visibility = View.VISIBLE
+            }
+        })
 
         mainViewModel?.readQuality?.observeOnce(viewLifecycleOwner, { progress ->
             Log.d("pdfpage", progress.toString())
@@ -98,8 +99,9 @@ class SettingsFragment : Fragment() {
             binding?.currentStoragePath?.text = path
         })
 
-
-//        Log.d("AppStoragePath",)
+        binding?.goPremiumTextView?.setOnClickListener {
+            (activity as MainActivity).subscribe()
+        }
 
     }
 

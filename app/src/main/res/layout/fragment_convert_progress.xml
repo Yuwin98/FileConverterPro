@@ -29,7 +29,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/allerta"
-            android:text="100.0%"
             android:textAlignment="center"
             android:textColor="@color/colorText"
             android:textSize="32sp"
@@ -57,11 +56,11 @@
 
         <TextView
             android:id="@+id/fileConvertProgressMessage"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="24dp"
             android:layout_marginTop="48dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="24dp"
             android:fontFamily="@font/allerta"
             android:text="@{viewModel.convertedProgressMessage}"
             android:textAlignment="center"

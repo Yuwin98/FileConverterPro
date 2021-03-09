@@ -22,6 +22,7 @@ import java.util.*
 
 
 class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.Callback {
+
     override var bottomNavigationVisibility: Int = View.GONE
 
     private val args by navArgs<DirectoryViewFragmentArgs>()
@@ -41,7 +42,6 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
     private var multiSelection = false
     private var selectedFiles = arrayListOf<ConvertedFile>()
     private lateinit var actionMode: ActionMode
-
 
 
     private var menu: Menu? = null
@@ -84,9 +84,9 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
 
 
     override fun onItemClick(position: Int) {
-        if(multiSelection) {
+        if (multiSelection) {
             applySelection(position)
-        }else {
+        } else {
             openMyFile(position)
         }
     }
@@ -160,7 +160,7 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.home_action_menu, menu)
+        inflater.inflate(R.menu.directory_home_action_menu, menu)
         this.menu = menu
     }
 
@@ -221,7 +221,7 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
                 })
             }
         }
-        return true
+        return super.onOptionsItemSelected(item)
     }
 
     private fun filterSortAndUpdateData(items: List<ConvertedFile>) {
@@ -254,6 +254,7 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
         _binding = null
         viewModel = null
     }
+
 
     override fun onCreateActionMode(actionMode: ActionMode, menu: Menu?): Boolean {
         actionMode.menuInflater?.inflate(R.menu.directory_action_menu, menu)
@@ -304,26 +305,23 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
                     Util.startShareSheetMultiple(requireActivity(), selectedFiles)
                 startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
             }
-
-
-
+        }
+        return true
     }
-    return true
-}
 
-override fun onDestroyActionMode(mode: ActionMode?) {
-    data.forEach {
-        it.isSelected = false
+    override fun onDestroyActionMode(mode: ActionMode?) {
+        data.forEach {
+            it.isSelected = false
+        }
+        updateData(data)
+        applyStatusBarColor(R.color.statusBarColor)
+        selectedFiles.clear()
+        multiSelection = false
     }
-    updateData(data)
-    applyStatusBarColor(R.color.statusBarColor)
-    selectedFiles.clear()
-    multiSelection = false
-}
 
-private fun applyStatusBarColor(color: Int) {
-    requireActivity().window.statusBarColor = ContextCompat.getColor(requireContext(), color)
-}
+    private fun applyStatusBarColor(color: Int) {
+        requireActivity().window.statusBarColor = ContextCompat.getColor(requireContext(), color)
+    }
 
 
 }

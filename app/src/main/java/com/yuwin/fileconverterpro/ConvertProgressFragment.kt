@@ -1,5 +1,6 @@
 package com.yuwin.fileconverterpro
 
+import android.app.Application
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import android.view.animation.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -26,6 +28,7 @@ class ConvertProgressFragment : BaseFragment() {
 
     private val binding by lazy { FragmentConvertProgressBinding.inflate(layoutInflater) }
     private lateinit var convertProgressViewModel: ConvertProgressViewModel
+    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +39,7 @@ class ConvertProgressFragment : BaseFragment() {
         convertProgressViewModel = ViewModelProvider(
             this,
             ConvertProgressViewModelFactory(
-                requireActivity().application,
+                requireContext().applicationContext as Application,
                 args.data.items,
                 args.quality,
                 args.pdfQuality
@@ -145,6 +148,8 @@ class ConvertProgressFragment : BaseFragment() {
                     binding.resumeButton.text = getString(R.string.restartText)
                     convertProgressViewModel.mergePDF()
                 } else {
+                    binding.pauseButton.text = getString(R.string.stopText)
+                    binding.resumeButton.text = getString(R.string.restartText)
                     convertProgressViewModel.pdfIntoImage()
                 }
             }

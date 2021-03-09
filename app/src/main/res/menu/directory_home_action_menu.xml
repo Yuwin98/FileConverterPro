@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item android:id="@+id/sortby"
+        android:title="Sort By">
+
+        <menu>
+            <item android:id="@+id/sortFileDate"
+                android:title="Date"/>
+
+            <item android:id="@+id/sortFileSize"
+                android:title="Size"/>
+
+            <item android:id="@+id/sortFileName"
+                android:title="Name"/>
+
+            <item android:id="@+id/sortFileType"
+                android:title="Type"/>
+        </menu>
+
+    </item>
+
+    <item android:id="@+id/filterby"
+        android:title="Filter By">
+
+        <menu>
+            <item android:id="@+id/filterJpg"
+                android:title="JPG/JPEG"/>
+
+            <item android:id="@+id/filterPng"
+                android:title="PNG"/>
+
+            <item android:id="@+id/filterWebp"
+                android:title="WEBP"/>
+
+            <item android:id="@+id/filterPdf"
+                android:title="PDF"/>
+        </menu>
+
+    </item>
+
+    <item android:id="@+id/deleteAll"
+        android:title="Delete All"/>
+
+
+</menu>

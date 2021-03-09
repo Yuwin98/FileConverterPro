@@ -264,7 +264,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                     findNavController().navigate(action)
                 } else {
                     openMyFile(data)
-
                 }
             }
         }

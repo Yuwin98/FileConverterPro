@@ -1,7 +1,9 @@
 package com.yuwin.fileconverterpro
 
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.pdf.PdfRenderer
@@ -57,13 +59,16 @@ class BindingAdapters {
             if(item.fileType != "PDF") {
                 Glide.with(view).load(item.uri).into(view)
             }else {
-                Glide.with(view).load(R.drawable.pdf).into(view)
+               val bitmap = loadPDFThumbnail(view.context,item)
+               Glide.with(view).load(bitmap).into(view)
             }
         }
 
-        private fun loadPDFThumbnail(path: ConvertInfo): Bitmap? {
-            val file = File(path.filePath)
-            val fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+        private fun loadPDFThumbnail(context: Context,item: ConvertInfo): Bitmap? {
+            val fileDescriptor = context.contentResolver.openFileDescriptor(
+                item.uri,
+                "r"
+            )!!
             val renderer  = PdfRenderer(fileDescriptor)
             val page = renderer.openPage(0)
             var bitmap = page?.let {
@@ -72,6 +77,11 @@ class BindingAdapters {
                     it.height,
                     Bitmap.Config.ARGB_8888
                 )
+            }
+            if (bitmap != null) {
+                bitmap.eraseColor(Color.WHITE)
+                Canvas(bitmap).drawBitmap(bitmap, 0f, 0f, null)
+                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
             }
             bitmap = bitmap?.let { Util.scaleBitmap(it, 256 * 256) }
 

@@ -35,7 +35,7 @@
         app:menu="@menu/bottom_menu" />
 
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/navHostFragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
@@ -44,7 +44,7 @@
         app:layout_constraintBottom_toTopOf="@+id/bannerAdView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/premiumTextView"
         app:navGraph="@navigation/navigation" />
 
     <View
@@ -55,6 +55,18 @@
         app:layout_constraintBottom_toTopOf="@id/bannerAdView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/premiumTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/allerta"
+        android:text="Free"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

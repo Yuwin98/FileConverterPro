@@ -214,18 +214,20 @@
                     android:text="Go Premium"
                     android:textAlignment="center"
                     android:textSize="16sp"
+                    android:background="?attr/selectableItemBackground"
                     app:layout_constraintBottom_toBottomOf="@+id/goPremiumCardView"
                     app:layout_constraintStart_toEndOf="@+id/goPremiumCardView"
                     app:layout_constraintTop_toTopOf="@+id/goPremiumCardView" />
 
                 <TextView
-                    android:id="@+id/textView10"
+                    android:id="@+id/reportProblemTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:fontFamily="@font/allerta"
                     android:text="Report a problem"
                     android:textSize="16sp"
+                    android:background="?attr/selectableItemBackground"
                     app:layout_constraintBottom_toBottomOf="@+id/reportBugsCardView"
                     app:layout_constraintStart_toEndOf="@+id/reportBugsCardView" />
 
@@ -266,6 +268,7 @@
                     android:layout_marginStart="24dp"
                     android:layout_marginTop="24dp"
                     android:elevation="8dp"
+                    android:visibility="visible"
                     app:cardBackgroundColor="#1abc9c"
                     app:cardCornerRadius="5dp"
                     app:layout_constraintStart_toStartOf="parent"

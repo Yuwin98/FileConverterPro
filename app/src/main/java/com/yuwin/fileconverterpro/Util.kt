@@ -78,7 +78,7 @@ class Util {
                 it.moveToFirst()
 
                 val fileName = it.getString(nameIndex)
-                val fileSize = convertBytes(it.getLong(sizeIndex)).toString()
+                val fileSize = convertBytes(it.getLong(sizeIndex))
                 cursor.close()
 
                 return FileInfo(fileName, fileSize)

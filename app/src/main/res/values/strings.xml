@@ -5,6 +5,10 @@
     <string name="item_size">Image Count: %1$d/%2$d</string>
     <string name="stopText">Stop</string>
     <string name="restartText">Restart</string>
+    <string name="appPremiumSku">image_converter_premium</string>
+
+    <string name="base64Key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA20NTZ9NcUHauNHTsgVRAfed6i1aOwAIndn600Gh4aEgsQnK7gdIjIk+Vdv6cjrePG+FkU55y2Re4MRHE1cROmLnZjvmfFkWMEFn9FslKX99uh6YmZ29Cg2KFJuNJe0mGEOH+ULMXwviGSRtsWg5AGLjTSbRCiabva5g7u7PxHkt4vtiQt+BWz6ecndOP6zKiDnZ+PkZT1L9bnWbbHcZzDpGTzEiD6d+Gn2fU1yPpf+uxLoa9fRTqa9SqspbaD3kjLdnH17/6aJXIyeZYSF8TAqjLeA9BiU5Z8K2JimC8m/RngvsZEVMtC5gq+a1styWWdgv4oJOwalPlA3RiZz01yQIDAQAB</string>
+
     <string-array name="file_types">
         <item>PNG</item>
         <item>JPG</item>
@@ -35,11 +39,16 @@
         <item>MergePDF</item>
     </string-array>
 
-    <string-array name="pdf_quality">
+    <string-array name="pdf_image_quality">
         <item>72 PPI</item>
         <item>200 PPI</item>
         <item>300 PPI</item>
         <item>400 PPI</item>
+    </string-array>
+
+    <string-array name="pdf_quality">
+        <item>72 PPI</item>
+        <item>200 PPI</item>
     </string-array>
 
     <string-array name="text_size">

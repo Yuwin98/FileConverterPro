@@ -27,7 +27,27 @@ class DataStoreRepository(val context: Application) {
         val Format = intPreferencesKey("format")
         val IsGrid = booleanPreferencesKey("grid")
         val Storage = stringPreferencesKey("storage")
+        val Premium = intPreferencesKey("premium")
     }
+
+    suspend fun setPremium(value: Int) {
+        context.appDataStore.edit { settings ->
+            settings[PreferencesKeys.Premium] = value
+        }
+    }
+
+    val isPremiumMember: Flow<Int> = context.appDataStore.data
+        .catch { exception ->
+            if(exception is IOException) {
+                emit(emptyPreferences())
+            }else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            val isPremium = preferences[PreferencesKeys.Premium] ?: 0
+            isPremium
+        }
 
 
     suspend fun setDefaultQuality(value: Int) {

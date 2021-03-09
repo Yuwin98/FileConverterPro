@@ -9,6 +9,8 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -17,9 +19,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.android.billingclient.api.*
+import com.android.billingclient.api.BillingClient.*
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
@@ -28,18 +33,21 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
+import com.yuwin.fileconverterpro.Constants.Companion.FREE_IMAGE_LIMIT
+import com.yuwin.fileconverterpro.Constants.Companion.PREMIUM_IMAGE_LIMIT
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
+import java.io.IOException
 import java.util.*
 
 private const val MEDIA_LOCATION_PERMISSION_REQUEST_CODE = 999
 private const val IMAGE_REQUEST_CODE = 200
 private const val PDF_REQUEST_CODE = 500
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
     private var navController: NavController? = null
     private var bottomNavigationView: BottomNavigationView? = null
-    private val IMAGE_LIMIT = 50
+    private var imgLimit = FREE_IMAGE_LIMIT
     private var mInterstitialAd: InterstitialAd? = null
     private var adRequest: AdRequest? = null
     private val myAdUnitId = "ca-app-pub-3940256099942544/1033173712"
@@ -53,28 +61,71 @@ class MainActivity : AppCompatActivity() {
     private lateinit var manager: ReviewManager
     private lateinit var reviewInfo: ReviewInfo
 
+    private lateinit var billingClient: BillingClient
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(R.style.Theme_FileConverterPro)
         setContentView(R.layout.activity_main)
-        Log.d("MainActivity1", "On Create")
-        parentView = findViewById(R.id.mainConstraintLayout)
+        bottomNavigationView = findViewById(R.id.bottomNavigationView)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
+        navController = navHostFragment.navController
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        setCurrentSettings()
+
+
+        billingClient = newBuilder(this).enablePendingPurchases().setListener(this).build()
+        billingClient.startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(billingResult: BillingResult) {
+
+                if(billingResult.responseCode == BillingResponseCode.OK) {
+                    val queryPurchase = billingClient.queryPurchases(SkuType.SUBS)
+                    val queryPurchases = queryPurchase.purchasesList
+                    if(queryPurchase != null && queryPurchases?.size!! > 0) {
+                        handlePurchases(queryPurchases)
+                    }else {
+                        mainViewModel?.setPremiumStatus(0)
+                    }
+                }
+
+
+            }
+
+            override fun onBillingServiceDisconnected() {
+                Toast.makeText(applicationContext, "Service Disconnected",  Toast.LENGTH_SHORT).show()
+            }
+
+        })
+        val premiumTextView = findViewById<TextView>(R.id.premiumTextView)
+
+        mainViewModel?.readIsPremium?.observe(this, { isPremium ->
+            if(isPremium == 1) {
+                this.imgLimit = PREMIUM_IMAGE_LIMIT
+                mAdView = findViewById(R.id.bannerAdView)
+                mAdView?.visibility = View.GONE
+                premiumTextView.text = "Premium"
+
+            }else {
+                this.imgLimit = FREE_IMAGE_LIMIT
+                MobileAds.initialize(this)
+                mAdView = findViewById(R.id.bannerAdView)
+                adRequest = AdRequest.Builder().build()
+                requestInterstitial()
+                mAdView?.loadAd(adRequest)
+                premiumTextView.text = "Free"
+
+            }
+        })
+
+
+        parentView = findViewById(R.id.mainConstraintLayout)
         manager = ReviewManagerFactory.create(this)
 
-        MobileAds.initialize(this)
-        mAdView = findViewById(R.id.bannerAdView)
-        adRequest = AdRequest.Builder().build()
-        requestInterstitial()
-
-        mAdView?.loadAd(adRequest)
 
 
-        bottomNavigationView = findViewById(R.id.bottomNavigationView)
-        navController = findNavController(R.id.navHostFragment)
+
+
 
         val appBarConfiguration = AppBarConfiguration(
             setOf(
@@ -82,7 +133,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.settings,
                 R.id.favorite,
                 R.id.convert,
-                R.id.convertProgressFragment
+                R.id.convertProgressFragment,
             )
         )
 
@@ -95,7 +146,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         mainViewModel?.readReviewPrompted?.observeOnce(this, {
-            if(!it) {
+            if (!it) {
                 promptReview()
             }
         })
@@ -105,7 +156,7 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         Log.d("MainActivity1", "On Destroy")
         mainViewModel = null
-        mInterstitialAd  = null
+        mInterstitialAd = null
         adRequest = null
         bottomNavigationView = null
         navController = null
@@ -114,10 +165,11 @@ class MainActivity : AppCompatActivity() {
         mAdView?.destroy()
         mAdView = null
         parentView = null
+        billingClient.endConnection()
     }
 
     override fun onBackPressed() {
-        if(navController?.currentDestination?.id == R.id.convertProgressFragment) {
+        if (navController?.currentDestination?.id == R.id.convertProgressFragment) {
             navController?.navigate(R.id.action_convertProgressFragment_to_home)
             showInterstitial()
             return
@@ -137,20 +189,90 @@ class MainActivity : AppCompatActivity() {
         MaterialAlertDialogBuilder(this)
             .setTitle("Converstion Type")
             .setItems(items) { dialog, which ->
-               when(which) {
-                   0 -> {
+                when (which) {
+                    0 -> {
                         chooseImageIfPermissionGranted()
-                       dialog.dismiss()
-                   }
-                   1 -> {
-                       choosePdfIfPermissionGranted()
-                       dialog.dismiss()
-                   }
-               }
+                        dialog.dismiss()
+                    }
+                    1 -> {
+                        choosePdfIfPermissionGranted()
+                        dialog.dismiss()
+                    }
+                }
             }
             .show()
 
     }
+
+    // Subscriptions Start
+
+    fun subscribe() {
+        if (billingClient.isReady) {
+            initiatePurchase()
+        } else {
+            billingClient = newBuilder(this).enablePendingPurchases().setListener(this).build()
+            billingClient.startConnection(object : BillingClientStateListener {
+                override fun onBillingSetupFinished(billingResult: BillingResult) {
+                    if (billingResult.responseCode == BillingResponseCode.OK) {
+                        initiatePurchase()
+                    } else {
+                        Toast.makeText(
+                            applicationContext,
+                            "Error ${billingResult.debugMessage}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+                override fun onBillingServiceDisconnected() {
+                    Toast.makeText(
+                        applicationContext,
+                        "Disconnected from server",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+            })
+        }
+    }
+
+    private fun initiatePurchase() {
+        val skuList = mutableListOf<String>()
+        skuList.add(getString(R.string.appPremiumSku))
+        val params = SkuDetailsParams.newBuilder()
+        params.setSkusList(skuList).setType(SkuType.SUBS)
+        val billingResultSupported = billingClient.isFeatureSupported(FeatureType.SUBSCRIPTIONS)
+        if (billingResultSupported.responseCode == BillingResponseCode.OK) {
+            billingClient.querySkuDetailsAsync(params.build()) { billingResult, skuDetailList ->
+                if (billingResult.responseCode == BillingResponseCode.OK) {
+                    if (skuDetailList != null && skuDetailList.size > 0) {
+                        val flowParams = BillingFlowParams.newBuilder()
+                            .setSkuDetails(skuDetailList[0])
+                            .build()
+                        billingClient.launchBillingFlow(this, flowParams)
+                    } else {
+                        Toast.makeText(applicationContext, "Item not found", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                } else {
+                    Toast.makeText(
+                        applicationContext,
+                        "Error ${billingResult.debugMessage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } else {
+            Toast.makeText(
+                applicationContext,
+                "Subscription not supported on device",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    // Subscription End
+
 
     private var onNavigationViewSelectedItemListener =
         BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
@@ -179,10 +301,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun promptReview() {
         mainViewModel?.readAppOpenedTimes?.observeOnce(this, {
-            if(it == 2) {
+            if (it == 2) {
                 inAppReviewRequest()
                 mainViewModel?.incrementAppOpenedTimes()
-            }else {
+            } else {
                 mainViewModel?.incrementAppOpenedTimes()
             }
         })
@@ -209,8 +331,13 @@ class MainActivity : AppCompatActivity() {
 
 
     fun requestInterstitial() {
-        val adRequest = AdRequest.Builder().build()
-        createInterstitial(adRequest)
+        mainViewModel?.readIsPremium?.observe(this, { isPremium ->
+            if(isPremium == 0) {
+                val adRequest = AdRequest.Builder().build()
+                createInterstitial(adRequest)
+            }
+        })
+
     }
 
     private fun createInterstitial(adRequest: AdRequest) {
@@ -244,12 +371,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showInterstitial() {
-        if(mInterstitialAd != null) {
-            mInterstitialAd?.show(this)
-        }
+        mainViewModel?.readIsPremium?.observe(this, {isPremium ->
+            if (mInterstitialAd != null && isPremium == 0) {
+                mInterstitialAd?.show(this)
+            }
+        })
+
     }
-
-
 
 
     private fun choosePdf() {
@@ -283,7 +411,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun choosePdfIfPermissionGranted() {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-           choosePdf()
+            choosePdf()
         } else {
             if (isTherePermissionForMediaAccess(this)) {
                 choosePdf()
@@ -306,9 +434,11 @@ class MainActivity : AppCompatActivity() {
     private fun requestPermissionForMediaAccess(context: Context) {
         ActivityCompat.requestPermissions(
             context as Activity,
-            arrayOf(android.Manifest.permission.ACCESS_MEDIA_LOCATION,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            android.Manifest.permission.READ_EXTERNAL_STORAGE),
+            arrayOf(
+                android.Manifest.permission.ACCESS_MEDIA_LOCATION,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            ),
             MEDIA_LOCATION_PERMISSION_REQUEST_CODE
         )
     }
@@ -320,11 +450,11 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        when(requestCode){
+        when (requestCode) {
             MEDIA_LOCATION_PERMISSION_REQUEST_CODE -> {
-                if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     chooseImages()
-                }else {
+                } else {
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -347,9 +477,16 @@ class MainActivity : AppCompatActivity() {
                 uriList.add(imageUri)
             }
 
-            if (uriList.size > IMAGE_LIMIT) {
-                uriList = uriList.take(IMAGE_LIMIT).toMutableList()
-                Toast.makeText(this, "Max Convert Limit $IMAGE_LIMIT reached", Toast.LENGTH_SHORT).show()
+            if (requestCode == PDF_REQUEST_CODE) {
+                imgLimit = 2
+            } else {
+                imgLimit = 50
+            }
+
+            if (uriList.size > imgLimit) {
+                uriList = uriList.take(imgLimit).toMutableList()
+                Toast.makeText(this, "Max Convert Limit $imgLimit reached", Toast.LENGTH_SHORT)
+                    .show()
             }
 
             val newUriList = UriList(uriList)
@@ -367,12 +504,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.favorite -> {
                     action = FavoriteFragmentDirections.actionInfoToConvert(newUriList)
                 }
-                R.id.convertProgressFragment -> {
-                    action =
-                        ConvertProgressFragmentDirections.actionConvertProgressFragmentToConvert(
-                            newUriList
-                        )
-                }
+
 
             }
             findNavController(R.id.navHostFragment).navigate(action)
@@ -385,11 +517,99 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView?.visibility = visibility
     }
 
-    private fun setCurrentSettings() {
+
+    override fun onPurchasesUpdated(
+        billingResult: BillingResult,
+        purchases: MutableList<Purchase>?
+    ) {
+
+        if (billingResult.responseCode == BillingResponseCode.OK && purchases != null) {
+            handlePurchases(purchases)
+        } else if (billingResult.responseCode == BillingResponseCode.ITEM_ALREADY_OWNED) {
+            val queryAlreadyPurchasedResult = billingClient.queryPurchases(SkuType.SUBS)
+            val alreadyPurchased = queryAlreadyPurchasedResult.purchasesList
+            alreadyPurchased?.let { handlePurchases(it) }
+        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+            Toast.makeText(applicationContext, "Purchase Cancelled", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(
+                applicationContext,
+                "Error ${billingResult.debugMessage}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun handlePurchases(purchases: MutableList<Purchase>?) {
+
+        purchases?.forEach { purchase ->
+
+            if (getString(R.string.appPremiumSku) == purchase.sku
+                && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+
+                if (!verifySignature(purchase.originalJson, purchase.signature)) {
+
+                    Toast.makeText(
+                        applicationContext,
+                        "Error: Invalid Purchase",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return
+
+                }
+
+                if (!purchase.isAcknowledged) {
+                    val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+                        .setPurchaseToken(purchase.purchaseToken)
+                        .build()
+
+                    billingClient.acknowledgePurchase(acknowledgePurchaseParams, purchaseAcknowledgement)
+                } else {
+
+                    mainViewModel?.readIsPremium?.observe(this, {
+                        if (it == 0) {
+                            mainViewModel?.setPremiumStatus(1)
+                            Toast.makeText(applicationContext, "Item Purchased", Toast.LENGTH_SHORT)
+                                .show()
+                            recreate()
+                        }
+                    })
+
+                }
+
+
+            }else if(getString(R.string.appPremiumSku) == purchase.sku
+                && purchase.purchaseState == Purchase.PurchaseState.PENDING) {
+                Toast.makeText(applicationContext, "Purchase is pending: Please Complete transaction", Toast.LENGTH_SHORT).show()
+
+            }else if (getString(R.string.appPremiumSku) == purchase.sku
+                && purchase.purchaseState == Purchase.PurchaseState.UNSPECIFIED_STATE) {
+                mainViewModel?.setPremiumStatus(0)
+                Toast.makeText(applicationContext, "Purchase State Unknown", Toast.LENGTH_SHORT).show()
+            }
+
+
+        }
 
     }
 
+    private val purchaseAcknowledgement = AcknowledgePurchaseResponseListener { billingResult ->
+        if(billingResult.responseCode == BillingResponseCode.OK) {
+            mainViewModel?.setPremiumStatus(1)
+            recreate()
+        }
+    }
 
+    private fun verifySignature(signedData: String, signature: String): Boolean {
+        return  try {
+            val privateBase64Key = getString(R.string.base64Key)
+            Security.verifyPurchase(privateBase64Key, signedData, signature)
+
+        }catch (e: IOException) {
+            false
+        }
+    }
 
 
 }
+
