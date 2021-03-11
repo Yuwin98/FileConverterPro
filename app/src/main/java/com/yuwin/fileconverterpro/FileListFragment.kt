@@ -1,15 +1,12 @@
 package com.yuwin.fileconverterpro
 
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
-import android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.Toast
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.viewModels
@@ -19,10 +16,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.play.core.review.ReviewInfo
-import com.google.android.play.core.review.ReviewManager
-import com.google.android.play.core.review.ReviewManagerFactory
-import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentMainScreenBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import kotlinx.coroutines.launch
@@ -30,7 +23,6 @@ import java.io.File
 import java.io.IOException
 import java.lang.Exception
 import java.util.*
-import kotlin.properties.Delegates
 
 
 class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callback {
@@ -39,6 +31,9 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
     private val binding get() = _binding
     private var viewModel: FileListViewModel? = null
     private val mainViewModel: MainViewModel by viewModels()
+
+    private lateinit var commonActionBar: MotionLayout
+    private lateinit var moveCopyActionBar: MotionLayout
 
     private var multiSelection = false
     private var selectedFiles = arrayListOf<ConvertedFile>()
@@ -51,7 +46,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
     private var isGrid = false
 
     private var data: List<ConvertedFile>? = null
-
 
 
 
@@ -75,7 +69,10 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
+        activity?.let {
+            commonActionBar = it.findViewById(R.id.commonActionModeBar)
+            moveCopyActionBar = it.findViewById(R.id.moveCopyActionModeBar)
+        }
 
         viewModel?.readFiles?.observe(viewLifecycleOwner, { items ->
             if (items.isNullOrEmpty()) {
@@ -106,6 +103,87 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                 setupRecyclerView(isGrid)
             }
         })
+
+//        fileShareButton.setOnClickListener {
+//            var count = 0
+//            selectedFiles.forEach {
+//                if (it.isDirectory)
+//                    count++
+//            }
+//            when (count) {
+//                0 -> {
+//                    val shareIntent =
+//                        Util.startShareSheetMultiple(requireActivity(), selectedFiles)
+//                    startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
+//                }
+//                1 -> {
+//                    if (selectedFiles.size > 1) {
+//                        Toast.makeText(
+//                            requireContext(),
+//                            "Files and folders cannot mix when sharing",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//
+//                    } else {
+//                        val files = File(selectedFiles[0].filePath).listFiles()
+//                        if (files?.size!! < 100) {
+//                            val shareIntent =
+//                                Util.shareSheetMultipleDirectory(requireActivity(), files)
+//                            startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
+//                        } else {
+//                            Toast.makeText(
+//                                requireContext(),
+//                                "Maximum number of files that can be shared is 100",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                        }
+//                    }
+//
+//                }
+//                else -> {
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "Only 1 folder can be shared once",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//
+//                }
+//            }
+//        }
+//
+//        fileDeleteButton.setOnClickListener {
+//
+//            MaterialAlertDialogBuilder(requireContext())
+//                .setTitle("Delete")
+//                .setMessage("This will delete selected files")
+//                .setPositiveButton("Delete") { dialog, _ ->
+//                    selectedFiles.forEach {
+//                        if (!it.isDirectory) {
+//                            lifecycleScope.launch {
+//                                viewModel?.deleteSelectedFiles(it)
+//                            }
+//                        } else {
+//                            deleteDirectoryAndFiles(it)
+//                        }
+//                    }
+//
+//                    multiSelection = false
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "${selectedFiles.size} file(s) deleted",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                    selectedFiles.clear()
+//                    actionMode.finish()
+//                    dialog.dismiss()
+//                }
+//                .setNegativeButton("Cancel") { dialog, _ ->
+//                    dialog.dismiss()
+//                }
+//                .show()
+//
+//
+//        }
 
 
     }
@@ -193,12 +271,10 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
 
     override fun onPause() {
         super.onPause()
-        Log.d("heart", "Pause called")
         if (this::actionMode.isInitialized) {
             actionMode.finish()
         }
     }
-
 
 
     private fun filterSortAndUpdateData(items: List<ConvertedFile>) {
@@ -251,8 +327,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         filesListAdapter.notifyDataSetChanged()
     }
 
-
-
     override fun onItemClick(position: Int) {
         if (multiSelection) {
             applySelection(position)
@@ -270,7 +344,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
 
     }
 
-
     private fun openMyFile(data: ConvertedFile?) {
         if (data?.fileType == "pdf") {
             val action = FileListFragmentDirections.actionHomeToPdfViewerFragment(data)
@@ -284,9 +357,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
 
     }
 
-
-
-
     override fun onItemLongClick(position: Int): Boolean {
         return if (!multiSelection) {
             multiSelection = true
@@ -299,7 +369,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         }
 
     }
-
 
     private fun applySelection(position: Int) {
         val currentFile = data?.get(position)
@@ -317,7 +386,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
             }
         }
     }
-
 
     private fun setActionModeTitle() {
         when (selectedFiles.size) {
@@ -338,6 +406,8 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         actionMode.menuInflater?.inflate(R.menu.action_menu, menu)
         applyStatusBarColor(R.color.contextualStatusBarColor)
         this.actionMode = actionMode
+        commonActionBar.visibility = View.VISIBLE
+        commonActionBar.transitionToStart()
         return true
     }
 
@@ -378,78 +448,8 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
                     }
                     .show()
             }
-            R.id.actionDelete -> {
-
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Delete")
-                    .setMessage("This will delete selected files")
-                    .setPositiveButton("Delete") { dialog, _ ->
-                        selectedFiles.forEach {
-                            if (!it.isDirectory) {
-                                lifecycleScope.launch {
-                                    viewModel?.deleteSelectedFiles(it)
-                                }
-                            } else {
-                                deleteDirectoryAndFiles(it)
-                            }
-                        }
-
-                        multiSelection = false
-                        Toast.makeText(
-                            requireContext(),
-                            "${selectedFiles.size} file(s) deleted",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        selectedFiles.clear()
-                        actionMode?.finish()
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton("Cancel") { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
 
 
-            }
-            R.id.actionShare -> {
-                var count = 0
-                selectedFiles.forEach {
-                    if (it.isDirectory)
-                        count++
-                }
-                when (count) {
-                    0 -> {
-                        val shareIntent =
-                            Util.startShareSheetMultiple(requireActivity(), selectedFiles)
-                        startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
-                    }
-                    1 -> {
-                        if (selectedFiles.size > 1) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Files and folders cannot mix when sharing",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return true
-                        } else {
-                            val files = File(selectedFiles[0].filePath).listFiles()
-                            val shareIntent =
-                                Util.shareSheetMultipleDirectory(requireActivity(), files)
-                            startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
-                        }
-
-                    }
-                    else -> {
-                        Toast.makeText(
-                            requireContext(),
-                            "Only 1 folder can be shared once",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return true
-                    }
-                }
-
-            }
         }
         return true
     }
@@ -496,7 +496,6 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
 
     private fun createFileDirectory(name: String): String {
         try {
-
             val dirPath = Util.getExternalDir(requireContext())
             val folderPath = Util.getStorageFolder(dirPath, name)
             val contentSize = Util.getContentSize(selectedFiles.size)
@@ -542,6 +541,7 @@ class FileListFragment : BaseFragment(), FileListClickListener, ActionMode.Callb
         applyStatusBarColor(R.color.statusBarColor)
         selectedFiles.clear()
         multiSelection = false
+
     }
 
     private fun applyStatusBarColor(color: Int) {

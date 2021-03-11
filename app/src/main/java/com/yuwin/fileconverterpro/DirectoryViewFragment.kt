@@ -28,7 +28,6 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
     private val args by navArgs<DirectoryViewFragmentArgs>()
 
     private var data = listOf<ConvertedFile>()
-    private var databaseData: List<ConvertedFile>? = null
 
     private var _binding: FragmentDirectoryViewBinding? = null
     private val binding get() = _binding
@@ -119,7 +118,7 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
     }
 
     private fun applySelection(position: Int) {
-        val currentFile = data.get(position)
+        val currentFile = data[position]
         if (selectedFiles.contains(currentFile)) {
             selectedFiles.remove(currentFile)
             data[position].isSelected = false
@@ -301,9 +300,13 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
 
             }
             R.id.actionShare -> {
-                val shareIntent =
-                    Util.startShareSheetMultiple(requireActivity(), selectedFiles)
-                startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
+                if(selectedFiles.size < 100) {
+                    val shareIntent =
+                        Util.startShareSheetMultiple(requireActivity(), selectedFiles)
+                    startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
+                }else {
+                    Toast.makeText(requireContext(), "Maximum sharing limit is 30", Toast.LENGTH_SHORT).show()
+                }
             }
         }
         return true

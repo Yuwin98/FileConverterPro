@@ -43,7 +43,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:fontFamily="@font/allerta"
-                android:text="Convert All Into :"
+                android:text="@string/convertAllCheckBoxText"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/imageQueue" />
 
@@ -68,7 +68,7 @@
                     android:layout_marginTop="8dp"
                     android:fontFamily="@font/allerta"
                     android:padding="4dp"
-                    android:text="Quality"
+                    android:text="@string/qualityText"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/convertAllCheckBox" />
@@ -104,22 +104,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:fontFamily="@font/allerta"
-                    android:text="PDF Quality :"
+                    android:text="@string/pdfQualityText"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="@+id/textView"
                     app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-            <Spinner
-                android:id="@+id/pdfImageQualitySpinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:entries="@array/pdf_image_quality"
-                android:spinnerMode="dialog"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/pdfQualityTextView"
-                app:layout_constraintStart_toEndOf="@+id/pdfQualityTextView"
-                app:layout_constraintTop_toTopOf="@+id/pdfQualityTextView" />
 
 
             <Button
@@ -129,7 +117,7 @@
                 android:layout_marginTop="48dp"
                 android:layout_marginBottom="24dp"
                 android:fontFamily="@font/allerta"
-                android:text="Convert"
+                android:text="@string/convertButtonText"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
@@ -145,7 +133,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:fontFamily="@font/allerta"
-                android:text="72 PPI"
+                android:text="@string/defaultQuality"
                 android:textSize="16sp"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/pdfQualityTextView"
@@ -164,16 +152,16 @@
                 app:layout_constraintTop_toTopOf="@+id/convertAllCheckBox" />
 
             <Spinner
-                android:id="@+id/pdfQualitySpinner"
+                android:id="@+id/fileQualitySpinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="12dp"
                 android:entries="@array/pdf_quality"
                 android:spinnerMode="dialog"
-                app:layout_constraintBottom_toBottomOf="@+id/pdfQualityTextView"
+                android:textAlignment="center"
                 app:layout_constraintStart_toEndOf="@+id/pdfQualityTextView"
-                app:layout_constraintTop_toTopOf="@+id/pdfQualityTextView"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintTop_toBottomOf="@+id/qualitySeekBar" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

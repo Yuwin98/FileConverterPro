@@ -6,7 +6,6 @@ import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.ParcelFileDescriptor
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
@@ -252,13 +251,13 @@ class ConvertProgressViewModel(
 
 
                     pageInfo = PdfDocument.PageInfo
-                        .Builder(pageWidth + 50, pageHeight + 50, pageNum)
-                        .setContentRect(Rect(0, 0, pageWidth + 50, pageHeight + 50))
+                        .Builder(pageWidth, pageHeight, pageNum)
+                        .setContentRect(Rect(0, 0, pageWidth, pageHeight))
                         .create()
                     page = document.startPage(pageInfo)
                     canvas = page.canvas
-                    xOffset = ((canvas.width - bitmap.width) / 2).toFloat()
-                    yOffset = ((canvas.height - bitmap.height) / 2).toFloat()
+                    xOffset = 0f  //((canvas.width - bitmap.width) / 2).toFloat()
+                    yOffset = 0f //((canvas.height - bitmap.height) / 2).toFloat()
                     canvasColor = Paint(
                         ContextCompat.getColor(
                             app.applicationContext,
@@ -274,8 +273,8 @@ class ConvertProgressViewModel(
                     increasePercentage(itemIncreasePercentage)
 
 
-                    _convertedFileName.postValue("${file.fileName}:Converted")
                     _convertedProgressMessage.postValue("$pageNum of $itemCount files converted")
+                    _convertedFileName.postValue("${file.fileName} Converting...")
 
                 }
                 job.join()
@@ -328,7 +327,6 @@ class ConvertProgressViewModel(
 
         }.invokeOnCompletion { throwable ->
             if (throwable is CancellationException) {
-//                deleteFromDBAndStorage(currentConvertedFiles)
                 _conversionPaused.postValue(true)
                 _convertedFileName.postValue("Conversion Stopped")
             } else {
@@ -340,15 +338,7 @@ class ConvertProgressViewModel(
 
     }
 
-    private fun deleteFromDBAndStorage(files: List<ConvertedFile>) {
-        files.forEach { file ->
-            viewModelScope.launch {
-                repository.deleteFile(file)
-            }
-        }
-        File(imageFolderPath).delete()
 
-    }
 
 
     private suspend fun convertAndSaveIntoImages(
@@ -356,7 +346,7 @@ class ConvertProgressViewModel(
         quality: Int
     ) {
         currentConvertedFiles.clear()
-        val getPageSize = getPdfQuality(pdfQuality)
+        val getPageSize = getPdfQuality(0)
         val pageWidth = getPageSize.first
         val pageHeight = getPageSize.second
         var fileDescriptor: ParcelFileDescriptor
@@ -377,10 +367,10 @@ class ConvertProgressViewModel(
 
         val itemIncreasePercentage = (95.0 / itemCount)
         data.forEachIndexed { _, file ->
-            val fwe = File(file.filePath).nameWithoutExtension
             val rootFileName = Util.getCurrentTimeMillis()
+            val folderName = File(file.filePath).nameWithoutExtension + "-$rootFileName"
             val folderPath =
-                createFileDirectory(File(file.filePath).nameWithoutExtension, itemCount)
+                createFileDirectory(folderName, itemCount)
             this.imageFolderPath = folderPath
             fileDescriptor = withContext(Dispatchers.IO) {
                 app.contentResolver.openFileDescriptor(file.uri, "r")!!
@@ -394,7 +384,7 @@ class ConvertProgressViewModel(
                 job = scope.async {
                     val currentPage = pdfRenderer.openPage(i)
 
-                    val bitmap = currentPage?.let { page ->
+                    val bitmap = currentPage?.let { _ ->
                         Bitmap.createBitmap(
                             pageWidth, pageHeight,
                             Bitmap.Config.ARGB_8888
@@ -433,7 +423,7 @@ class ConvertProgressViewModel(
                         saveConvertedFile(currentImageFile)
                         currentConvertedFiles.add(currentImageFile)
                         _convertedProgressMessage.postValue("$pageNum of $itemCount files converted")
-                        _convertedFileName.postValue("${fileName}:Converted")
+                        _convertedFileName.postValue("$fileName Converting...")
                     }
 
 
@@ -716,7 +706,7 @@ class ConvertProgressViewModel(
     }
 
     private fun writeDocument(doc: PdfDocument, fos: FileOutputStream) {
-        _convertedFileName.postValue("Writing data into file...")
+        _convertedFileName.postValue("Writing data into file(s)...")
         doc.writeTo(fos)
     }
 
@@ -832,10 +822,10 @@ class ConvertProgressViewModel(
             extension.substring(1),
             uri,
             null,
-            false,
-            false,
-            false,
-            false,
+            isFavorite = false,
+            isSelected = false,
+            isDirectory = false,
+            inDirectory = false,
             null,
             date
         )

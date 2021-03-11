@@ -8,8 +8,8 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
-import android.os.ParcelFileDescriptor
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -35,6 +35,15 @@ class BindingAdapters {
                     Glide.with(view).load(convertedFile.thumbnailUri).into(view)
                 }
                 "Directory" -> {
+                    if(view.id == R.id.fileListGridImageView) {
+                        val dims = TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP,
+                            56f,
+                            view.resources.displayMetrics
+                        )
+                        view.layoutParams.height = dims.toInt()
+                        view.layoutParams.width = dims.toInt()
+                    }
                     Glide.with(view).load(R.drawable.ic_folder_black_).into(view)
                     val folderColorList = Util.getAllFolderColors(view.context)
                     val folderColor = folderColorList[convertedFile.directoryColor!!]
@@ -120,7 +129,8 @@ class BindingAdapters {
                 val begin = fileName.take(13)
                 val mid = "..."
                 val end = fileName.takeLast(13)
-                view.text ="$begin$mid$end"
+                val compatFileName = "$begin$mid$end"
+                view.text = compatFileName
 
             }else {
                 view.text = fileName
@@ -134,7 +144,8 @@ class BindingAdapters {
                 val begin = fileName.take(6)
                 val mid = "..."
                 val end = fileName.takeLast(6)
-                view.text ="$begin$mid$end"
+                val compatFileName = "$begin$mid$end"
+                view.text = compatFileName
 
             }else {
                 view.text = fileName

@@ -4,7 +4,6 @@ import android.net.Uri
 import android.os.Parcelable
 import android.util.Log
 import androidx.databinding.*
-import androidx.room.Entity
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

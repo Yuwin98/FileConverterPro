@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        motion:constraintSetEnd="@+id/commonActionBarEnd"
+        motion:constraintSetStart="@id/commonActionBarStart"
+        motion:duration="300">
+       <KeyFrameSet>
+       </KeyFrameSet>
+    </Transition>
+
+    <ConstraintSet android:id="@+id/commonActionBarStart">
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/commonActionBarEnd">
+        <Constraint
+            android:id="@+id/moveFileConstraintLayout"
+            motion:layout_constraintEnd_toStartOf="@+id/copyFileConstraintLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="@id/commonActionModeBar"
+            android:visibility="visible"
+            motion:layout_constraintHorizontal_chainStyle="spread"
+            motion:layout_constraintTop_toTopOf="@id/commonActionModeBar"
+            motion:layout_constraintStart_toStartOf="parent"
+            android:translationY="120dp" />
+        <Constraint
+            android:id="@+id/copyFileConstraintLayout"
+            motion:layout_constraintEnd_toStartOf="@+id/fileDetailsConstraintLayout"
+            motion:layout_constraintStart_toEndOf="@+id/moveFileConstraintLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="@id/commonActionModeBar"
+            android:visibility="visible"
+            motion:layout_constraintHorizontal_bias="0.5"
+            motion:layout_constraintTop_toTopOf="@id/commonActionModeBar"
+            android:translationY="120dp" />
+        <Constraint
+            android:id="@+id/fileDetailsConstraintLayout"
+            motion:layout_constraintEnd_toStartOf="@+id/fileShareConstraintLayout"
+            motion:layout_constraintStart_toEndOf="@+id/copyFileConstraintLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="@id/commonActionModeBar"
+            android:visibility="visible"
+            motion:layout_constraintHorizontal_bias="0.5"
+            motion:layout_constraintTop_toTopOf="@id/commonActionModeBar"
+            android:translationY="120dp" />
+        <Constraint
+            android:id="@+id/fileShareConstraintLayout"
+            motion:layout_constraintEnd_toStartOf="@+id/fileDeleteConstraintLayout"
+            motion:layout_constraintStart_toEndOf="@+id/fileDetailsConstraintLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="@id/commonActionModeBar"
+            android:visibility="visible"
+            motion:layout_constraintHorizontal_bias="0.5"
+            motion:layout_constraintTop_toTopOf="@id/commonActionModeBar"
+            android:translationY="120dp" />
+        <Constraint
+            android:id="@+id/fileDeleteConstraintLayout"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toEndOf="@+id/fileShareConstraintLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="@id/commonActionModeBar"
+            android:visibility="visible"
+            motion:layout_constraintHorizontal_bias="0.5"
+            motion:layout_constraintTop_toTopOf="@id/commonActionModeBar"
+            android:translationY="120dp" />
+    </ConstraintSet>
+</MotionScene>

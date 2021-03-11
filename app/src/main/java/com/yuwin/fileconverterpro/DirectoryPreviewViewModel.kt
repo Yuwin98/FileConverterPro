@@ -8,7 +8,6 @@ import com.yuwin.fileconverterpro.db.AppDatabase
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import com.yuwin.fileconverterpro.db.Repository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class DirectoryPreviewViewModel(app:Application): AndroidViewModel(app) {

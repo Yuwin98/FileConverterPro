@@ -4,15 +4,12 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.SeekBar
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentSettingsBinding
@@ -53,7 +50,6 @@ class SettingsFragment : Fragment() {
         })
 
         mainViewModel?.readQuality?.observeOnce(viewLifecycleOwner, { progress ->
-            Log.d("pdfpage", progress.toString())
             binding?.qualityProgressTextView?.text = progress.toString()
             binding?.qualitySeekBar?.progress = progress
         })
@@ -95,9 +91,9 @@ class SettingsFragment : Fragment() {
             openReviewUrl()
         }
 
-        mainViewModel?.readCurrentStorage?.observe(viewLifecycleOwner, {path ->
+        mainViewModel?.readCurrentStorage?.observe(viewLifecycleOwner) { path ->
             binding?.currentStoragePath?.text = path
-        })
+        }
 
         binding?.goPremiumTextView?.setOnClickListener {
             (activity as MainActivity).subscribe()

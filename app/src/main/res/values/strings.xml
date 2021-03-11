@@ -8,6 +8,44 @@
     <string name="appPremiumSku">image_converter_premium</string>
 
     <string name="base64Key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA20NTZ9NcUHauNHTsgVRAfed6i1aOwAIndn600Gh4aEgsQnK7gdIjIk+Vdv6cjrePG+FkU55y2Re4MRHE1cROmLnZjvmfFkWMEFn9FslKX99uh6YmZ29Cg2KFJuNJe0mGEOH+ULMXwviGSRtsWg5AGLjTSbRCiabva5g7u7PxHkt4vtiQt+BWz6ecndOP6zKiDnZ+PkZT1L9bnWbbHcZzDpGTzEiD6d+Gn2fU1yPpf+uxLoa9fRTqa9SqspbaD3kjLdnH17/6aJXIyeZYSF8TAqjLeA9BiU5Z8K2JimC8m/RngvsZEVMtC5gq+a1styWWdgv4oJOwalPlA3RiZz01yQIDAQAB</string>
+    <string name="defaultQuality">72 PPI</string>
+    <string name="convertButtonText">Convert</string>
+    <string name="pdfQualityText">PDF Quality :</string>
+    <string name="qualityText">Quality</string>
+    <string name="convertAllCheckBoxText">Convert All Into :</string>
+    <string name="renameEditTextHint">Filename</string>
+    <string name="gridConvertedFileItemImageViewDescription">Converted file Item Grid</string>
+    <string name="convertedFileListViewImageDescription">Converted file Item List View</string>
+    <string name="pauseButtonText">Pause</string>
+    <string name="backHomeButtonText">Home</string>
+    <string name="resumeButtonText">Resume</string>
+    <string name="no_favourite_file_image_view">No favourite file Image View</string>
+    <string name="no_favorite_files_available">No Favorite Files Available</string>
+    <string name="no_converted_files_available">No Converted Files Available</string>
+    <string name="arrow_right_image_view">Arrow Right Image View</string>
+    <string name="queue_item_image_preview">Queue Item Image Preview</string>
+    <string name="renameFialogTextView">Rename</string>
+    <string name="renameDialogEditTextHint">filename</string>
+    <string name="renameDialogButtonText">Rename</string>
+    <string name="renameDialogCancelButtonText">Cancel</string>
+    <string name="current_pdf_page">Current PDF Page</string>
+    <string name="delete_file_button">Delete File Button</string>
+    <string name="share_file_button">Share file Button</string>
+    <string name="edit_file_button">Edit File button</string>
+    <string name="favorite_button">favorite button</string>
+    <string name="open_in_another_pdf_viewing_app_button">Open In another PDF viewing app button</string>
+    <string name="opened_image_file">Opened Image File</string>
+    <string name="appInterstitalAdId">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="appBannerAdId">ca-app-pub-9767087107670640/4111828143</string>
+    <string name="moveFileText">Move</string>
+    <string name="copyTextView">Copy</string>
+    <string name="shareText">Share</string>
+    <string name="fileDetailsText">Details</string>
+    <string name="fileDeleteText">Delete</string>
+    <string name="file_details_image_button">File Details Image Button</string>
+    <string name="file_copy_image_view">File Copy Image View</string>
+    <string name="file_move_image_view">File Move Image View</string>
+    <string name="move_to_folder_text">Move to folder</string>
 
     <string-array name="file_types">
         <item>PNG</item>

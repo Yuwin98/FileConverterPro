@@ -1,9 +1,7 @@
 package com.yuwin.fileconverterpro
 
-import android.R
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.yuwin.fileconverterpro.databinding.QueueItemBinding

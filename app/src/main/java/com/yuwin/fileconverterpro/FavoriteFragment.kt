@@ -1,15 +1,12 @@
 package com.yuwin.fileconverterpro
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.yuwin.fileconverterpro.databinding.FragmentFavoriteBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
 

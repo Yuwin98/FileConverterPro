@@ -14,6 +14,8 @@
     <color name="colorDateTypeSize">#999999</color>
     <color name="toolsBackground">#000000</color>
 
+    <color name="colorPrimaryLight">#3d221f</color>
+
     <color name="colorBackground">#EFEFEF</color>
     <color name="splashScreenColor">@android:color/white</color>
     <color name="colorText">#000000</color>
@@ -54,7 +56,8 @@
     <color name="fc23">#182C61</color>
     <color name="fc24">#FC427B</color>
     <color name="fc25">#6D214F</color>
-
+    <color name="actionModeIconColor">#ccc</color>
+    <color name="actionModeTextColor">#9c9c9c</color>
 
 
 </resources>

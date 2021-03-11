@@ -10,6 +10,8 @@
     <color name="pdfBackground">#FAFAFA</color>
     <color name="selectedFileItemBackground">#44a55eea</color>
 
+    <color name="colorPrimaryLight">#271736</color>
+
     <color name="colorBackground">#1E1F24</color>
     <color name="colorText">#FAFAFA</color>
     <color name="colorDateTypeSize">#999999</color>

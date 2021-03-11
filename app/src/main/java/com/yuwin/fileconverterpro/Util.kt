@@ -52,17 +52,6 @@ class Util {
             return System.currentTimeMillis().toString()
         }
 
-        fun getDateString(milliSeconds: Long): String {
-            val formatter = SimpleDateFormat("dd MMM yyyy hh:mm", Locale.getDefault())
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = milliSeconds
-            return formatter.format(calendar.time)
-        }
-
-        fun getCurrentDateTime(milliSeconds: Long): Date {
-            return Date(milliSeconds)
-        }
-
         fun getMimeType(context: Context, uri: Uri): String? {
             val cr = context.contentResolver
             val mime = MimeTypeMap.getSingleton()
@@ -112,12 +101,6 @@ class Util {
         fun getExternalDir(context: Context): String {
             val externalStorageVolumes: Array<out File> =
                 ContextCompat.getExternalFilesDirs(context.applicationContext, null)
-            return externalStorageVolumes[0].absolutePath + "/"
-        }
-
-        fun getExternalCache(context: Context): String {
-            val externalStorageVolumes: Array<out File> =
-                ContextCompat.getExternalCacheDirs(context.applicationContext)
             return externalStorageVolumes[0].absolutePath + "/"
         }
 
@@ -221,14 +204,6 @@ class Util {
         ): List<ConvertedFile> {
             val dirFiles = getDirectoryFilesAsSet(file)
             return items.filter { it.filePath in dirFiles }
-        }
-
-        fun filterItemsNotIn(
-            file: File,
-            items: List<ConvertedFile>
-        ): List<ConvertedFile> {
-            val dirFiles = getDirectoryFilesAsSet(file)
-            return items.filter { it.filePath !in dirFiles }
         }
 
 

@@ -3,11 +3,9 @@ package com.yuwin.fileconverterpro
 import android.app.Application
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
@@ -35,7 +33,6 @@ class ConvertProgressFragment : BaseFragment() {
 
         (activity as MainActivity).requestInterstitial()
 
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         convertProgressViewModel = ViewModelProvider(
             this,
             ConvertProgressViewModelFactory(
@@ -119,17 +116,18 @@ class ConvertProgressFragment : BaseFragment() {
         binding.backHomeButton.setOnClickListener {
             binding.backHomeButton.visibility = View.GONE
             findNavController().navigate(R.id.action_convertProgressFragment_to_home)
-            (activity as MainActivity).showInterstitial()
+            mainViewModel.readIsPremium.observe(viewLifecycleOwner, {isPremium ->
+                if(isPremium == 0) {
+                    (activity as MainActivity).showInterstitial()
+                }
+            })
         }
 
 
         startConversion()
     }
 
-    override fun onPause() {
-        super.onPause()
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-    }
+
 
 
     private fun startConversion() {

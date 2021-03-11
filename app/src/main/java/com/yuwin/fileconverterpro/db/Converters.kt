@@ -2,7 +2,6 @@ package com.yuwin.fileconverterpro.db
 
 import android.net.Uri
 import androidx.room.TypeConverter
-import com.yuwin.fileconverterpro.Util
 import java.text.SimpleDateFormat
 import java.util.*
 

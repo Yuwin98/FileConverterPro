@@ -10,9 +10,14 @@
         <item name="android:textColor">@color/colorText</item>
         <item name="fontFamily">@font/allerta</item>
 
+
         <item name="android:statusBarColor">@color/statusBarColor</item>
         <item name="actionBarStyle">@style/CustomActionBarStyle</item>
 
+    </style>
+
+    <style name="FontTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="DialogStyle" parent="Theme.Design.Light.BottomSheetDialog">

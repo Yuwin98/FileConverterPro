@@ -2,12 +2,14 @@ package com.yuwin.fileconverterpro
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
+import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -17,8 +19,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.yuwin.fileconverterpro.Constants.Companion.FREE_IMAGE_LIMIT
-import com.yuwin.fileconverterpro.Constants.Companion.PREMIUM_IMAGE_LIMIT
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentConvertBinding
 import java.util.*
@@ -47,6 +47,12 @@ class ConvertFragment : Fragment() {
         SimpleItemTouchCallBack(convertAdapter)
     private var touchHelper: ItemTouchHelper? = ItemTouchHelper(itemTouchHelperCallBack!!)
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -57,38 +63,38 @@ class ConvertFragment : Fragment() {
         binding?.lifecycleOwner = viewLifecycleOwner
 
 
-
         val uriList = args.UriList.items
         data = setupData(uriList)
-        mimeType = data[0].fileType.toLowerCase(Locale.ROOT)
         setupRecyclerView()
-        if (mimeType == "pdf") {
-            imageLimit = 2
-        }
+        mimeType = data[0].fileType.toLowerCase(Locale.ROOT)
 
-        mainViewModel.readIsPremium.observe(viewLifecycleOwner, {isPremium ->
-            if(isPremium == 1) {
-                imageLimit = PREMIUM_IMAGE_LIMIT
-                if(!isPdfConversion()) {
-                    binding?.pdfImageQualitySpinner?.visibility = View.VISIBLE
-                    binding?.pdfQualityDefaultText?.visibility = View.GONE
-                }
-            }else if (isPremium == 0) {
-                imageLimit = FREE_IMAGE_LIMIT
-                if(!isPdfConversion()) {
-                    binding?.pdfImageQualitySpinner?.visibility = View.GONE
-                    binding?.pdfQualityDefaultText?.visibility = View.VISIBLE
-                }
+        mainViewModel.readIsPremium.observe(viewLifecycleOwner, { isPremium ->
+            if (isPremium == 1 && !isPdfConversion()) {
+                imageLimit = 50
+                setSpinnerAdapter(isPremium, false)
+                (requireActivity() as AppCompatActivity).supportActionBar?.title =
+                    "Convert Images (${data.size}/$imageLimit)"
+            } else if (isPremium == 0 && !isPdfConversion()) {
+                imageLimit = 5
+                setSpinnerAdapter(isPremium, false)
+                (requireActivity() as AppCompatActivity).supportActionBar?.title =
+                    "Convert Images (${data.size}/$imageLimit)"
+            } else if (isPremium == 1 && isPdfConversion()) {
+                imageLimit = 2
+                setSpinnerAdapter(isPremium, true)
+                (requireActivity() as AppCompatActivity).supportActionBar?.title =
+                    "Convert Images (${data.size}/$imageLimit)"
+            } else if (isPremium == 0 && isPdfConversion()) {
+                imageLimit = 2
+                setSpinnerAdapter(isPremium, true)
+                (requireActivity() as AppCompatActivity).supportActionBar?.title =
+                    "Convert Images (${data.size}/$imageLimit)"
             }
         })
 
-        data.forEach {
-            Log.d("PDFUriCorrect", it.uri.toString())
-        }
-
         (requireActivity() as AppCompatActivity).supportActionBar?.title =
-            "Convert Images (${convertAdapter.itemCount}/$imageLimit)"
-        Log.d("mimeTypePDF", mimeType)
+            "Convert Images (${data.size}/$imageLimit)"
+
         if (mimeType == "pdf") {
             Log.d("mimeTypePDF", "In PDF set true")
             convertViewModel.setIsPdfConversion(true)
@@ -110,22 +116,11 @@ class ConvertFragment : Fragment() {
             updateData(newData)
 
             if (it) {
-                if(isPdfMerge()) {
-                    binding?.pdfQualitySpinner?.visibility = View.GONE
-                    binding?.pdfQualityDefaultText?.visibility = View.VISIBLE
-                }else {
-                    binding?.pdfQualitySpinner?.visibility = View.VISIBLE
-                    binding?.pdfQualityDefaultText?.visibility = View.GONE
-
-                }
                 binding?.convertAllPdfSpinner?.visibility = View.VISIBLE
-                binding?.pdfImageQualitySpinner?.visibility = View.GONE
                 binding?.convertAllSpinner?.visibility = View.GONE
             } else {
-                binding?.pdfImageQualitySpinner?.visibility = View.VISIBLE
                 binding?.convertAllSpinner?.visibility = View.VISIBLE
                 binding?.convertAllPdfSpinner?.visibility = View.GONE
-                binding?.pdfQualitySpinner?.visibility = View.GONE
             }
         })
 
@@ -141,7 +136,7 @@ class ConvertFragment : Fragment() {
                 val oldValue = iterator.next()
                 oldValue.convertAll = it
             }
-            showHidePdfQuality()
+
             updateData(newData)
 
         })
@@ -182,7 +177,6 @@ class ConvertFragment : Fragment() {
                 oldValue.defaultConvertFormat = it
             }
 
-            showHidePdfQuality()
             updateData(newData)
         })
         mainViewModel.readQuality.observe(viewLifecycleOwner, {
@@ -206,33 +200,16 @@ class ConvertFragment : Fragment() {
             qualityInt = quality.toInt()
         })
 
-        binding?.pdfImageQualitySpinner?.onItemSelectedListener = object : OnItemSelectedListener {
+
+
+        binding?.fileQualitySpinner?.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
                 position: Int,
                 id: Long
             ) {
-                if(!isPdfConversion()) {
-                    pdfQuality = position
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-            }
-
-        }
-
-        binding?.pdfQualitySpinner?.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                if(isPdfConversion()) {
-                    pdfQuality = position
-                }
+                pdfQuality = position
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -300,7 +277,7 @@ class ConvertFragment : Fragment() {
                 val imageUri = data.data!!
                 uriList.add(imageUri)
             }
-            imageLimit = if (requestCode == PDF_REQUEST_CODE) 2 else 50
+            imageLimit = if (requestCode == PDF_REQUEST_CODE) 2 else imageLimit
 
             val myUriList = UriList(uriList)
             var newData: MutableList<ConvertInfo> = setupData(myUriList.items)
@@ -346,21 +323,13 @@ class ConvertFragment : Fragment() {
         }
     }
 
-    private fun showHidePdfQuality() {
-        if (isPdfMerge()) {
-            binding?.pdfQualitySpinner?.visibility = View.GONE
-            binding?.pdfQualityDefaultText?.visibility = View.VISIBLE
-        } else {
-            binding?.pdfQualitySpinner?.visibility = View.VISIBLE
-            binding?.pdfQualityDefaultText?.visibility = View.GONE
-        }
-    }
 
     private fun setupData(uriList: List<Uri>): MutableList<ConvertInfo> {
         val data = mutableListOf<ConvertInfo>()
         for (uri in uriList) {
             val (fileName, fileSize) = Util.getImageDetails(requireContext(), uri)
             val fileType = Util.getMimeType(requireContext(), uri)
+            val isPdfConversion = fileType == "PDF"
             val convertInfo = ConvertInfo(
                 uri,
                 fileName,
@@ -368,7 +337,7 @@ class ConvertFragment : Fragment() {
                 uri.path ?: "N/A",
                 fileType ?: "N/A",
                 false,
-                false,
+                isPdfConversion,
                 0,
                 0,
             )
@@ -379,8 +348,12 @@ class ConvertFragment : Fragment() {
 
     private fun isPdfMerge(): Boolean {
         val item = data[0]
-        val format = FormatTypesPDF.values()[item.defaultConvertFormat!!].toString()
-        return item.convertAll == true && format == "MergePDF"
+        return if (item.isPdfConversion == true) {
+            val format = FormatTypesPDF.values()[item.defaultConvertFormat!!].toString()
+            item.convertAll == true && format == "MergePDF"
+        } else {
+            false
+        }
     }
 
     private fun isPdfConversion(): Boolean {
@@ -433,6 +406,8 @@ class ConvertFragment : Fragment() {
         startActivityForResult(Intent.createChooser(intent, "Select Images"), PDF_REQUEST_CODE)
     }
 
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         binding?.imageQueue?.adapter = null
@@ -440,6 +415,37 @@ class ConvertFragment : Fragment() {
         itemTouchHelperCallBack = null
         touchHelper = null
 
+    }
+
+    private fun setSpinnerAdapter(isPremium: Int, isPdfConversion: Boolean) {
+        val premiumQuality = arrayListOf("72 PPI", "200 PPI", "300 PPI", "400 PPI")
+        val freeQuality = arrayListOf("72 PPI")
+        val premiumSpinnerAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            premiumQuality
+        )
+        val freeSpinnerAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            freeQuality
+        )
+
+        if (isPremium == 1) {
+            if (isPdfConversion) {
+                binding?.fileQualitySpinner?.visibility = View.GONE
+                binding?.pdfQualityDefaultText?.visibility = View.VISIBLE
+                binding?.fileQualitySpinner?.adapter = freeSpinnerAdapter
+            } else {
+                binding?.fileQualitySpinner?.visibility = View.VISIBLE
+                binding?.pdfQualityDefaultText?.visibility = View.GONE
+                binding?.fileQualitySpinner?.adapter = premiumSpinnerAdapter
+            }
+        } else {
+            binding?.fileQualitySpinner?.visibility = View.GONE
+            binding?.pdfQualityDefaultText?.visibility = View.VISIBLE
+            binding?.fileQualitySpinner?.adapter = freeSpinnerAdapter
+        }
     }
 
 

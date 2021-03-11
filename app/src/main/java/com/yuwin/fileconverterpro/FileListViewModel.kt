@@ -46,22 +46,6 @@ class FileListViewModel(private val app: Application) : AndroidViewModel(app) {
 
     }
 
-    fun removeFromDatabaseIfNotExistInDirectory(
-        filepath: String,
-        databaseFiles: List<ConvertedFile>
-    ) {
-        val filteredFiles = Util.filterItemsNotIn(File(filepath), databaseFiles)
-        filteredFiles.forEach {
-            if(it.isDirectory || it.inDirectory) {
-                return
-            }else {
-                viewModelScope.launch {
-                    repository.deleteFile(it)
-                }
-            }
-        }
-    }
-
     private fun clearDir(directory: File) {
         val files = directory.listFiles()
         viewModelScope.launch {

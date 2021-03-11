@@ -1,9 +1,5 @@
 package com.yuwin.fileconverterpro
 
-
-
-
-
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,9 +16,6 @@ class ConvertViewModel: ViewModel() {
 
     private val _qualityValue = MutableLiveData<String>()
     val qualityValue: LiveData<String> get() = _qualityValue
-
-    private val _listSize = MutableLiveData<Int>()
-    val listSize: LiveData<Int> get() = _listSize
 
     private val _isPDFConversion = MutableLiveData<Boolean>()
     val isPdfConversion: LiveData<Boolean> get() = _isPDFConversion
