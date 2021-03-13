@@ -56,12 +56,7 @@ class FileListViewModel(private val app: Application) : AndroidViewModel(app) {
         directory.delete()
     }
 
-    suspend fun deleteSelectedFiles(file: ConvertedFile) {
-        Util.deleteFileFromStorage(file)
-        viewModelScope.launch {
-            repository.deleteFile(file)
-        }
-    }
+
 
 
     fun updateNewFile(file: ConvertedFile) {

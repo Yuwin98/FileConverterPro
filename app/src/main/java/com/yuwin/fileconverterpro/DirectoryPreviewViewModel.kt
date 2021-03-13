@@ -2,12 +2,14 @@ package com.yuwin.fileconverterpro
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.yuwin.fileconverterpro.db.AppDatabase
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import com.yuwin.fileconverterpro.db.Repository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class DirectoryPreviewViewModel(app:Application): AndroidViewModel(app) {
@@ -17,6 +19,9 @@ class DirectoryPreviewViewModel(app:Application): AndroidViewModel(app) {
 
 
     val allDirectoryFiles = repository.getAllFilesInDirectory().asLiveData()
+    val allFiles = repository.getAllFiles().asLiveData()
+
+
 
     fun clearDirectory(files: List<ConvertedFile>) {
         files.forEach { file ->

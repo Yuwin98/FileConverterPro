@@ -3,6 +3,7 @@ package com.yuwin.fileconverterpro
 import android.app.Application
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +32,7 @@ class ConvertProgressFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        Log.d("showInterstitial", "Interstitial requested before")
         (activity as MainActivity).requestInterstitial()
 
         convertProgressViewModel = ViewModelProvider(

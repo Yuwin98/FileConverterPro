@@ -21,7 +21,7 @@ import java.io.File
 import java.util.*
 
 
-class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.Callback {
+class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, ActionMode.Callback {
 
     override var bottomNavigationVisibility: Int = View.GONE
 
@@ -38,9 +38,8 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
 
     private val filesListAdapter by lazy { FilesListAdapter(this) }
 
-    private var multiSelection = false
-    private var selectedFiles = arrayListOf<ConvertedFile>()
-    private lateinit var actionMode: ActionMode
+    override var multiSelection = false
+    override var selectedFiles = arrayListOf<ConvertedFile>()
 
 
     private var menu: Menu? = null
@@ -65,22 +64,20 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this).get(DirectoryPreviewViewModel::class.java)
+        val convertedFile = args.data
 
-
-        viewModel?.allDirectoryFiles?.observe(viewLifecycleOwner, { items ->
-            if (items.isNullOrEmpty()) {
-                data = items
-                setupRecyclerView()
-            } else {
-                val convertedFile = args.data
-                data = Util.filterItemsIn(File(convertedFile.filePath), items)
-                setupRecyclerView()
-            }
-        })
-
+        viewModel?.allDirectoryFiles
+            ?.observe(viewLifecycleOwner, { items ->
+                if (items.isNullOrEmpty()) {
+                    data = items
+                    setupRecyclerView()
+                } else {
+                    data = Util.filterItemsInDirectory(File(convertedFile.filePath), items)
+                    setupRecyclerView()
+                }
+            })
         setupRecyclerView()
     }
-
 
     override fun onItemClick(position: Int) {
         if (multiSelection) {
@@ -136,17 +133,16 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
         when (selectedFiles.size) {
             0 -> {
                 multiSelection = false
-                actionMode.finish()
+                actionMode?.finish()
             }
             1 -> {
-                actionMode.title = "1 item selected"
+                actionMode?.title = "1 item selected"
             }
             else -> {
-                actionMode.title = "${selectedFiles.size} items selected"
+                actionMode?.title = "${selectedFiles.size} items selected"
             }
         }
     }
-
 
     private fun setupRecyclerView() {
         binding?.let {
@@ -229,7 +225,7 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
             updateData(data.toMutableList())
         } else {
             val convertedFile = args.data
-            data = Util.filterItemsIn(File(convertedFile.filePath), items)
+            data = Util.filterItemsInDirectory(File(convertedFile.filePath), items)
             updateData(data.toMutableList())
         }
     }
@@ -242,23 +238,17 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
     override fun onPause() {
         super.onPause()
         Log.d("heart", "Pause called")
-        if (this::actionMode.isInitialized) {
-            actionMode.finish()
-        }
+        actionMode?.finish()
+        commonTransitionToEnd()
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding?.directoryRecyclerView?.adapter = null
-        _binding = null
-        viewModel = null
-    }
-
 
     override fun onCreateActionMode(actionMode: ActionMode, menu: Menu?): Boolean {
-        actionMode.menuInflater?.inflate(R.menu.directory_action_menu, menu)
+//        actionMode.menuInflater?.inflate(R.menu.directory_action_menu, menu)
         applyStatusBarColor(R.color.contextualStatusBarColor)
         this.actionMode = actionMode
+        attachHostToCommonActionBar()
+        commonActionBarVisibility(View.VISIBLE)
+        commonTransitionToEnd()
         return true
     }
 
@@ -268,46 +258,7 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
 
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
         when (item?.itemId) {
-            R.id.actionDelete -> {
 
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Delete")
-                    .setMessage("This will delete selected files")
-                    .setPositiveButton("Delete") { dialog, _ ->
-                        selectedFiles.forEach {
-                            if (!it.isDirectory) {
-                                lifecycleScope.launch {
-                                    viewModel?.deleteSelectedFiles(it)
-                                }
-                            }
-                        }
-
-                        multiSelection = false
-                        Toast.makeText(
-                            requireContext(),
-                            "${selectedFiles.size} file(s) deleted",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        selectedFiles.clear()
-                        actionMode.finish()
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton("Cancel") { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
-
-
-            }
-            R.id.actionShare -> {
-                if(selectedFiles.size < 100) {
-                    val shareIntent =
-                        Util.startShareSheetMultiple(requireActivity(), selectedFiles)
-                    startActivity(Intent.createChooser(shareIntent, "Send File(s) To"))
-                }else {
-                    Toast.makeText(requireContext(), "Maximum sharing limit is 30", Toast.LENGTH_SHORT).show()
-                }
-            }
         }
         return true
     }
@@ -320,10 +271,20 @@ class DirectoryViewFragment : BaseFragment(), FileListClickListener, ActionMode.
         applyStatusBarColor(R.color.statusBarColor)
         selectedFiles.clear()
         multiSelection = false
+        commonTransitionToStart()
+        moveCopyTransitionStart()
+
     }
 
     private fun applyStatusBarColor(color: Int) {
         requireActivity().window.statusBarColor = ContextCompat.getColor(requireContext(), color)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding?.directoryRecyclerView?.adapter = null
+        _binding = null
+        viewModel = null
     }
 
 

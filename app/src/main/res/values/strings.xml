@@ -46,6 +46,14 @@
     <string name="file_copy_image_view">File Copy Image View</string>
     <string name="file_move_image_view">File Move Image View</string>
     <string name="move_to_folder_text">Move to folder</string>
+    <string name="rename_dialog_text">New Filename</string>
+    <string name="moveCopyCancel">Cancel</string>
+    <string name="moveCopyAction">Move Here</string>
+    <string name="new_folder_text">New Folder</string>
+    <string name="delete_all_text">Delete All Files</string>
+    <string name="grid_view_text">Grid View</string>
+    <string name="copy_here_text">Copy Here</string>
+    <string name="move_here_text">Move Here</string>
 
     <string-array name="file_types">
         <item>PNG</item>

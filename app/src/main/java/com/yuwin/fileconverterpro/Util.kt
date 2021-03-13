@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.provider.OpenableColumns
+import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -18,7 +19,6 @@ import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
 import java.lang.String.format
 import java.text.CharacterIterator
-import java.text.SimpleDateFormat
 import java.text.StringCharacterIterator
 import java.util.*
 import kotlin.collections.ArrayList
@@ -81,13 +81,18 @@ class Util {
             convertAll: Boolean?,
             isPdfConversion: Boolean?
         ): String {
-            return if(isPdfConversion == true) {
+            return if (isPdfConversion == true) {
                 if (convertAll == true) {
-                    ".${FormatTypesPDF.values()[defaultFormat!!].toString().toLowerCase(Locale.ROOT)}"
+                    ".${
+                        FormatTypesPDF.values()[defaultFormat!!].toString().toLowerCase(Locale.ROOT)
+                    }"
                 } else {
-                    ".${FormatTypesPDF.values()[specificFormat!!].toString().toLowerCase(Locale.ROOT)}"
+                    ".${
+                        FormatTypesPDF.values()[specificFormat!!].toString()
+                            .toLowerCase(Locale.ROOT)
+                    }"
                 }
-            }else {
+            } else {
                 if (convertAll == true) {
                     ".${FormatTypes.values()[defaultFormat!!].toString().toLowerCase(Locale.ROOT)}"
                 } else {
@@ -180,29 +185,37 @@ class Util {
             }
         }
 
+
         private fun getDirectoryFilesAsSet(file: File): Set<String> {
             val paths = mutableSetOf<String>()
-            val files = file.listFiles()
+            val files = file.listFiles()?.map { it.path }
 
-            files?.forEach {
-                if(it.isDirectory) {
-                    paths.add(it.path)
-                    val dirPaths = getDirectoryFilesAsSet(it)
-                    paths.addAll(dirPaths)
-                }else {
-                    paths.add(it.path)
-                }
-
+//            files?.forEach {
+//                if(it.isDirectory) {
+//                    paths.add(it.path)
+//                    val dirPaths = getDirectoryFilesAsSet(it)
+//                    paths.addAll(dirPaths)
+//                }else {
+//                    paths.add(it.path)
+//                }
+//                paths.add(it.path)
+//
+//            }
+//            return paths
+            if (files != null) {
+                paths.addAll(files)
             }
+
             return paths
         }
 
 
-        fun filterItemsIn(
+        fun filterItemsInDirectory(
             file: File,
             items: List<ConvertedFile>
         ): List<ConvertedFile> {
             val dirFiles = getDirectoryFilesAsSet(file)
+            Log.d("dirFilesFilter", dirFiles.toString())
             return items.filter { it.filePath in dirFiles }
         }
 
@@ -270,6 +283,14 @@ class Util {
                 }
             })
 
+        }
+
+        fun File.copyTo(file: File) {
+            inputStream().use { input ->
+                file.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
         }
 
         fun getAllFolderColors(context: Context): List<Int> {

@@ -9,6 +9,10 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
         return convertedFileDao.getAllFiles()
     }
 
+    fun getFileByPath(path: String): ConvertedFile {
+        return convertedFileDao.getFile(path)
+    }
+
     fun getAllFilesInDirectory(): Flow<List<ConvertedFile>> {
         return convertedFileDao.getAllFilesInDirectories()
     }

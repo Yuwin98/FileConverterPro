@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -35,6 +36,7 @@ import com.google.android.play.core.review.ReviewManagerFactory
 import com.yuwin.fileconverterpro.Constants.Companion.FREE_IMAGE_LIMIT
 import com.yuwin.fileconverterpro.Constants.Companion.PREMIUM_IMAGE_LIMIT
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
+import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.*
@@ -44,7 +46,7 @@ private const val IMAGE_REQUEST_CODE = 200
 private const val PDF_REQUEST_CODE = 500
 
 
-class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
+open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
     private lateinit var weakRef: WeakReference<MainActivity>
 
@@ -66,11 +68,17 @@ class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
     private var billingClient: BillingClient? = null
 
+    var currentUserDirectory: String = ""
+    var isCopyOperation = false
+    lateinit var filesToModify: MutableList<ConvertedFile>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(R.style.Theme_FileConverterPro)
         setContentView(R.layout.activity_main)
+        currentUserDirectory =
+            ContextCompat.getExternalFilesDirs(applicationContext, null)[0].absolutePath
         myAdUnitId = getString(R.string.appInterstitalAdId)
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
         val navHostFragment =
@@ -82,7 +90,8 @@ class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
 
         billingClient =
-            newBuilder(weakRef.get()!!.applicationContext).enablePendingPurchases().setListener(this)
+            newBuilder(weakRef.get()!!.applicationContext).enablePendingPurchases()
+                .setListener(this)
                 .build()
 
         billingClient?.let {
@@ -111,7 +120,7 @@ class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
         }
 
 
-        mainViewModel?.readIsPremium?.observe(this, { isPremium ->
+        mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
             if (isPremium == 1) {
                 this.imgLimit = PREMIUM_IMAGE_LIMIT
                 mAdView = findViewById(R.id.bannerAdView)
@@ -178,7 +187,7 @@ class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     override fun onBackPressed() {
         if (navController?.currentDestination?.id == R.id.convertProgressFragment) {
             navController?.navigate(R.id.action_convertProgressFragment_to_home)
-            mainViewModel?.readIsPremium?.observe(this, { isPremium ->
+            mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
                 if (isPremium == 0) {
                     showInterstitial()
                 }
@@ -343,19 +352,20 @@ class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
 
     fun requestInterstitial() {
-        mainViewModel?.readIsPremium?.observe(this, { isPremium ->
+        Log.d("showInterstitial", "Interstitial requested")
+
+            mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
             if (isPremium == 0) {
-                val adRequest = AdRequest.Builder().build()
-                createInterstitial(adRequest)
+                this.adRequest?.let { createInterstitial(it) }
             }
         })
-
     }
 
     private fun createInterstitial(adRequest: AdRequest) {
-
+        Log.d("showInterstitial", "Interstitial create")
         val fullScreenCallback: FullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
+                mInterstitialAd = null
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
@@ -379,6 +389,7 @@ class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     }
 
     fun showInterstitial() {
+        Log.d("showInterstitial", "Interstitial Shown")
         mainViewModel?.readIsPremium?.observe(this, { isPremium ->
             if (mInterstitialAd != null && isPremium == 0) {
                 mInterstitialAd?.show(this)
