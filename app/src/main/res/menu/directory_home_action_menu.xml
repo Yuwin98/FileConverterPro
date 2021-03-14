@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
+    <item android:id="@+id/viewChange"
+        android:title="@string/grid_view_text"
+        android:icon="@drawable/ic_gridview"
+        app:showAsAction="ifRoom"
+        />
+
     <item android:id="@+id/sortby"
         android:title="Sort By">
 
@@ -41,8 +47,11 @@
 
     </item>
 
+    <item android:id="@+id/newFolder"
+        android:title="@string/new_folder_text"/>
+
     <item android:id="@+id/deleteAll"
-        android:title="Delete All"/>
+        android:title="@string/clear_folder_text"/>
 
 
 </menu>

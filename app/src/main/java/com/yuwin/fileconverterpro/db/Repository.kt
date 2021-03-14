@@ -1,6 +1,7 @@
 package com.yuwin.fileconverterpro.db
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
 
 class Repository(private val convertedFileDao: ConvertedFileDao) {
@@ -9,8 +10,8 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
         return convertedFileDao.getAllFiles()
     }
 
-    fun getFileByPath(path: String): ConvertedFile {
-        return convertedFileDao.getFile(path)
+    fun getAllWithFilePath(path: String): Flow<List<ConvertedFile>> {
+        return convertedFileDao.getAllWithFilePath(path)
     }
 
     fun getAllFilesInDirectory(): Flow<List<ConvertedFile>> {

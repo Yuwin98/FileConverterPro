@@ -22,6 +22,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val externalDir = Util.getExternalDir(app.applicationContext)
 
     val readFiles = databaseRepository.getAllFiles().asLiveData()
+    val readAllDirectoryFiles = databaseRepository.getAllFilesInDirectory().asLiveData()
 
 
     // Filter and Sort Queries
@@ -47,9 +48,59 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     suspend fun deleteSelectedFiles(file: ConvertedFile) {
         Util.deleteFileFromStorage(file)
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             databaseRepository.deleteFile(file)
         }
+    }
+
+    // Update a converted file
+    fun updateNewFile(file: ConvertedFile) {
+        viewModelScope.launch(Dispatchers.IO) {
+            databaseRepository.updateFile(file)
+        }
+    }
+
+
+    // Create Empty File
+    fun createFileDirectory(name: String, selectedFileSize: Int, currentDir:String, inDir: Boolean): ConvertedFile? {
+        try {
+            val dir = "$currentDir/"
+            val folderPath = Util.getStorageFolder(dir, name)
+            val contentSize = Util.getContentSize(selectedFileSize)
+            val directoryColor = (0..24).random()
+            val date = Date(Util.getCurrentTimeMillis().toLong())
+            val file = File(folderPath)
+            if (!file.exists()) {
+                file.mkdir()
+            }
+
+            val folder = ConvertedFile(
+                0,
+                name,
+                contentSize,
+                0,
+                file.path,
+                "Directory",
+                file.toUri(),
+                null,
+                isFavorite = false,
+                isSelected = false,
+                isDirectory = true,
+                inDir,
+                directoryColor,
+                date
+            )
+            viewModelScope.launch(Dispatchers.IO) {
+                databaseRepository.insertFile(folder)
+            }
+
+            return if (file.exists()) folder else null
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
     }
 
 
@@ -58,7 +109,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val readQuality = repository.defaultQuality.asLiveData()
 
     fun setQuality(value: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.setDefaultQuality(value)
         }
     }
@@ -68,7 +119,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val readReviewPrompted = repository.reviewPrompted.asLiveData()
 
     fun setReviewPrompted(value: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.setReviewPrompted(value)
         }
     }
@@ -78,7 +129,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val readAppOpenedTimes = repository.openedTimes.asLiveData()
 
     fun incrementAppOpenedTimes() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.incrementOpenedTimes()
         }
     }
@@ -88,7 +139,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val readDefaultFormat = repository.formatType.asLiveData()
 
     fun setFormatType(value: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.setDefaultFormatType(value)
         }
     }
@@ -99,7 +150,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val readIfGridEnabled = repository.isGridEnabled.asLiveData()
 
     fun setIsGrid(value: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.setIsGrid(value)
         }
     }
@@ -109,7 +160,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val readCurrentStorage = repository.storageDirectory.asLiveData()
 
     fun setCurrentStorage(path: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.setStorageDirectory(path)
         }
     }
@@ -119,7 +170,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val readIsPremium = repository.isPremiumMember.asLiveData()
 
     fun setPremiumStatus(value: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.setPremium(value)
         }
     }
@@ -127,17 +178,28 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     // File Move and Copy Functionality
 
-    fun moveFileOrDirectory(files: List<ConvertedFile>, to: String) {
+    fun moveFileOrDirectory(
+        files: List<ConvertedFile>,
+        dirFileList: List<ConvertedFile>,
+        to: String
+    ) {
         files.forEach { file ->
             if (file.isDirectory) {
+                val filePath = file.filePath
+                val filterFilesInDirectory =
+                    dirFileList.let { Util.filterItemsInDirectory(File(file.filePath), it) }
+                val directoryPath = moveDirectory(file, to)
+                moveFileOrDirectory(filterFilesInDirectory, dirFileList, directoryPath)
+                File(filePath).delete()
 
             } else {
-                moveFile(file, to)
+                moveConvertedFile(file, to)
             }
         }
+
     }
 
-    private fun moveFile(
+    private fun moveConvertedFile(
         file: ConvertedFile,
         to: String
     ) {
@@ -155,30 +217,103 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             inDirectory = inDir
             isSelected = false
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             databaseRepository.updateFile(newFile)
         }
 
     }
 
-    fun copyFileOrDirectory(files: List<ConvertedFile>, to: String) {
+    private fun moveDirectory(file: ConvertedFile, to: String): String {
+        var inDir = true
+        val newFilePath = "${to}/${file.fileName}"
+        if (!File(newFilePath).exists()) {
+            File(newFilePath).mkdir()
+        }
 
+        if (externalDir == to) {
+            inDir = false
+        }
+
+        val newFile = file.apply {
+            filePath = File(newFilePath).path
+            uri = File(newFilePath).toUri()
+            inDirectory = inDir
+            isSelected = false
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            databaseRepository.updateFile(newFile)
+        }
+        return newFilePath
+    }
+
+    fun copyFileOrDirectory(
+        files: List<ConvertedFile>,
+        dirFileList: List<ConvertedFile>,
+        to: String
+    ) {
         files.forEach { file ->
             if (file.isDirectory) {
-
+                val filterFilesInDirectory =
+                    dirFileList.let { Util.filterItemsInDirectory(File(file.filePath), it) }
+                val directoryPath = copyDirectory(file, to)
+                copyFileOrDirectory(filterFilesInDirectory, dirFileList, directoryPath)
             } else {
-                copyFile(file, to)
+                createNewConvertedFile(file, to)
             }
         }
     }
 
 
-    private fun copyFile(
+    private fun copyDirectory(file: ConvertedFile, to: String): String {
+
+        val dst = "${to}/${file.fileName}"
+        if (!File(dst).exists()) {
+            File(dst).mkdir()
+        }
+
+        val millis = Util.getCurrentTimeMillis()
+        val fileName = file.fileName
+        val newFileUri = File(dst).toUri()
+        val date = Date(millis.toLong())
+        val thumbNailUri = file.thumbnailUri
+        var inDir = true
+
+        if (externalDir == to) {
+            inDir = false
+        }
+
+
+        val newConvertedFile = ConvertedFile(
+            0,
+            fileName,
+            file.fileSize,
+            file.fileSizeValue,
+            dst,
+            file.fileType,
+            newFileUri,
+            thumbNailUri,
+            isFavorite = false,
+            isSelected = false,
+            isDirectory = true,
+            inDirectory = inDir,
+            file.directoryColor,
+            date
+        )
+
+        viewModelScope.launch(Dispatchers.IO) {
+            databaseRepository.insertFile(newConvertedFile)
+        }
+
+        return dst
+    }
+
+
+    private fun createNewConvertedFile(
         file: ConvertedFile,
         to: String
     ) {
         val dst = "${to}/${file.fileName}"
-        copyFileOrDirectory(file.filePath, dst)
+        copyFiles(file.filePath, dst)
 
         val millis = Util.getCurrentTimeMillis()
         val fileName = file.fileName
@@ -208,12 +343,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             date
         )
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             databaseRepository.insertFile(newConvertedFile)
         }
     }
 
-    private fun copyFileOrDirectory(src: String, dst: String) {
+    private fun copyFiles(src: String, dst: String) {
 
         var source: FileChannel? = null
         var destination: FileChannel? = null

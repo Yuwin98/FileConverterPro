@@ -19,6 +19,7 @@ import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
 import java.lang.String.format
 import java.text.CharacterIterator
+import java.text.SimpleDateFormat
 import java.text.StringCharacterIterator
 import java.util.*
 import kotlin.collections.ArrayList
@@ -46,6 +47,22 @@ class Util {
             }
             value *= java.lang.Long.signum(bytes).toLong()
             return format("%.1f %cB", value / 1024.0, ci.current())
+        }
+
+        fun retrieveFileSize(file: File): Long {
+            var fileSize = 0L
+
+            if (file.isDirectory) {
+                val files = file.listFiles()
+                files?.forEach { currentFile ->
+                    val currentFileSize = retrieveFileSize(currentFile)
+                    fileSize += currentFileSize
+                }
+            } else {
+                fileSize += file.length()
+            }
+
+            return fileSize
         }
 
         fun getCurrentTimeMillis(): String {
@@ -190,18 +207,6 @@ class Util {
             val paths = mutableSetOf<String>()
             val files = file.listFiles()?.map { it.path }
 
-//            files?.forEach {
-//                if(it.isDirectory) {
-//                    paths.add(it.path)
-//                    val dirPaths = getDirectoryFilesAsSet(it)
-//                    paths.addAll(dirPaths)
-//                }else {
-//                    paths.add(it.path)
-//                }
-//                paths.add(it.path)
-//
-//            }
-//            return paths
             if (files != null) {
                 paths.addAll(files)
             }
@@ -215,7 +220,6 @@ class Util {
             items: List<ConvertedFile>
         ): List<ConvertedFile> {
             val dirFiles = getDirectoryFilesAsSet(file)
-            Log.d("dirFilesFilter", dirFiles.toString())
             return items.filter { it.filePath in dirFiles }
         }
 
@@ -283,6 +287,11 @@ class Util {
                 }
             })
 
+        }
+
+        fun getDataString(lastModified: Long): String {
+            val df = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
+            return df.format(lastModified)
         }
 
         fun File.copyTo(file: File) {

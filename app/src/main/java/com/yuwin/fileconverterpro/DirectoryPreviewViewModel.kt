@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-class DirectoryPreviewViewModel(app:Application): AndroidViewModel(app) {
+class DirectoryPreviewViewModel(app: Application) : AndroidViewModel(app) {
 
     private val convertedDao = AppDatabase.getInstance(app).convertedFileDao()
     private val repository = Repository(convertedDao)
@@ -21,18 +21,19 @@ class DirectoryPreviewViewModel(app:Application): AndroidViewModel(app) {
     val allDirectoryFiles = repository.getAllFilesInDirectory().asLiveData()
     val allFiles = repository.getAllFiles().asLiveData()
 
+    fun getDirectoryFilesWithPath(path: String): LiveData<List<ConvertedFile>> {
+        return repository.getAllWithFilePath(path).asLiveData()
+    }
 
 
     fun clearDirectory(files: List<ConvertedFile>) {
         files.forEach { file ->
-            viewModelScope.launch {
-                deleteSelectedFiles(file)
-            }
+            deleteSelectedFiles(file)
         }
 
     }
 
-    suspend fun deleteSelectedFiles(file: ConvertedFile) {
+    private fun deleteSelectedFiles(file: ConvertedFile) {
         Util.deleteFileFromStorage(file)
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteFile(file)

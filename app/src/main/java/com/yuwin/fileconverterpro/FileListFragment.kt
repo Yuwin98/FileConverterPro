@@ -27,7 +27,7 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
     private var _binding: FragmentMainScreenBinding? = null
     private val binding get() = _binding
     private var viewModel: FileListViewModel? = null
-    private val mainViewModel: MainViewModel by viewModels()
+    private lateinit var mainViewModel: MainViewModel
 
 
     override var multiSelection = false
@@ -51,9 +51,8 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
         _binding = FragmentMainScreenBinding.inflate(inflater, container, false)
         binding?.lifecycleOwner = viewLifecycleOwner
         viewModel = ViewModelProvider(this).get(FileListViewModel::class.java)
-
+        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
         mainViewModel.readIfGridEnabled.observe(viewLifecycleOwner, {
-            Log.d("isGrid", it.toString())
             isGrid = it
         })
 
@@ -77,7 +76,7 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
                 data = Util.filterItemsInDirectory(File(rootPath), items)
                // data = data!!.filter { file -> !file.inDirectory }
 
-                if (items.isEmpty()) {
+                if (data!!.isNullOrEmpty()) {
                     binding?.let {
                         it.noFilesImageView.visibility = View.VISIBLE
                         it.noFilesTextView.visibility = View.VISIBLE
@@ -142,7 +141,8 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
                         val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
                         val name = editText.text.toString()
                         if (name.isNotBlank()) {
-                            createFileDirectory(name)
+                            val currentDir = (activity as MainActivity).currentUserDirectory
+                            mainViewModel.createFileDirectory(name, selectedFiles.size, currentDir, false)
                             dialog.dismiss()
                         } else {
                             Toast.makeText(
@@ -207,6 +207,7 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
         super.onPause()
         this.actionMode?.finish()
         commonTransitionToEnd()
+        detailsLayoutTransitionEnd()
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -234,6 +235,19 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
             }
             updateData(data!!.toMutableList())
         }
+    }
+
+    private fun deepFilterType(type: Int) {
+        when(type) {
+            0 -> {
+                val items = filterBySize()
+            }
+        }
+    }
+
+    private fun filterBySize(): List<ConvertedFile> {
+        val items = mutableListOf<ConvertedFile>()
+        return items
     }
 
     private fun setupListRecyclerView() {
@@ -370,9 +384,12 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
                         val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
                         val name = editText.text.toString()
                         if (name.isNotBlank()) {
-                            val folder = createFileDirectory(name)
-                            if (folder?.filePath?.isNotBlank() == true) {
-                                moveSelectedFilesToDirectory(selectedFiles, folder)
+                            val currentDir = (activity as MainActivity).currentUserDirectory
+                            val folder = mainViewModel.createFileDirectory(name, selectedFiles.size, currentDir,false)
+                            if (folder != null) {
+                                if (folder.filePath.isNotBlank()) {
+                                    moveSelectedFilesToDirectory(selectedFiles, folder)
+                                }
                             }
                             multiSelection = false
                             selectedFiles.clear()
@@ -395,7 +412,6 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
         return true
     }
 
-
     private fun moveSelectedFilesToDirectory(
         selectedFiles: ArrayList<ConvertedFile>,
         folderPath: ConvertedFile?
@@ -410,50 +426,13 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
                 inDirectory = true
                 isSelected = false
             }
-            viewModel?.updateNewFile(newFile)
+            mainViewModel.updateNewFile(newFile)
             data?.let { updateData(it.toMutableList()) }
 
         }
     }
 
-    private fun createFileDirectory(name: String): ConvertedFile? {
-        try {
-            val dirPath = Util.getExternalDir(requireContext())
-            val folderPath = Util.getStorageFolder(dirPath, name)
-            val contentSize = Util.getContentSize(selectedFiles.size)
-            val directoryColor = (0..24).random()
-            val date = Date(Util.getCurrentTimeMillis().toLong())
-            val file = File(folderPath)
-            if (!file.exists()) {
-                file.mkdir()
-            }
 
-            val folder = ConvertedFile(
-                0,
-                name,
-                contentSize,
-                0,
-                file.path,
-                "Directory",
-                file.toUri(),
-                null,
-                isFavorite = false,
-                isSelected = false,
-                isDirectory = true,
-                inDirectory = false,
-                directoryColor,
-                date
-            )
-            viewModel?.insertFolder(folder)
-
-            return if (file.exists()) folder else null
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return null
-    }
 
     override fun onDestroyActionMode(actionMode: ActionMode?) {
         data?.forEach {
@@ -464,14 +443,14 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
         selectedFiles.clear()
         multiSelection = false
         commonTransitionToStart()
-        moveCopyTransitionStart()
+//        moveCopyTransitionStart()
+//        detailsLayoutTransitionEnd()
 
     }
 
     private fun applyStatusBarColor(color: Int) {
         requireActivity().window.statusBarColor = ContextCompat.getColor(requireContext(), color)
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

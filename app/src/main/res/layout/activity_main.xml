@@ -8,12 +8,14 @@
     android:background="@color/colorBackground"
     tools:context=".MainActivity">
 
+
+
+
     <androidx.constraintlayout.motion.widget.MotionLayout
         android:id="@+id/moveCopyLayout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@android:color/black"
-        android:translationZ="999dp"
         android:visibility="gone"
         app:layoutDescription="@xml/activity_main_xml_movecopylayout_scene"
         app:layout_constraintBottom_toTopOf="@+id/divider"
@@ -116,7 +118,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/black"
-        android:translationZ="999dp"
         android:visibility="gone"
         app:layoutDescription="@xml/activity_main_xml_commonactionmodebar_scene"
         app:layout_constraintBottom_toTopOf="@+id/divider"
@@ -361,7 +362,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navGraph="@navigation/navigation" />
+        app:navGraph="@navigation/navigation" >
+
+    </androidx.fragment.app.FragmentContainerView>
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/bannerAdView"
@@ -388,6 +391,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_menu" />
 
+
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
@@ -397,7 +401,253 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        android:id="@+id/fileDetailsViewConstraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/detailsCardBackgroundLight"
+        android:clickable="false"
+        android:focusable="false"
+        android:visibility="gone"
+        app:layoutDescription="@xml/activity_main_xml_filedetailsviewconstraintlayout_scene"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fileDetailsCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="64dp"
+            android:background="@drawable/details_card_bg"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/detailsCardButtonConstraintLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginBottom="16dp"
+                android:background="?attr/selectableItemBackground"
+                app:layout_constraintBottom_toBottomOf="@id/fileDetailsCardView"
+                app:layout_constraintEnd_toEndOf="@id/fileDetailsCardView"
+                app:layout_constraintStart_toStartOf="@id/fileDetailsCardView"
+                app:layout_constraintTop_toBottomOf="@id/detailsFilePathText">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/detailsCardButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:fontFamily="@font/allerta"
+                    android:text="@string/details_card_ok_btn"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="@id/detailsCardButtonConstraintLayout"
+                    app:layout_constraintEnd_toEndOf="@id/detailsCardButtonConstraintLayout"
+                    app:layout_constraintStart_toStartOf="@id/detailsCardButtonConstraintLayout"
+                    app:layout_constraintTop_toTopOf="@id/detailsCardButtonConstraintLayout" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/detailsCardTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="32dp"
+                android:fontFamily="@font/allerta"
+                android:text="@string/details_card_title"
+                android:textColor="@color/colorText"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/detailsFileNameTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="32dp"
+                android:fontFamily="@font/allerta"
+                android:text="@string/name_title_text"
+                android:textColor="@color/colorDateTypeSize"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detailsCardTitle" />
+
+            <TextView
+                android:id="@+id/detailsFileNameText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="24dp"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-condensed-light"
+                android:maxLines="3"
+                android:textColor="@color/colorText"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/detailsFileNameTitle"
+                app:layout_constraintTop_toBottomOf="@+id/detailsFileNameTitle" />
+
+            <TextView
+                android:id="@+id/detailsFilesSizeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/allerta"
+                android:text="@string/size_title_text"
+                android:textColor="@color/colorDateTypeSize"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detailsFileNameText" />
+
+            <TextView
+                android:id="@+id/detailsFileSizeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-condensed-light"
+                android:maxLines="1"
+                android:textColor="@color/colorText"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="@+id/detailsFilesSizeTitle"
+                app:layout_constraintTop_toBottomOf="@+id/detailsFilesSizeTitle" />
+
+            <TextView
+                android:id="@+id/detailsFileLastModifiedTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/allerta"
+                android:text="@string/last_modified_title_text"
+                android:textColor="@color/colorDateTypeSize"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detailsFileSizeText" />
+
+            <TextView
+                android:id="@+id/detailsFileLastModifiedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-condensed-light"
+                android:maxLines="1"
+                android:textColor="@color/colorText"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="@+id/detailsFileLastModifiedTitle"
+                app:layout_constraintTop_toBottomOf="@+id/detailsFileLastModifiedTitle" />
+
+            <TextView
+                android:id="@+id/detailsFileContainsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/allerta"
+                android:text="@string/contains_title_text"
+                android:textColor="@color/colorDateTypeSize"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detailsFileLastModifiedText" />
+
+            <TextView
+                android:id="@+id/detailsFileContainsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-condensed-light"
+                android:maxLines="1"
+                android:textColor="@color/colorText"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="@+id/detailsFileContainsTitle"
+                app:layout_constraintTop_toBottomOf="@+id/detailsFileContainsTitle" />
+
+            <TextView
+                android:id="@+id/detailsFilePathTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/allerta"
+                android:text="@string/path_title_text"
+                android:textColor="@color/colorDateTypeSize"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detailsFileContainsText" />
+
+            <TextView
+                android:id="@+id/detailsFilePathText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="24dp"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-condensed-light"
+                android:maxLines="4"
+                android:textColor="@color/colorText"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/detailsFilePathTitle"
+                app:layout_constraintTop_toBottomOf="@+id/detailsFilePathTitle" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/progressBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/details_card_bg"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/navHostFragment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ProgressBar
+            android:id="@+id/moveCopyProgressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="24dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:backgroundTint="@android:color/white"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/colorPrimaryDark"
+            android:max="100"
+            app:layout_constraintBottom_toTopOf="@+id/textView3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/allerta"
+            android:text="Action In Progress"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/moveCopyProgressBar"
+            app:layout_constraintStart_toStartOf="@+id/moveCopyProgressBar" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

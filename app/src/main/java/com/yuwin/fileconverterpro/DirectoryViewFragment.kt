@@ -1,29 +1,27 @@
 package com.yuwin.fileconverterpro
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yuwin.fileconverterpro.databinding.FragmentDirectoryViewBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
-import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 
 
 class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, ActionMode.Callback {
 
-    override var bottomNavigationVisibility: Int = View.GONE
 
     private val args by navArgs<DirectoryViewFragmentArgs>()
 
@@ -33,10 +31,12 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
     private val binding get() = _binding
 
     private var viewModel: DirectoryPreviewViewModel? = null
-    private val mainViewModel: MainViewModel by viewModels()
+    private lateinit var mainViewModel: MainViewModel
 
 
     private val filesListAdapter by lazy { FilesListAdapter(this) }
+    private val filesGridAdapter by lazy { FilesGridAdapter(this) }
+    private var isGrid = false
 
     override var multiSelection = false
     override var selectedFiles = arrayListOf<ConvertedFile>()
@@ -55,8 +55,9 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
             )
 
         _binding = FragmentDirectoryViewBinding.inflate(inflater, container, false)
-
         _binding?.lifecycleOwner = viewLifecycleOwner
+
+
 
         return _binding?.root
     }
@@ -64,19 +65,38 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this).get(DirectoryPreviewViewModel::class.java)
+        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
         val convertedFile = args.data
-
+        mainViewModel.readIfGridEnabled.observe(viewLifecycleOwner, {
+            isGrid = it
+        })
         viewModel?.allDirectoryFiles
             ?.observe(viewLifecycleOwner, { items ->
                 if (items.isNullOrEmpty()) {
                     data = items
-                    setupRecyclerView()
+                    setupRecyclerView(isGrid)
+                    binding?.let {
+                        it.noFilesImageView.visibility = View.VISIBLE
+                        it.noFilesTextView.visibility = View.VISIBLE
+                    }
                 } else {
                     data = Util.filterItemsInDirectory(File(convertedFile.filePath), items)
-                    setupRecyclerView()
+                    data = data.sortedBy { it.fileType }
+                    setupRecyclerView(isGrid)
+                    if (items.isEmpty()) {
+                        binding?.let {
+                            it.noFilesImageView.visibility = View.VISIBLE
+                            it.noFilesTextView.visibility = View.VISIBLE
+                        }
+                    } else {
+                        binding?.let {
+                            it.noFilesImageView.visibility = View.GONE
+                            it.noFilesTextView.visibility = View.GONE
+                        }
+                    }
                 }
             })
-        setupRecyclerView()
+        setupRecyclerView(isGrid)
     }
 
     override fun onItemClick(position: Int) {
@@ -91,14 +111,26 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
         val data = data[position]
 
         val fileType = data.fileType
-        if (fileType == "pdf") {
-            val action =
-                DirectoryViewFragmentDirections.actionDirectoryViewFragmentToPdfViewerFragment(data)
-            findNavController().navigate(action)
-        } else {
-            val action =
-                DirectoryViewFragmentDirections.actionDirectoryViewFragmentToImageViewFragment(data)
-            findNavController().navigate(action)
+        when {
+            fileType == "pdf" -> {
+                val action =
+                    DirectoryViewFragmentDirections.actionDirectoryViewFragmentToPdfViewerFragment(
+                        data
+                    )
+                findNavController().navigate(action)
+            }
+            data.isDirectory -> {
+                (activity as MainActivity).currentUserDirectory = data.filePath
+                val action = DirectoryViewFragmentDirections.actionDirectoryViewFragmentSelf(data)
+                findNavController().navigate(action)
+            }
+            else -> {
+                val action =
+                    DirectoryViewFragmentDirections.actionDirectoryViewFragmentToImageViewFragment(
+                        data
+                    )
+                findNavController().navigate(action)
+            }
         }
     }
 
@@ -144,15 +176,31 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
         }
     }
 
-    private fun setupRecyclerView() {
+    private fun setupListRecyclerView() {
         binding?.let {
             it.directoryRecyclerView.layoutManager = LinearLayoutManager(requireContext())
             it.directoryRecyclerView.adapter = filesListAdapter
 
         }
         data.let { filesListAdapter.setData(it.toMutableList()) }
-
     }
+
+    private fun setupGridRecyclerView() {
+        binding?.let {
+            it.directoryRecyclerView.layoutManager = GridLayoutManager(requireContext(), 4)
+            it.directoryRecyclerView.adapter = filesGridAdapter
+        }
+        data.let { filesGridAdapter.setData(it.toMutableList()) }
+    }
+
+    private fun setupRecyclerView(isGrid: Boolean) {
+        if (isGrid) {
+            setupGridRecyclerView()
+        } else {
+            setupListRecyclerView()
+        }
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.directory_home_action_menu, menu)
@@ -161,7 +209,21 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-
+            R.id.viewChange -> {
+                if (!isGrid) {
+                    item.setIcon(R.drawable.ic_listview)
+                    item.title = "List View"
+                    isGrid = true
+                    mainViewModel.setIsGrid(true)
+                    setupRecyclerView(isGrid)
+                } else {
+                    item.setIcon(R.drawable.ic_gridview)
+                    item.title = "Grid View"
+                    isGrid = false
+                    mainViewModel.setIsGrid(false)
+                    setupRecyclerView(isGrid)
+                }
+            }
             R.id.deleteAll -> {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle("Clear Directory")
@@ -174,6 +236,39 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
                         dialog.dismiss()
                     }
                     .show()
+            }
+            R.id.newFolder -> {
+                val editTextView = layoutInflater.inflate(R.layout.edittext_layout, null)
+                MaterialAlertDialogBuilder(requireContext())
+                    .setView(editTextView)
+                    .setTitle("Create Folder")
+                    .setMessage("This will create an empty folder")
+                    .setPositiveButton("Create") { dialog, _ ->
+                        val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
+                        val name = editText.text.toString()
+                        if (name.isNotBlank()) {
+                            val currentDir = (activity as MainActivity).currentUserDirectory
+                            mainViewModel.createFileDirectory(
+                                name,
+                                selectedFiles.size,
+                                currentDir,
+                                true
+                            )
+                            dialog.dismiss()
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "Folder name empty",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                    .setNegativeButton("Cancel") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
+                editTextView.requestFocus()
+
             }
             R.id.sortFileSize -> {
                 mainViewModel.readFilesBySize.observe(viewLifecycleOwner, { items ->
@@ -222,16 +317,25 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
     private fun filterSortAndUpdateData(items: List<ConvertedFile>) {
         if (items.isNullOrEmpty()) {
             data = items
+            binding?.let {
+                it.noFilesImageView.visibility = View.VISIBLE
+                it.noFilesTextView.visibility = View.VISIBLE
+            }
             updateData(data.toMutableList())
         } else {
-            val convertedFile = args.data
-            data = Util.filterItemsInDirectory(File(convertedFile.filePath), items)
+            data = items.filter { file -> !file.inDirectory }
+            binding?.let {
+                it.noFilesImageView.visibility = View.GONE
+                it.noFilesTextView.visibility = View.GONE
+            }
             updateData(data.toMutableList())
         }
     }
 
     private fun updateData(newData: List<ConvertedFile>) {
+        filesGridAdapter.setData(newData.toMutableList())
         filesListAdapter.setData(newData.toMutableList())
+        filesGridAdapter.notifyDataSetChanged()
         filesListAdapter.notifyDataSetChanged()
     }
 
@@ -243,7 +347,7 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
     }
 
     override fun onCreateActionMode(actionMode: ActionMode, menu: Menu?): Boolean {
-//        actionMode.menuInflater?.inflate(R.menu.directory_action_menu, menu)
+        actionMode.menuInflater?.inflate(R.menu.action_menu, menu)
         applyStatusBarColor(R.color.contextualStatusBarColor)
         this.actionMode = actionMode
         attachHostToCommonActionBar()
@@ -258,7 +362,45 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
 
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
         when (item?.itemId) {
-
+            R.id.actionMoveToFolder -> {
+                val editTextView = layoutInflater.inflate(R.layout.edittext_layout, null)
+                MaterialAlertDialogBuilder(requireContext())
+                    .setView(editTextView)
+                    .setTitle("Create Folder")
+                    .setMessage("This will create a folder and move selected files into it")
+                    .setPositiveButton("Create") { dialog, _ ->
+                        val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
+                        val name = editText.text.toString()
+                        if (name.isNotBlank()) {
+                            val currentDir = (activity as MainActivity).currentUserDirectory
+                            val folder = mainViewModel.createFileDirectory(
+                                name,
+                                selectedFiles.size,
+                                currentDir,
+                                true
+                            )
+                            if (folder != null) {
+                                if (folder.filePath.isNotBlank()) {
+                                    moveSelectedFilesToDirectory(selectedFiles, folder)
+                                }
+                            }
+                            multiSelection = false
+                            selectedFiles.clear()
+                            actionMode?.finish()
+                            dialog.dismiss()
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "Folder Name empty",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                    .setNegativeButton("Cancel") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
         }
         return true
     }
@@ -278,6 +420,26 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
 
     private fun applyStatusBarColor(color: Int) {
         requireActivity().window.statusBarColor = ContextCompat.getColor(requireContext(), color)
+    }
+
+    private fun moveSelectedFilesToDirectory(
+        selectedFiles: ArrayList<ConvertedFile>,
+        folderPath: ConvertedFile?
+    ) {
+        selectedFiles.forEach { file ->
+            val newFilePath = "${folderPath?.filePath}/${file.fileName}"
+            File(file.filePath).renameTo(File(newFilePath))
+
+            val newFile = file.apply {
+                filePath = File(newFilePath).path
+                uri = File(newFilePath).toUri()
+                inDirectory = true
+                isSelected = false
+            }
+            mainViewModel.updateNewFile(newFile)
+            updateData(data.toMutableList())
+
+        }
     }
 
     override fun onDestroyView() {

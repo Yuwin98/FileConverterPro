@@ -13,6 +13,8 @@
     <color name="pdfBackground">#FAFAFA</color>
     <color name="colorDateTypeSize">#999999</color>
     <color name="toolsBackground">#000000</color>
+    <color name="detailCardBackground">#FFFFFF</color>
+    <color name="detailsCardBackgroundLight">#59000000</color>
 
     <color name="colorPrimaryLight">#3d221f</color>
 

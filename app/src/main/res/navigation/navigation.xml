@@ -138,5 +138,11 @@
         <action
             android:id="@+id/action_directoryViewFragment_to_pdfViewerFragment"
             app:destination="@id/pdfViewerFragment" />
+        <action
+            android:id="@+id/action_directoryViewFragment_self"
+            app:destination="@id/directoryViewFragment" />
+        <action
+            android:id="@+id/action_directoryViewFragment_to_convert"
+            app:destination="@id/convert" />
     </fragment>
 </navigation>

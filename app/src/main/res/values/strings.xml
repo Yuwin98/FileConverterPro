@@ -54,6 +54,14 @@
     <string name="grid_view_text">Grid View</string>
     <string name="copy_here_text">Copy Here</string>
     <string name="move_here_text">Move Here</string>
+    <string name="path_title_text">Path</string>
+    <string name="contains_title_text">Contains</string>
+    <string name="last_modified_title_text">Last modified</string>
+    <string name="size_title_text">Size</string>
+    <string name="name_title_text">Name</string>
+    <string name="details_card_title">Details</string>
+    <string name="details_card_ok_btn">OK</string>
+    <string name="clear_folder_text">Clear Folder</string>
 
     <string-array name="file_types">
         <item>PNG</item>

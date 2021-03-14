@@ -37,6 +37,7 @@ import com.yuwin.fileconverterpro.Constants.Companion.FREE_IMAGE_LIMIT
 import com.yuwin.fileconverterpro.Constants.Companion.PREMIUM_IMAGE_LIMIT
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.db.ConvertedFile
+import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.*
@@ -199,6 +200,10 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
     override fun onSupportNavigateUp(): Boolean {
         navController?.let {
+            val parent = File(currentUserDirectory).parent
+            if(parent != null) {
+                currentUserDirectory = parent
+            }
             return it.navigateUp() || super.onSupportNavigateUp()
         }
         return super.onSupportNavigateUp()
@@ -207,7 +212,7 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     private fun convertChoices() {
         val items = arrayOf("Image Conversion", "PDF Conversion")
         MaterialAlertDialogBuilder(this)
-            .setTitle("Converstion Type")
+            .setTitle("Conversion Type")
             .setItems(items) { dialog, which ->
                 when (which) {
                     0 -> {
@@ -321,13 +326,16 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
         }
 
     private fun promptReview() {
-        mainViewModel?.readAppOpenedTimes?.observeOnce(this, {
-            if (it == 2) {
-                inAppReviewRequest()
-                mainViewModel?.incrementAppOpenedTimes()
-            } else {
-                mainViewModel?.incrementAppOpenedTimes()
-            }
+        mainViewModel?.readAppOpenedTimes?.observeOnce(this, { opened ->
+            mainViewModel?.readReviewPrompted?.observeOnce(this, { prompted ->
+                if (opened > 2 && !prompted) {
+                    inAppReviewRequest()
+                    mainViewModel?.incrementAppOpenedTimes()
+                } else {
+                    mainViewModel?.incrementAppOpenedTimes()
+                }
+            })
+
         })
     }
 
@@ -520,6 +528,9 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
                 }
                 R.id.favorite -> {
                     action = FavoriteFragmentDirections.actionInfoToConvert(newUriList)
+                }
+                R.id.directoryViewFragment -> {
+                    action = DirectoryViewFragmentDirections.actionDirectoryViewFragmentToConvert(newUriList)
                 }
 
 

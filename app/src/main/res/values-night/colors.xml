@@ -9,6 +9,8 @@
     <color name="completeGreen">#2ecc71</color>
     <color name="pdfBackground">#FAFAFA</color>
     <color name="selectedFileItemBackground">#44a55eea</color>
+    <color name="detailCardBackground">#252525</color>
+    <color name="detailsCardBackgroundLight">#59000000</color>
 
     <color name="colorPrimaryLight">#271736</color>
 

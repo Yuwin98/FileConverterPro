@@ -27,15 +27,33 @@ class BindingAdapters {
 
     companion object {
 
+        @BindingAdapter("setGridBackground")
+        @JvmStatic
+        fun setGridBackground(view: ConstraintLayout, isSelected: Boolean) {
+            if (!isSelected) {
+                view.setBackgroundResource(R.drawable.stroke_background)
+            }
+        }
+
         @BindingAdapter("loadThumbnailFromUri")
         @JvmStatic
         fun loadThumbnailImage(view: ImageView, convertedFile: ConvertedFile) {
+            if (view.id == R.id.fileListGridImageView) {
+                val dims = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    99f,
+                    view.resources.displayMetrics
+                )
+                view.layoutParams.height = dims.toInt()
+                view.layoutParams.width = dims.toInt()
+            }
+            ImageViewCompat.setImageTintList(view, null)
             when (convertedFile.fileType) {
                 "pdf" -> {
                     Glide.with(view).load(convertedFile.thumbnailUri).into(view)
                 }
                 "Directory" -> {
-                    if(view.id == R.id.fileListGridImageView) {
+                    if (view.id == R.id.fileListGridImageView) {
                         val dims = TypedValue.applyDimension(
                             TypedValue.COMPLEX_UNIT_DIP,
                             56f,
@@ -65,20 +83,20 @@ class BindingAdapters {
         @BindingAdapter("loadImagePDFThumbnail")
         @JvmStatic
         fun loadImagePDFThumbnail(view: ImageView, item: ConvertInfo) {
-            if(item.fileType != "PDF") {
+            if (item.fileType != "PDF") {
                 Glide.with(view).load(item.uri).into(view)
-            }else {
-               val bitmap = loadPDFThumbnail(view.context,item)
-               Glide.with(view).load(bitmap).into(view)
+            } else {
+                val bitmap = loadPDFThumbnail(view.context, item)
+                Glide.with(view).load(bitmap).into(view)
             }
         }
 
-        private fun loadPDFThumbnail(context: Context,item: ConvertInfo): Bitmap? {
+        private fun loadPDFThumbnail(context: Context, item: ConvertInfo): Bitmap? {
             val fileDescriptor = context.contentResolver.openFileDescriptor(
                 item.uri,
                 "r"
             )!!
-            val renderer  = PdfRenderer(fileDescriptor)
+            val renderer = PdfRenderer(fileDescriptor)
             val page = renderer.openPage(0)
             var bitmap = page?.let {
                 Bitmap.createBitmap(
@@ -100,9 +118,9 @@ class BindingAdapters {
         @BindingAdapter("getDefaultConvertFormat")
         @JvmStatic
         fun getDefaultConvertFormat(view: TextView, item: ConvertInfo) {
-            if(item.isPdfConversion == true) {
+            if (item.isPdfConversion == true) {
                 view.text = FormatTypesPDF.values()[item.defaultConvertFormat!!].toString()
-            }else {
+            } else {
                 view.text = FormatTypes.values()[item.defaultConvertFormat!!].toString()
             }
         }
@@ -116,7 +134,7 @@ class BindingAdapters {
 
         @BindingAdapter("getFileSize")
         @JvmStatic
-        fun getFileSize(view: TextView, filePath: String ) {
+        fun getFileSize(view: TextView, filePath: String) {
             val file = File(filePath)
             val size = file.length()
             view.text = Util.convertBytes(size)
@@ -125,14 +143,14 @@ class BindingAdapters {
         @BindingAdapter("fileNameListAdapter")
         @JvmStatic
         fun fileNameListAdapter(view: TextView, fileName: String) {
-            if(fileName.length > 30) {
+            if (fileName.length > 30) {
                 val begin = fileName.take(13)
                 val mid = "..."
                 val end = fileName.takeLast(13)
                 val compatFileName = "$begin$mid$end"
                 view.text = compatFileName
 
-            }else {
+            } else {
                 view.text = fileName
             }
         }
@@ -140,14 +158,14 @@ class BindingAdapters {
         @BindingAdapter("fileNameGridAdapter")
         @JvmStatic
         fun fileNameGridAdapter(view: TextView, fileName: String) {
-            if(fileName.length > 16) {
+            if (fileName.length > 16) {
                 val begin = fileName.take(6)
                 val mid = "..."
                 val end = fileName.takeLast(6)
                 val compatFileName = "$begin$mid$end"
                 view.text = compatFileName
 
-            }else {
+            } else {
                 view.text = fileName
             }
         }
@@ -156,11 +174,11 @@ class BindingAdapters {
         @BindingAdapter("changeFavoriteIcon")
         @JvmStatic
         fun changeFavoriteIcon(view: ImageView, isFavorite: Boolean) {
-            if(isFavorite) {
+            if (isFavorite) {
                 view.setImageDrawable(
                     ContextCompat.getDrawable(view.context, R.drawable.ic_favorite)
                 )
-            }else {
+            } else {
                 view.setImageDrawable(
                     ContextCompat.getDrawable(view.context, R.drawable.ic_favorite_border)
                 )
@@ -170,19 +188,19 @@ class BindingAdapters {
         @BindingAdapter("changeSelectedListItemColor")
         @JvmStatic
         fun changeSelectedListItemColor(view: ConstraintLayout, isSelected: Boolean) {
-            if(isSelected) {
+            if (isSelected) {
                 view.setBackgroundColor(
-                        ContextCompat.getColor(
-                                view.context,
-                                R.color.selectedFileItemBackground
-                                )
+                    ContextCompat.getColor(
+                        view.context,
+                        R.color.selectedFileItemBackground
+                    )
                 )
-            }else {
+            } else {
                 view.setBackgroundColor(
-                        ContextCompat.getColor(
-                                view.context,
-                                R.color.colorBackground
-                        )
+                    ContextCompat.getColor(
+                        view.context,
+                        R.color.colorBackground
+                    )
                 )
             }
         }
@@ -190,12 +208,13 @@ class BindingAdapters {
         @BindingAdapter("changeSelectedGridItemColor")
         @JvmStatic
         fun changeSelectedGridItemColor(view: ConstraintLayout, isSelected: Boolean) {
-            if(isSelected) {
+            if (isSelected) {
                 view.foreground = ColorDrawable(
-                        ContextCompat.getColor(view.context, R.color.selectedFileItemBackground)
+                    ContextCompat.getColor(view.context, R.color.selectedFileItemBackground)
                 )
-            }else {
-                view.foreground = ColorDrawable( Color.argb(0,0,0,0)
+            } else {
+                view.foreground = ColorDrawable(
+                    Color.argb(0, 0, 0, 0)
                 )
             }
         }
@@ -203,7 +222,7 @@ class BindingAdapters {
         @BindingAdapter("changeNonFolderColor")
         @JvmStatic
         fun changeNonFolderColor(view: ImageView, isDirectory: Boolean) {
-            if(!isDirectory) {
+            if (!isDirectory) {
                 ImageViewCompat.setImageTintList(view, null)
             }
         }
@@ -211,13 +230,13 @@ class BindingAdapters {
         @BindingAdapter("getFileInfo")
         @JvmStatic
         fun getFileInfo(view: TextView, file: ConvertedFile) {
-            if(file.isDirectory) {
+            if (file.isDirectory) {
                 val files = File(file.filePath).listFiles()
-                if(files != null) {
+                if (files != null) {
                     val fileSize = Util.getContentSize(files.size)
                     view.text = fileSize
                 }
-            }else {
+            } else {
                 view.text = file.fileSize
             }
         }
@@ -226,32 +245,32 @@ class BindingAdapters {
         @BindingAdapter("spinnerVisibility")
         @JvmStatic
         fun spinnerVisibility(view: Spinner, item: ConvertInfo) {
-            if(item.fileType == "PDF" && item.convertAll == false) {
+            if (item.fileType == "PDF" && item.convertAll == false) {
                 Log.d("mimeTypePDF", "A pdf conversion")
-                when(view.id) {
+                when (view.id) {
                     R.id.fileTypeSpinner -> {
-                        view.visibility  = View.GONE
+                        view.visibility = View.GONE
                     }
                     R.id.pdfTypeSpinner -> {
                         view.visibility = View.VISIBLE
                     }
                 }
 
-            }else if(item.convertAll == false) {
+            } else if (item.convertAll == false) {
                 Log.d("mimeTypePDF", "Image conversion")
 
-                when(view.id) {
+                when (view.id) {
                     R.id.fileTypeSpinner -> {
-                        view.visibility  = View.VISIBLE
+                        view.visibility = View.VISIBLE
                     }
                     R.id.pdfTypeSpinner -> {
                         view.visibility = View.GONE
                     }
                 }
-            }else {
-                when(view.id) {
+            } else {
+                when (view.id) {
                     R.id.fileTypeSpinner -> {
-                        view.visibility  = View.GONE
+                        view.visibility = View.GONE
                     }
                     R.id.pdfTypeSpinner -> {
                         view.visibility = View.GONE
