@@ -10,13 +10,18 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
         return convertedFileDao.getAllFiles()
     }
 
-    fun getAllWithFilePath(path: String): Flow<List<ConvertedFile>> {
-        return convertedFileDao.getAllWithFilePath(path)
+    fun getAllDirectoryFilesWithFilePath(path: String): Flow<List<ConvertedFile>> {
+        return convertedFileDao.getAllDirectoryFilesWithFilePath("$path%")
     }
 
     fun getAllFilesInDirectory(): Flow<List<ConvertedFile>> {
         return convertedFileDao.getAllFilesInDirectories()
     }
+
+    fun getAllFilesInRoot(): Flow<List<ConvertedFile>> {
+        return convertedFileDao.getAllFilesInRoot()
+    }
+
 
     fun getAllFavoriteFiles(): Flow<List<ConvertedFile>> {
         return convertedFileDao.getAllFavoriteFiles()
@@ -49,6 +54,10 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
 
     suspend fun deleteFile(file: ConvertedFile) {
         return convertedFileDao.deleteFile(file)
+    }
+
+    fun deleteAllFilesAndFoldersInPath(path: String) {
+        convertedFileDao.deleteFilesAndFoldersInPath("$path%")
     }
 
     suspend fun deleteAll() {

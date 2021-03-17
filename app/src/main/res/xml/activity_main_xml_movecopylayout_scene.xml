@@ -6,7 +6,7 @@
     <Transition
         motion:constraintSetEnd="@+id/moveCopyEnd"
         motion:constraintSetStart="@id/moveCopyStart"
-        motion:duration="300">
+        motion:duration="250">
        <KeyFrameSet>
        </KeyFrameSet>
     </Transition>

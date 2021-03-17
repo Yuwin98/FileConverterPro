@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yuwin.fileconverterpro.databinding.FragmentDirectoryViewBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
@@ -33,13 +34,15 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
     private var viewModel: DirectoryPreviewViewModel? = null
     private lateinit var mainViewModel: MainViewModel
 
+    private lateinit var rootPath: String
+    private lateinit var folderName: String
+
 
     private val filesListAdapter by lazy { FilesListAdapter(this) }
     private val filesGridAdapter by lazy { FilesGridAdapter(this) }
     private var isGrid = false
 
     override var multiSelection = false
-    override var selectedFiles = arrayListOf<ConvertedFile>()
 
 
     private var menu: Menu? = null
@@ -57,21 +60,26 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
         _binding = FragmentDirectoryViewBinding.inflate(inflater, container, false)
         _binding?.lifecycleOwner = viewLifecycleOwner
 
+        viewModel = ViewModelProvider(this).get(DirectoryPreviewViewModel::class.java)
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
+        mainViewModel.readIfGridEnabled.observe(viewLifecycleOwner, {
+            isGrid = it
+        })
 
         return _binding?.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this).get(DirectoryPreviewViewModel::class.java)
-        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+
         val convertedFile = args.data
-        mainViewModel.readIfGridEnabled.observe(viewLifecycleOwner, {
-            isGrid = it
-        })
-        viewModel?.allDirectoryFiles
-            ?.observe(viewLifecycleOwner, { items ->
+        rootPath = convertedFile.filePath
+        folderName = convertedFile.fileName
+
+        mainViewModel.getAllDirectoryFilesWithPath(convertedFile.filePath)
+            .observe(viewLifecycleOwner, { items ->
                 if (items.isNullOrEmpty()) {
                     data = items
                     setupRecyclerView(isGrid)
@@ -83,7 +91,7 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
                     data = Util.filterItemsInDirectory(File(convertedFile.filePath), items)
                     data = data.sortedBy { it.fileType }
                     setupRecyclerView(isGrid)
-                    if (items.isEmpty()) {
+                    if (data.isEmpty()) {
                         binding?.let {
                             it.noFilesImageView.visibility = View.VISIBLE
                             it.noFilesTextView.visibility = View.VISIBLE
@@ -97,7 +105,19 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
                 }
             })
         setupRecyclerView(isGrid)
+
     }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        mainViewModel.scrollPosition.observe(viewLifecycleOwner, { pos ->
+            (binding?.directoryRecyclerView?.layoutManager as RecyclerView.LayoutManager).scrollToPosition(
+                pos
+            )
+        })
+
+    }
+
 
     override fun onItemClick(position: Int) {
         if (multiSelection) {
@@ -159,6 +179,12 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
             selectedFiles.add(currentFile)
             setActionModeTitle()
         }
+
+        if (selectedFiles.size > 1) {
+            changeRenameButtonVisibility(View.GONE)
+        } else {
+            changeRenameButtonVisibility(View.VISIBLE)
+        }
     }
 
     private fun setActionModeTitle() {
@@ -180,9 +206,10 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
         binding?.let {
             it.directoryRecyclerView.layoutManager = LinearLayoutManager(requireContext())
             it.directoryRecyclerView.adapter = filesListAdapter
-
         }
         data.let { filesListAdapter.setData(it.toMutableList()) }
+
+
     }
 
     private fun setupGridRecyclerView() {
@@ -191,6 +218,7 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
             it.directoryRecyclerView.adapter = filesGridAdapter
         }
         data.let { filesGridAdapter.setData(it.toMutableList()) }
+
     }
 
     private fun setupRecyclerView(isGrid: Boolean) {
@@ -245,23 +273,60 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
                     .setMessage("This will create an empty folder")
                     .setPositiveButton("Create") { dialog, _ ->
                         val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
+                        editText.setText(R.string.new_folder_text)
                         val name = editText.text.toString()
-                        if (name.isNotBlank()) {
-                            val currentDir = (activity as MainActivity).currentUserDirectory
-                            mainViewModel.createFileDirectory(
-                                name,
-                                selectedFiles.size,
-                                currentDir,
-                                true
-                            )
-                            dialog.dismiss()
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Folder name empty",
-                                Toast.LENGTH_SHORT
-                            ).show()
+
+                        dialog.dismiss()
+
+                        val fileParent = File(args.data.filePath).parent
+                        val file = File(fileParent)
+                        when {
+                            name.isBlank() -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Name cannot be empty",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            mainViewModel.checkFileNameTooLong(name) -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Maximum filename length is 30",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            mainViewModel.checkFileNameTooShort(name) -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Minimum filename length is 2",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            mainViewModel.checkNewFolderNameUnique(file, name) -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Filename already exists",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            !mainViewModel.checkIfFileNameValid(name) -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Filename can only consist of (a-zA-z0-9!_)",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            else -> {
+                                val currentDir = (activity as MainActivity).currentUserDirectory
+                                mainViewModel.createFileDirectory(
+                                    name,
+                                    selectedFiles.size,
+                                    currentDir,
+                                    true
+                                )
+                            }
                         }
+
                     }
                     .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.dismiss()
@@ -271,47 +336,76 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
 
             }
             R.id.sortFileSize -> {
-                mainViewModel.readFilesBySize.observe(viewLifecycleOwner, { items ->
-                    filterSortAndUpdateData(items)
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
+                    setTitleBar("(SIZE) - $folderName")
+                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                    val filteredItems = mainViewModel.deepFilter(FILTER.SIZE, directoryFiles)
+                    filterSortAndUpdateData(filteredItems)
                 })
             }
             R.id.sortFileName -> {
-                mainViewModel.readFilesByName.observe(viewLifecycleOwner, { items ->
-                    filterSortAndUpdateData(items)
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
+                    setTitleBar("(NAME) - $folderName")
+                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                    val filteredItems = mainViewModel.deepFilter(FILTER.NAME, directoryFiles)
+                    filterSortAndUpdateData(filteredItems)
                 })
             }
             R.id.sortFileDate -> {
-                mainViewModel.readFilesByDate.observe(viewLifecycleOwner, { items ->
-                    filterSortAndUpdateData(items)
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
+                    setTitleBar("(DATE) - $folderName")
+                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                    val filteredItems = mainViewModel.deepFilter(FILTER.DATE, directoryFiles)
+                    filterSortAndUpdateData(filteredItems)
                 })
             }
             R.id.sortFileType -> {
-                mainViewModel.readFilesByType.observe(viewLifecycleOwner, { items ->
-                    filterSortAndUpdateData(items)
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
+                    setTitleBar("(Type) - $folderName")
+                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                    val filteredItems = mainViewModel.deepFilter(FILTER.TYPE, directoryFiles)
+                    filterSortAndUpdateData(filteredItems)
                 })
             }
             R.id.filterJpg -> {
-                mainViewModel.filterFilesByJpgJpeg.observe(viewLifecycleOwner, { items ->
-                    filterSortAndUpdateData(items)
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
+                    setTitleBar("(JPG/JPEG) - $folderName")
+                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                    val filteredItems = mainViewModel.deepFilter(FILTER.JPG, directoryFiles)
+                    filterSortAndUpdateData(filteredItems)
                 })
             }
             R.id.filterPdf -> {
-                mainViewModel.filterFilesByPdf.observe(viewLifecycleOwner, { items ->
-                    filterSortAndUpdateData(items)
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
+                    setTitleBar("(PDF) - $folderName")
+                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                    val filteredItems = mainViewModel.deepFilter(FILTER.PDF_FILE, directoryFiles)
+                    filterSortAndUpdateData(filteredItems)
                 })
             }
             R.id.filterPng -> {
-                mainViewModel.filterFilesByPng.observe(viewLifecycleOwner, { items ->
-                    filterSortAndUpdateData(items)
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
+                    setTitleBar("(PNG) - $folderName ")
+                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                    val filteredItems = mainViewModel.deepFilter(FILTER.PNG, directoryFiles)
+                    filterSortAndUpdateData(filteredItems)
                 })
             }
             R.id.filterWebp -> {
-                mainViewModel.filterFilesByWebp.observe(viewLifecycleOwner, { items ->
-                    filterSortAndUpdateData(items)
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
+                    setTitleBar("(WEBP) - $folderName ")
+                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                    val filteredItems = mainViewModel.deepFilter(FILTER.WEBP, directoryFiles)
+                    filterSortAndUpdateData(filteredItems)
                 })
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun setTitleBar(title: String) {
+        (requireActivity() as AppCompatActivity).supportActionBar?.title =
+            title
     }
 
     private fun filterSortAndUpdateData(items: List<ConvertedFile>) {
@@ -323,7 +417,7 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
             }
             updateData(data.toMutableList())
         } else {
-            data = items.filter { file -> !file.inDirectory }
+            data = items
             binding?.let {
                 it.noFilesImageView.visibility = View.GONE
                 it.noFilesTextView.visibility = View.GONE
@@ -341,7 +435,12 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
 
     override fun onPause() {
         super.onPause()
-        Log.d("heart", "Pause called")
+        val lastScrollPosition = binding?.let {
+            (it.directoryRecyclerView.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition()
+        }
+        if (lastScrollPosition != null) {
+            mainViewModel.setRecyclerViewPosition(lastScrollPosition)
+        }
         actionMode?.finish()
         commonTransitionToEnd()
     }
@@ -370,31 +469,67 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
                     .setMessage("This will create a folder and move selected files into it")
                     .setPositiveButton("Create") { dialog, _ ->
                         val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
+                        editText.setText(R.string.new_folder_text)
                         val name = editText.text.toString()
-                        if (name.isNotBlank()) {
-                            val currentDir = (activity as MainActivity).currentUserDirectory
-                            val folder = mainViewModel.createFileDirectory(
-                                name,
-                                selectedFiles.size,
-                                currentDir,
-                                true
-                            )
-                            if (folder != null) {
-                                if (folder.filePath.isNotBlank()) {
-                                    moveSelectedFilesToDirectory(selectedFiles, folder)
-                                }
+                        dialog.dismiss()
+                        val fileParent = File(args.data.filePath).parent
+                        val file = File(fileParent)
+                        when {
+                            name.isBlank() -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Name cannot be empty",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
-                            multiSelection = false
-                            selectedFiles.clear()
-                            actionMode?.finish()
-                            dialog.dismiss()
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Folder Name empty",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            mainViewModel.checkFileNameTooLong(name) -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Maximum folder name length is 30",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            mainViewModel.checkFileNameTooShort(name) -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Minimum filename length is 2",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            mainViewModel.checkNewFolderNameUnique(file, name) -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Folder already exists",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            !mainViewModel.checkIfFileNameValid(name) -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Folder name can only consist of (a-zA-z0-9!_)",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            else -> {
+                                val currentDir = (activity as MainActivity).currentUserDirectory
+                                val folder = mainViewModel.createFileDirectory(
+                                    name,
+                                    selectedFiles.size,
+                                    currentDir,
+                                    true
+                                )
+                                if (folder != null) {
+                                    if (folder.filePath.isNotBlank()) {
+                                        moveSelectedFilesToDirectory(selectedFiles, folder)
+                                    }
+                                }
+                                multiSelection = false
+                                selectedFiles.clear()
+                                actionMode?.finish()
+
+                            }
                         }
+
                     }
                     .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.dismiss()
@@ -424,7 +559,7 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
 
     private fun moveSelectedFilesToDirectory(
         selectedFiles: ArrayList<ConvertedFile>,
-        folderPath: ConvertedFile?
+        folderPath: ConvertedFile?,
     ) {
         selectedFiles.forEach { file ->
             val newFilePath = "${folderPath?.filePath}/${file.fileName}"
@@ -436,7 +571,7 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
                 inDirectory = true
                 isSelected = false
             }
-            mainViewModel.updateNewFile(newFile)
+            mainViewModel.updateFile(newFile)
             updateData(data.toMutableList())
 
         }
@@ -444,6 +579,8 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Log.d("dirFragState", "OnDestroyView called")
+
         _binding?.directoryRecyclerView?.adapter = null
         _binding = null
         viewModel = null

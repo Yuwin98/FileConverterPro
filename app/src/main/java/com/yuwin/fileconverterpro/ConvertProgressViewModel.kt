@@ -227,18 +227,16 @@ class ConvertProgressViewModel(
                         )
                     }
 
-                    if (bitmap != null) {
-                        bitmap.eraseColor(Color.WHITE)
-                        Canvas(bitmap).drawBitmap(bitmap, 0f, 0f, null)
+                    bitmap.eraseColor(Color.WHITE)
+                    Canvas(bitmap).drawBitmap(bitmap, 0f, 0f, null)
 
-                        currentPage.render(
-                            bitmap,
-                            null,
-                            null,
-                            PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
-                        )
+                    currentPage.render(
+                        bitmap,
+                        null,
+                        null,
+                        PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+                    )
 
-                    }
                     if (pageNum == 0) {
                         thumbNail = withContext(Dispatchers.Default) {
                             scaleBitmapToAspectRatio(
@@ -353,7 +351,6 @@ class ConvertProgressViewModel(
         var pdfRenderer: PdfRenderer
         _completePercentage.postValue(0.0)
         var itemCount = 0
-
         var pageNum = 0
 
         data.forEachIndexed { _, file ->
@@ -367,6 +364,7 @@ class ConvertProgressViewModel(
 
         val itemIncreasePercentage = (95.0 / itemCount)
         data.forEachIndexed { _, file ->
+            var currentFilePageNum = 1
             val rootFileName = Util.getCurrentTimeMillis()
             val folderName = File(file.filePath).nameWithoutExtension + "-$rootFileName"
             val folderPath =
@@ -410,7 +408,7 @@ class ConvertProgressViewModel(
                             file.convertAll,
                             file.isPdfConversion
                         )
-                        val fileName = "$rootFileName-img-$pageNum"
+                        val fileName = "$rootFileName-img-$currentFilePageNum"
                         val fileSavePath = getFileSavePath(folderPath, fileName, convertToExtension)
                         performConvert(bitmap, convertToExtension, quality, fileSavePath)
                         val currentImageFile = createConvertedImageFile(
@@ -428,6 +426,7 @@ class ConvertProgressViewModel(
 
 
                     pageNum += 1
+                    currentFilePageNum += 1
                     currentPage.close()
                     increasePercentage(itemIncreasePercentage)
 
@@ -464,11 +463,14 @@ class ConvertProgressViewModel(
                 item.convertAll,
                 item.isPdfConversion
             )
-            val fileName = getFileName(item.fileName)
+            val fileName = getFileName(item.fileName) + "-" + Util.getCurrentTimeMillis() + "-"
             val fileSavePath = getFileSavePath(storageDir, fileName, convertToExtension)
             if (bitmap != null) {
                 performConvert(bitmap, convertToExtension, quality, fileSavePath)
-                val file = createConvertedImageFile(fileSavePath, convertToExtension)
+                val file = createConvertedImageFile(
+                    fileSavePath,
+                    convertToExtension
+                )
                 saveConvertedFile(file)
             }
 

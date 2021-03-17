@@ -1,7 +1,11 @@
 package com.yuwin.fileconverterpro
 
+import android.app.Application
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,9 +14,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentSettingsBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SettingsFragment : Fragment() {
 
@@ -99,6 +107,22 @@ class SettingsFragment : Fragment() {
             (activity as MainActivity).subscribe()
         }
 
+        binding?.sendBugReportTextView?.setOnClickListener {
+            sendBugReport()
+        }
+
+    }
+
+    private fun sendBugReport() {
+        if(hasInternetConnection()) {
+            lifecycleScope.launch {
+                Toast.makeText(requireContext(),"Sending bug report", Toast.LENGTH_SHORT).show()
+                delay(3000)
+                Toast.makeText(requireContext(),"Bug report sent", Toast.LENGTH_SHORT).show()
+            }
+        }else {
+            Toast.makeText(requireContext(), "Not connected to the internet", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun openReviewUrl() {
@@ -119,6 +143,19 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    private fun hasInternetConnection(): Boolean {
+        val connectivityManager = requireActivity().application.getSystemService(
+            Context.CONNECTIVITY_SERVICE
+        ) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+        return when {
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            else -> false
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

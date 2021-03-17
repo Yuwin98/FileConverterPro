@@ -6,10 +6,12 @@ import android.util.Log
 import android.view.ActionMode
 import android.view.View
 import android.view.WindowManager
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.viewModels
@@ -60,6 +62,7 @@ abstract class ActionModeBaseFragment : Fragment() {
 
     private lateinit var moveFilesButton: ConstraintLayout
     private lateinit var copyFilesButton: ConstraintLayout
+    private lateinit var fileRenameButton: ConstraintLayout
     private lateinit var fileDetailsButton: ConstraintLayout
     private lateinit var fileShareButton: ConstraintLayout
     private lateinit var fileDeleteButton: ConstraintLayout
@@ -82,14 +85,6 @@ abstract class ActionModeBaseFragment : Fragment() {
     protected open var multiSelection = false
     protected open var selectedFiles = arrayListOf<ConvertedFile>()
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        if (activity is MainActivity) {
-            val mainActivity = activity as MainActivity
-            mainActivity.setBottomNavigationViewVisibility(bottomNavigationVisibility)
-        }
-    }
 
     override fun onResume() {
         super.onResume()
@@ -130,6 +125,7 @@ abstract class ActionModeBaseFragment : Fragment() {
 
             moveFilesButton = it.findViewById(R.id.moveFileConstraintLayout)
             copyFilesButton = it.findViewById(R.id.copyFileConstraintLayout)
+            fileRenameButton = it.findViewById(R.id.fileRenameConstraintLayout)
             fileDetailsButton = it.findViewById(R.id.fileDetailsConstraintLayout)
             fileShareButton = it.findViewById(R.id.fileShareConstraintLayout)
             fileDeleteButton = it.findViewById(R.id.fileDeleteConstraintLayout)
@@ -246,6 +242,82 @@ abstract class ActionModeBaseFragment : Fragment() {
             actionMode?.finish()
         }
 
+        fileRenameButton.setOnClickListener {
+            val renamingEntity = if (selectedFiles[0].isDirectory) "Folder" else "File"
+            val editTextView = layoutInflater.inflate(R.layout.edittext_layout, null)
+            MaterialAlertDialogBuilder(requireContext())
+                .setView(editTextView)
+                .setTitle(renamingEntity)
+                .setPositiveButton("Rename") { dialog, _ ->
+                    val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
+                    val name = editText.text.toString()
+                    val fileToRename = selectedFiles[0]
+                    dialog.dismiss()
+                    when {
+                        name.isBlank() -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Name cannot be empty",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        mainViewModel.checkFileNameTooLong(name) -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Maximum filename length is 30",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        mainViewModel.checkFileNameTooShort(name) -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Minimum filename length is 2",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        mainViewModel.checkIfFileNameUnique(fileToRename, name) -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Filename already exists",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        !mainViewModel.checkIfFileNameValid(name) -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Filename can only consist of (a-zA-z0-9_-)",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        !mainViewModel.checkNewFolderNameUnique(File(fileToRename.filePath), name) -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Folder already exists",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        else -> {
+
+                            if (fileToRename.isDirectory) {
+                                val start = fileToRename.filePath.lastIndexOf('/') + 1
+                                val end = fileToRename.filePath.length
+                                renameDirectory(fileToRename, name, start, end)
+                            } else {
+                                mainViewModel.renameFile(fileToRename, name)
+                            }
+                            multiSelection = false
+                            selectedFiles.clear()
+                            actionMode?.finish()
+
+
+                        }
+                    }
+                }.setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }.show()
+        }
+
+
         fileDetailsButton.setOnClickListener {
             detailsLayout.visibility = View.VISIBLE
             setupDetailsCard(selectedFiles.size, selectedFiles)
@@ -254,7 +326,6 @@ abstract class ActionModeBaseFragment : Fragment() {
 
         detailsCardButton.setOnClickListener {
             detailsLayout.transitionToStart()
-
         }
 
         fileShareButton.setOnClickListener {
@@ -287,10 +358,10 @@ abstract class ActionModeBaseFragment : Fragment() {
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
-                            files?.size!! > 100 -> {
+                            files?.size!! > 500 -> {
                                 Toast.makeText(
                                     requireContext(),
-                                    "Maximum number of files that can be shared is 100",
+                                    "Maximum number of files that can be shared is 500",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -320,15 +391,21 @@ abstract class ActionModeBaseFragment : Fragment() {
                 .setTitle("Delete")
                 .setMessage("This will delete selected files")
                 .setPositiveButton("Delete") { dialog, _ ->
+
                     selectedFiles.forEach {
                         if (!it.isDirectory) {
                             lifecycleScope.launch {
                                 mainViewModel.deleteSelectedFiles(it)
                             }
                         } else {
-                            deleteDirectoryAndFiles(it)
+                            mainViewModel.deleteFilesAndFoldersFromPath(it.filePath)
+                            File(it.filePath).deleteRecursively()
                         }
+
                     }
+
+
+                    Log.d("filepathstodelete", "Out")
 
                     multiSelection = false
                     Toast.makeText(
@@ -353,19 +430,13 @@ abstract class ActionModeBaseFragment : Fragment() {
         }
 
         moveCopyActionButton.setOnClickListener {
-            activity?.runOnUiThread {
-                progressBarLayout.visibility = View.VISIBLE
-                activity?.window?.setFlags(
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                )
-            }
-
             copyMoveOperation()
-
         }
 
+
     }
+
+
 
     private fun copyMoveOperation() {
         val filesToModify = (activity as MainActivity).filesToModify
@@ -377,8 +448,7 @@ abstract class ActionModeBaseFragment : Fragment() {
         if (currentLocation?.last() == '/') {
             currentLocation = currentLocation.substring(0, currentLocation.lastIndex)
         }
-//        Log.d("movecopydetails", newLocation)
-//        Log.d("movecopydetails", currentLocation!!)
+
 
         attachHostToCommonActionBar()
         moveCopyTransitionEnd()
@@ -386,25 +456,31 @@ abstract class ActionModeBaseFragment : Fragment() {
         val isCopy = (activity as MainActivity).isCopyOperation
         val operation = if (isCopy) "copy" else "move"
 
-        val setOfPaths = filesToModify.map { it.filePath }
-        Log.d("invalidop", setOfPaths.toString())
-        Log.d("invalidop", newLocation)
+        val setOfPaths = File(currentLocation).listFiles().map { it.parent }
+
 
         if (newLocation in setOfPaths) {
             Toast.makeText(
                 requireContext(),
-                "Can't Perform operation, Destination folder is a subfolder of a folder being moved",
+                "Destination folder is the source folder",
                 Toast.LENGTH_SHORT
             ).show()
             activity?.runOnUiThread {
                 progressBarLayout.visibility = View.GONE
                 activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                return@runOnUiThread
             }
-            return
+
         }
 
         if (currentLocation != newLocation) {
-
+            activity?.runOnUiThread {
+                progressBarLayout.visibility = View.VISIBLE
+                activity?.window?.setFlags(
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                )
+            }
             if (isCopy) {
                 mainViewModel.readAllDirectoryFiles.observeOnce(viewLifecycleOwner, {
 
@@ -469,14 +545,6 @@ abstract class ActionModeBaseFragment : Fragment() {
                     }
                 })
             }
-
-
-        } else {
-            Toast.makeText(
-                requireContext(),
-                "Cannot $operation to same directory",
-                Toast.LENGTH_SHORT
-            ).show()
         }
 
 
@@ -511,6 +579,9 @@ abstract class ActionModeBaseFragment : Fragment() {
         detailsLayout.transitionToEnd()
     }
 
+    fun changeRenameButtonVisibility(visibility: Int) {
+        fileRenameButton.visibility = visibility
+    }
 
     fun attachHostToCommonActionBar() {
         val params = navHostFragment.layoutParams as ConstraintLayout.LayoutParams
@@ -522,32 +593,6 @@ abstract class ActionModeBaseFragment : Fragment() {
         val params = navHostFragment.layoutParams as ConstraintLayout.LayoutParams
         params.bottomToTop = moveCopyActionBar.id
         navHostFragment.requestLayout()
-    }
-
-    private fun deleteDirectoryAndFiles(file: ConvertedFile) {
-
-        val filePath = file.filePath
-
-        mainViewModel.readFiles.observeOnce(viewLifecycleOwner, { files ->
-            val databaseFiles = Util.filterItemsInDirectory(File(filePath), files)
-            databaseFiles.forEach {
-                if (it.isDirectory) {
-                    deleteDirectoryAndFiles(it)
-
-                } else {
-                    lifecycleScope.launch {
-                        mainViewModel.deleteSelectedFiles(it)
-                    }
-                }
-            }
-        })
-
-        File(filePath).delete()
-
-        lifecycleScope.launch {
-            mainViewModel.deleteSelectedFiles(file)
-        }
-
     }
 
 
@@ -690,10 +735,65 @@ abstract class ActionModeBaseFragment : Fragment() {
 
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    private fun renameDirectory(file: ConvertedFile, newName: String, start: Int, end: Int) {
+
+        val dirOriginalPath = file.filePath
+        val newPath = file.filePath.replaceRange(IntRange(start, end - 1), newName)
+        val newUri = File(newPath).toUri()
+
+
+
+        mainViewModel.getAllDirectoryFilesWithPath(dirOriginalPath)
+            .observeOnce(viewLifecycleOwner, { items ->
+
+                items.forEach { dirFile ->
+                    renameDirectoryFiles(dirFile, newName, start, end)
+                }
+                File(file.filePath).renameTo(File(newPath))
+
+                val newFile = file.apply {
+                    fileName = newName
+                    filePath = newPath
+                    uri = newUri
+                }
+                lifecycleScope.launch {
+                    mainViewModel.updateFile(newFile)
+                }
+            })
+
+
+    }
+
+    private fun renameDirectoryFiles(file: ConvertedFile, newName: String, start: Int, end: Int) {
+
+        val newFilePath = file.filePath.replaceRange(IntRange(start, end - 1), newName)
+        val newUri = File(newFilePath).toUri()
+
+        File(file.filePath).renameTo(File(newFilePath))
+
+        val newFile = file.apply {
+            filePath = newFilePath
+            uri = newUri
+        }
+
+        lifecycleScope.launch {
+            mainViewModel.updateFile(newFile)
+        }
+
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.d("MotionLayoutListeners", " On DestroyView called on motion layout listeners")
         commonActionBar.removeTransitionListener(commonActionBarTransitionListener)
         moveCopyActionBar.removeTransitionListener(moveCopyActionModeTransitionListener)
         detailsLayout.removeTransitionListener(detailsLayoutTransitionListener)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        commonActionBar.addTransitionListener(commonActionBarTransitionListener)
+        moveCopyActionBar.addTransitionListener(moveCopyActionModeTransitionListener)
+        detailsLayout.addTransitionListener(detailsLayoutTransitionListener)
     }
 }

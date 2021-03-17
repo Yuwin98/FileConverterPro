@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -41,6 +42,8 @@ class PdfViewerFragment : BaseFragment() {
     private val binding get() = _binding
 
     private var viewModel: FilePreviewViewModel? = null
+    private val mainViewModel: MainViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,12 +129,46 @@ class PdfViewerFragment : BaseFragment() {
                 .setPositiveButton("Rename") { dialog, _ ->
                     val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
                     val name = editText.text.toString()
-                    if (name.isNotBlank()) {
-                        dialog.dismiss()
-                        viewModel?.rename(file, name)
-                    } else {
-                        Toast.makeText(requireContext(), "Name empty", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                    when {
+                        name.isBlank() -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Name cannot be empty",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        mainViewModel.checkFileNameTooLong(name) -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Maximum filename length is 30",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        mainViewModel.checkFileNameTooShort(name) -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Minimum filename length is 2",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        mainViewModel.checkIfFileNameUnique(file, name) -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Filename already exists",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        !mainViewModel.checkIfFileNameValid(name) -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Filename can only consist of (a-zA-z0-9!_)",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        else -> {mainViewModel.renameFile(file, name)}
                     }
+
                 }
                 .setNegativeButton("Cancel") { dialog, _ ->
                     dialog.dismiss()

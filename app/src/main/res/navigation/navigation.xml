@@ -15,13 +15,25 @@
             app:destination="@id/convert" />
         <action
             android:id="@+id/action_home_to_imageViewFragment"
-            app:destination="@id/imageViewFragment" />
+            app:destination="@id/imageViewFragment"
+            app:enterAnim="@anim/from_bottom"
+            app:exitAnim="@anim/to_top"
+            app:popEnterAnim="@anim/from_top"
+            app:popExitAnim="@anim/to_bottom" />
         <action
             android:id="@+id/action_home_to_pdfViewerFragment"
-            app:destination="@id/pdfViewerFragment" />
+            app:destination="@id/pdfViewerFragment"
+            app:enterAnim="@anim/from_bottom"
+            app:exitAnim="@anim/to_top"
+            app:popEnterAnim="@anim/from_top"
+            app:popExitAnim="@anim/to_bottom" />
         <action
             android:id="@+id/action_home_to_directoryViewFragment"
-            app:destination="@id/directoryViewFragment" />
+            app:destination="@id/directoryViewFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
         android:id="@+id/convert"
@@ -67,10 +79,18 @@
             app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_favorite_to_imageViewFragment"
-            app:destination="@id/imageViewFragment" />
+            app:destination="@id/imageViewFragment"
+            app:enterAnim="@anim/from_bottom"
+            app:exitAnim="@anim/to_top"
+            app:popEnterAnim="@anim/from_top"
+            app:popExitAnim="@anim/to_bottom" />
         <action
             android:id="@+id/action_favorite_to_pdfViewerFragment"
-            app:destination="@id/pdfViewerFragment" />
+            app:destination="@id/pdfViewerFragment"
+            app:enterAnim="@anim/from_bottom"
+            app:exitAnim="@anim/to_top"
+            app:popEnterAnim="@anim/from_top"
+            app:popExitAnim="@anim/to_bottom" />
     </fragment>
     <fragment
         android:id="@+id/convertProgressFragment"
@@ -96,7 +116,7 @@
     <fragment
         android:id="@+id/imageViewFragment"
         android:name="com.yuwin.fileconverterpro.ImagePreviewFragment"
-        android:label="ImageView"
+        android:label="Image Viewer"
         tools:layout="@layout/fragment_image_view">
         <argument
             android:name="convertedFile"
@@ -127,6 +147,8 @@
         <action
             android:id="@+id/action_directoryViewFragment_to_home"
             app:destination="@id/home"
+            app:enterAnim="@anim/from_left"
+            app:exitAnim="@anim/to_right"
             app:popUpTo="@id/home"
             app:popUpToInclusive="true" />
         <argument
@@ -134,13 +156,28 @@
             app:argType="com.yuwin.fileconverterpro.db.ConvertedFile" />
         <action
             android:id="@+id/action_directoryViewFragment_to_imageViewFragment"
-            app:destination="@id/imageViewFragment" />
+            app:destination="@id/imageViewFragment"
+            app:enterAnim="@anim/from_bottom"
+            app:exitAnim="@anim/to_top"
+            app:popEnterAnim="@anim/from_top"
+            app:popExitAnim="@anim/to_bottom"
+            app:popUpTo="@id/directoryViewFragment" />
         <action
             android:id="@+id/action_directoryViewFragment_to_pdfViewerFragment"
-            app:destination="@id/pdfViewerFragment" />
+            app:destination="@id/pdfViewerFragment"
+            app:enterAnim="@anim/from_bottom"
+            app:exitAnim="@anim/to_top"
+            app:popEnterAnim="@anim/from_top"
+            app:popExitAnim="@anim/to_bottom"
+            app:popUpTo="@id/directoryViewFragment" />
         <action
             android:id="@+id/action_directoryViewFragment_self"
-            app:destination="@id/directoryViewFragment" />
+            app:popUpTo="@id/directoryViewFragment"
+            app:destination="@id/directoryViewFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
         <action
             android:id="@+id/action_directoryViewFragment_to_convert"
             app:destination="@id/convert" />

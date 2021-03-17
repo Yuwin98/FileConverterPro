@@ -195,6 +195,13 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
             })
             return
         }
+
+        if(navController?.currentDestination?.id == R.id.directoryViewFragment) {
+            val parent = File(currentUserDirectory).parent
+            if(parent != null) {
+                currentUserDirectory = parent
+            }
+        }
         super.onBackPressed()
     }
 
@@ -329,8 +336,8 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
         mainViewModel?.readAppOpenedTimes?.observeOnce(this, { opened ->
             mainViewModel?.readReviewPrompted?.observeOnce(this, { prompted ->
                 if (opened > 2 && !prompted) {
-                    inAppReviewRequest()
                     mainViewModel?.incrementAppOpenedTimes()
+                    inAppReviewRequest()
                 } else {
                     mainViewModel?.incrementAppOpenedTimes()
                 }
@@ -398,7 +405,7 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
     fun showInterstitial() {
         Log.d("showInterstitial", "Interstitial Shown")
-        mainViewModel?.readIsPremium?.observe(this, { isPremium ->
+        mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
             if (mInterstitialAd != null && isPremium == 0) {
                 mInterstitialAd?.show(this)
             }
@@ -413,10 +420,18 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         intent.action = Intent.ACTION_GET_CONTENT
         intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        imgLimit = 2
         startActivityForResult(Intent.createChooser(intent, "Select PDF"), PDF_REQUEST_CODE)
     }
 
     private fun chooseImages() {
+        mainViewModel?.readIsPremium?.observeOnce(this, {
+            imgLimit = if(it == 1) {
+                PREMIUM_IMAGE_LIMIT
+            }else  {
+                FREE_IMAGE_LIMIT
+            }
+        })
         val intent = Intent()
         intent.type = "image/*"
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -598,11 +613,9 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
                     )
                 } else {
 
-                    mainViewModel?.readIsPremium?.observe(this, {
+                    mainViewModel?.readIsPremium?.observeOnce(this, {
                         if (it == 0) {
                             mainViewModel?.setPremiumStatus(1)
-                            Toast.makeText(applicationContext, "Item Purchased", Toast.LENGTH_SHORT)
-                                .show()
                             recreate()
                         }
                     })

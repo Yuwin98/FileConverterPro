@@ -67,11 +67,10 @@ dependencies {
     testImplementation "androidx.room:room-testing:$room_version"
 
     // Paging Library
-    def paging_version = "2.1.2"
+    def paging_version = "3.0.0-beta02"
 
-    implementation "androidx.paging:paging-common-ktx:$paging_version"
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
-    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
+    implementation "androidx.paging:paging-compose:1.0.0-alpha08"
 
     // LiveData and ViewModel
     def lifecycle_version = "2.3.0"

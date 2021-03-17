@@ -21,9 +21,7 @@ class DirectoryPreviewViewModel(app: Application) : AndroidViewModel(app) {
     val allDirectoryFiles = repository.getAllFilesInDirectory().asLiveData()
     val allFiles = repository.getAllFiles().asLiveData()
 
-    fun getDirectoryFilesWithPath(path: String): LiveData<List<ConvertedFile>> {
-        return repository.getAllWithFilePath(path).asLiveData()
-    }
+
 
 
     fun clearDirectory(files: List<ConvertedFile>) {

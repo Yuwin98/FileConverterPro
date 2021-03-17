@@ -1,6 +1,7 @@
 package com.yuwin.fileconverterpro
 
 import android.app.Application
+import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.*
 import com.yuwin.fileconverterpro.db.AppDatabase
@@ -19,30 +20,19 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val convertedFileDao = AppDatabase.getInstance(app).convertedFileDao()
     private val databaseRepository = Repository(convertedFileDao)
 
-    private val externalDir = Util.getExternalDir(app.applicationContext)
+    private val _scrollPosition = MutableLiveData<Int>()
+    val scrollPosition: LiveData<Int> get() = _scrollPosition
 
-    val readFiles = databaseRepository.getAllFiles().asLiveData()
+    private var externalDir = Util.getExternalDir(app.applicationContext).substringBeforeLast('/')
+
+
     val readAllDirectoryFiles = databaseRepository.getAllFilesInDirectory().asLiveData()
 
 
-    // Filter and Sort Queries
-
-    val readFilesBySize = databaseRepository.getAllFilesBySize().asLiveData()
-    val readFilesByName = databaseRepository.getAllFilesByName().asLiveData()
-    val readFilesByType = databaseRepository.getAllFilesByType().asLiveData()
-    val readFilesByDate = databaseRepository.getAllFilesByDateCreated().asLiveData()
-
-    private val jpgJpeg = arrayListOf("jpg", "jpeg")
-    val filterFilesByJpgJpeg = databaseRepository.filterAllFilesByType(jpgJpeg).asLiveData()
-
-    private val pdf = arrayListOf("pdf")
-    val filterFilesByPdf = databaseRepository.filterAllFilesByType(pdf).asLiveData()
-
-    private val png = arrayListOf("png")
-    val filterFilesByPng = databaseRepository.filterAllFilesByType(png).asLiveData()
-
-    private val webp = arrayListOf("webp")
-    val filterFilesByWebp = databaseRepository.filterAllFilesByType(webp).asLiveData()
+// set Recyclerview position
+fun setRecyclerViewPosition(currentPosition: Int) {
+    _scrollPosition.postValue(currentPosition)
+}
 
 //    DATABASE CRUD Operations
 
@@ -53,8 +43,43 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun deleteFilesAndFoldersFromPath(path: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            databaseRepository.deleteAllFilesAndFoldersInPath(path)
+        }
+    }
+
+    fun getAllDirectoryFilesWithPath(path: String): LiveData<List<ConvertedFile>> {
+        return databaseRepository.getAllDirectoryFilesWithFilePath(path).asLiveData()
+    }
+
+    // Rename a file
+    fun renameFile(convertedFile: ConvertedFile, newName: String) {
+        val newFileNameWithExtension = "$newName.${convertedFile.fileType}"
+        val fileParent = File(convertedFile.filePath).parent + "/"
+
+        val newPath = Util.getStoragePathWithExtension(fileParent, newName, ".${convertedFile.fileType}")
+        val newUri = File(newPath).toUri()
+
+        File(convertedFile.filePath).renameTo(File(newPath))
+
+        val file = convertedFile.apply {
+            fileName = newFileNameWithExtension
+            filePath = newPath
+            uri = newUri
+        }
+        viewModelScope.launch {
+            databaseRepository.updateFile(file)
+        }
+
+
+    }
+
+
+
+
     // Update a converted file
-    fun updateNewFile(file: ConvertedFile) {
+    fun updateFile(file: ConvertedFile) {
         viewModelScope.launch(Dispatchers.IO) {
             databaseRepository.updateFile(file)
         }
@@ -62,7 +87,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
 
     // Create Empty File
-    fun createFileDirectory(name: String, selectedFileSize: Int, currentDir:String, inDir: Boolean): ConvertedFile? {
+    fun createFileDirectory(
+        name: String,
+        selectedFileSize: Int,
+        currentDir: String,
+        inDir: Boolean
+    ): ConvertedFile? {
         try {
             val dir = "$currentDir/"
             val folderPath = Util.getStorageFolder(dir, name)
@@ -101,6 +131,34 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             e.printStackTrace()
         }
         return null
+    }
+
+    // File name validation checks
+
+    fun checkIfFileNameUnique(fileToRename: ConvertedFile, name: String): Boolean {
+        val fileParent = File(fileToRename.filePath).parent
+        val files = File(fileParent).listFiles().map { it.name }
+        val checkAgainst = name + "." + fileToRename.fileType
+        return files.contains(checkAgainst)
+    }
+
+    fun checkNewFolderNameUnique(file: File, name: String): Boolean {
+        val files = file.listFiles().map { it.name }
+        return files.contains(name)
+    }
+
+    fun checkIfFileNameValid(name: String): Boolean {
+        val fileName = "[\\w-]+"
+        val regex = Regex(fileName)
+        return regex.matches(name)
+    }
+
+    fun checkFileNameTooLong(newName: String): Boolean {
+        return newName.length > 30
+    }
+
+    fun checkFileNameTooShort(newName: String): Boolean {
+        return newName.length < 2
     }
 
 
@@ -143,6 +201,35 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             repository.setDefaultFormatType(value)
         }
     }
+    // Deep Filter function
+   fun deepFilter(type: FILTER, items: List<ConvertedFile>): List<ConvertedFile> {
+        when (type) {
+            FILTER.JPG -> {
+                return items.filter { it.fileType == "jpg" }
+            }
+            FILTER.PNG -> {
+                return items.filter { it.fileType == "png" }
+            }
+            FILTER.PDF_FILE -> {
+                return items.filter { it.fileType == "pdf" }
+            }
+            FILTER.WEBP -> {
+                return items.filter { it.fileType == "webp" }
+            }
+            FILTER.DATE -> {
+                return items.sortedWith(compareBy { it.date }).reversed()
+            }
+            FILTER.TYPE -> {
+                return items.sortedWith(compareBy<ConvertedFile> {it.fileType}.thenByDescending {it.date})
+            }
+            FILTER.SIZE -> {
+                return items.sortedByDescending { Util.retrieveFileSize(File(it.filePath)) }
+            }
+            FILTER.NAME -> {
+                return items.sortedBy { it.fileName }
+            }
+        }
+    }
 
 
     // Read - Write Is Grid Enabled
@@ -158,12 +245,6 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     // Read - Write Storage Directory
 
     val readCurrentStorage = repository.storageDirectory.asLiveData()
-
-    fun setCurrentStorage(path: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.setStorageDirectory(path)
-        }
-    }
 
     // Read Write Premium Status
 
@@ -204,16 +285,17 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         to: String
     ) {
         var inDir = true
-        val newFilePath = "${to}/${file.fileName}"
-        File(file.filePath).renameTo(File(newFilePath))
+        val dst = "${to}/${file.fileName}"
+        File(file.filePath).renameTo(File(dst))
 
-        if (externalDir == to) {
+        if (externalDir == File(dst).parent) {
             inDir = false
         }
+        //  Log.d("MoveFiles", "MoveFile: $inDir")
 
         val newFile = file.apply {
-            filePath = File(newFilePath).path
-            uri = File(newFilePath).toUri()
+            filePath = File(dst).path
+            uri = File(dst).toUri()
             inDirectory = inDir
             isSelected = false
         }
@@ -225,63 +307,68 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun moveDirectory(file: ConvertedFile, to: String): String {
         var inDir = true
-        val newFilePath = "${to}/${file.fileName}"
-        if (!File(newFilePath).exists()) {
-            File(newFilePath).mkdir()
+        val dst = "${to}/${file.fileName}"
+        if (!File(dst).exists()) {
+            File(dst).mkdir()
+        } else {
+            return dst
         }
 
-        if (externalDir == to) {
+        if (externalDir == File(dst).parent) {
             inDir = false
         }
+        Log.d("MoveFiles", "Directory: $inDir")
 
         val newFile = file.apply {
-            filePath = File(newFilePath).path
-            uri = File(newFilePath).toUri()
+            filePath = File(dst).path
+            uri = File(dst).toUri()
             inDirectory = inDir
             isSelected = false
         }
         viewModelScope.launch(Dispatchers.IO) {
             databaseRepository.updateFile(newFile)
         }
-        return newFilePath
+        return dst
     }
 
     fun copyFileOrDirectory(
         files: List<ConvertedFile>,
         dirFileList: List<ConvertedFile>,
         to: String
+
     ) {
+        val millis = Util.getCurrentTimeMillis()
         files.forEach { file ->
             if (file.isDirectory) {
                 val filterFilesInDirectory =
                     dirFileList.let { Util.filterItemsInDirectory(File(file.filePath), it) }
-                val directoryPath = copyDirectory(file, to)
+                val directoryPath = copyDirectory(file, to, millis)
                 copyFileOrDirectory(filterFilesInDirectory, dirFileList, directoryPath)
             } else {
-                createNewConvertedFile(file, to)
+                copyConvertedFile(file, to, millis)
             }
         }
     }
 
 
-    private fun copyDirectory(file: ConvertedFile, to: String): String {
+    private fun copyDirectory(file: ConvertedFile, to: String, millis: String): String {
 
-        val dst = "${to}/${file.fileName}"
+        val dst = "${to}/copy-$millis-${file.fileName}"
         if (!File(dst).exists()) {
             File(dst).mkdir()
+        } else {
+            return dst
         }
 
-        val millis = Util.getCurrentTimeMillis()
-        val fileName = file.fileName
+        val fileName = "copy-$millis-${file.fileName}"
         val newFileUri = File(dst).toUri()
         val date = Date(millis.toLong())
         val thumbNailUri = file.thumbnailUri
         var inDir = true
 
-        if (externalDir == to) {
+        if (externalDir == File(dst).parent) {
             inDir = false
         }
-
 
         val newConvertedFile = ConvertedFile(
             0,
@@ -308,21 +395,21 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
 
-    private fun createNewConvertedFile(
+    private fun copyConvertedFile(
         file: ConvertedFile,
-        to: String
+        to: String,
+        millis: String
     ) {
-        val dst = "${to}/${file.fileName}"
+        val dst = "${to}/copy-$millis-${file.fileName}"
         copyFiles(file.filePath, dst)
 
-        val millis = Util.getCurrentTimeMillis()
-        val fileName = file.fileName
+        val fileName = "copy-$millis-${file.fileName}"
         val newFileUri = File(dst).toUri()
         val date = Date(millis.toLong())
         val thumbNailUri = file.thumbnailUri
         var inDir = true
 
-        if (externalDir == to) {
+        if (externalDir == File(dst).parent) {
             inDir = false
         }
 

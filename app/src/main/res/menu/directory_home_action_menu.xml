@@ -10,7 +10,7 @@
         />
 
     <item android:id="@+id/sortby"
-        android:title="Sort By">
+        android:title="Sort">
 
         <menu>
             <item android:id="@+id/sortFileDate"
@@ -23,13 +23,13 @@
                 android:title="Name"/>
 
             <item android:id="@+id/sortFileType"
-                android:title="Type"/>
+                android:title="Type-Created At"/>
         </menu>
 
     </item>
 
     <item android:id="@+id/filterby"
-        android:title="Filter By">
+        android:title="Filter">
 
         <menu>
             <item android:id="@+id/filterJpg"

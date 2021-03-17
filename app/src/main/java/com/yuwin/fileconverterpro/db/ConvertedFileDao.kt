@@ -13,13 +13,19 @@ interface ConvertedFileDao {
     fun getFile(path: String): ConvertedFile
 
     @Query("Select * from ConvertedFile where filePath like :path")
-    fun getAllWithFilePath(path: String): Flow<List<ConvertedFile>>
+    fun getAllDirectoryFilesWithFilePath(path: String): Flow<List<ConvertedFile>>
+
+    @Query("Delete from ConvertedFile where filePath like :path")
+    fun deleteFilesAndFoldersInPath(path: String)
 
     @Query("Select * from ConvertedFile where favorite=1")
     fun getAllFavoriteFiles(): Flow<List<ConvertedFile>>
 
     @Query("Select * from ConvertedFile where inDirectory=1")
     fun getAllFilesInDirectories(): Flow<List<ConvertedFile>>
+
+    @Query("Select * from ConvertedFile where inDirectory=0 Order By Date DESC")
+    fun getAllFilesInRoot(): Flow<List<ConvertedFile>>
 
     @Query("Select * from ConvertedFile Order By fileName ")
     fun getAllFilesByName() : Flow<List<ConvertedFile>>

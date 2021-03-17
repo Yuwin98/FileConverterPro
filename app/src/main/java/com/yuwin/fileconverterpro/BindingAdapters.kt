@@ -41,7 +41,7 @@ class BindingAdapters {
             if (view.id == R.id.fileListGridImageView) {
                 val dims = TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    99f,
+                    100f,
                     view.resources.displayMetrics
                 )
                 view.layoutParams.height = dims.toInt()
@@ -214,7 +214,7 @@ class BindingAdapters {
                 )
             } else {
                 view.foreground = ColorDrawable(
-                    Color.argb(0, 0, 0, 0)
+                    Color.argb(1, 0, 0, 0)
                 )
             }
         }

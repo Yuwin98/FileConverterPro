@@ -9,8 +9,6 @@
     tools:context=".MainActivity">
 
 
-
-
     <androidx.constraintlayout.motion.widget.MotionLayout
         android:id="@+id/moveCopyLayout"
         android:layout_width="match_parent"
@@ -46,7 +44,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/allerta"
-                android:text="5 Items"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -132,11 +129,10 @@
             android:clickable="true"
             android:focusable="true"
             android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@id/commonActionModeBar"
-            app:layout_constraintEnd_toStartOf="@+id/copyFileConstraintLayout"
-            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/copyFileConstraintLayout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/commonActionModeBar">
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/moveFilesImageView"
@@ -176,11 +172,10 @@
             android:clickable="true"
             android:focusable="true"
             android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@id/commonActionModeBar"
-            app:layout_constraintEnd_toStartOf="@+id/fileDetailsConstraintLayout"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/moveFileConstraintLayout"
-            app:layout_constraintTop_toTopOf="@id/commonActionModeBar">
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fileRenameConstraintLayout"
+            app:layout_constraintStart_toEndOf="@id/moveFileConstraintLayout"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/copyFilesImageView"
@@ -213,6 +208,49 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fileRenameConstraintLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fileDetailsConstraintLayout"
+            app:layout_constraintStart_toEndOf="@id/copyFileConstraintLayout"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/fileRenameImageView"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginTop="8dp"
+                android:contentDescription="@string/edit_file_button"
+                app:layout_constraintBottom_toTopOf="@+id/fileRenameTextView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_edit"
+                app:tint="@color/actionModeIconColor" />
+
+            <TextView
+                android:id="@+id/fileRenameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/allerta"
+                android:text="@string/edit_btn_text"
+                android:textAlignment="center"
+                android:textColor="@color/actionModeTextColor"
+                android:textSize="11sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/fileRenameImageView"
+                app:layout_constraintStart_toStartOf="@id/fileRenameImageView"
+                app:layout_constraintTop_toBottomOf="@+id/fileRenameImageView" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fileDetailsConstraintLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -220,11 +258,10 @@
             android:clickable="true"
             android:focusable="true"
             android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@id/commonActionModeBar"
-            app:layout_constraintEnd_toStartOf="@+id/fileShareConstraintLayout"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/copyFileConstraintLayout"
-            app:layout_constraintTop_toTopOf="@id/commonActionModeBar">
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fileShareConstraintLayout"
+            app:layout_constraintStart_toEndOf="@id/fileRenameConstraintLayout"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/fileDescriptionImageView"
@@ -265,11 +302,10 @@
             android:clickable="true"
             android:focusable="true"
             android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@id/commonActionModeBar"
-            app:layout_constraintEnd_toStartOf="@+id/fileDeleteConstraintLayout"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/fileDetailsConstraintLayout"
-            app:layout_constraintTop_toTopOf="@id/commonActionModeBar">
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fileDeleteConstraintLayout"
+            app:layout_constraintStart_toEndOf="@id/fileDetailsConstraintLayout"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/shareFilesImageView"
@@ -310,11 +346,10 @@
             android:clickable="true"
             android:focusable="true"
             android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@id/commonActionModeBar"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/fileShareConstraintLayout"
-            app:layout_constraintTop_toTopOf="@id/commonActionModeBar">
+            app:layout_constraintStart_toEndOf="@id/fileShareConstraintLayout"
+            app:layout_constraintTop_toTopOf="parent">
 
 
             <ImageView
@@ -641,7 +676,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/allerta"
-            android:text="Action In Progress"
+            android:text="@string/progressbar_view_text"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/moveCopyProgressBar"
