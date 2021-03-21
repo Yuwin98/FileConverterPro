@@ -52,22 +52,9 @@
                 app:srcCompat="@drawable/ic_arrow_forward"
                 app:tint="@color/colorText" />
 
-            <Spinner
-                android:id="@+id/fileTypeSpinner"
-                spinnerVisibility="@{item}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:entries="@array/file_types"
-                android:selectedItemPosition="@={item.specificFormat}"
-                android:spinnerMode="dialog"
-                app:layout_constraintBottom_toBottomOf="@+id/arrowRightImageVIew"
-                app:layout_constraintStart_toEndOf="@+id/arrowRightImageVIew"
-                app:layout_constraintTop_toTopOf="@+id/arrowRightImageVIew" />
 
             <TextView
                 android:id="@+id/allFileConvertTextView"
-                getDefaultConvertFormat="@{item}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
@@ -75,7 +62,8 @@
                 android:fontFamily="@font/allerta"
                 android:maxLines="1"
                 android:textSize="16sp"
-                android:visibility="@{item.convertAll ? View.VISIBLE: View.GONE}"
+                android:text="@{item.convertInto.toUpperCase().substring(1)}"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@+id/arrowRightImageVIew"
                 app:layout_constraintStart_toEndOf="@+id/arrowRightImageVIew"
                 app:layout_constraintTop_toTopOf="@+id/arrowRightImageVIew" />
@@ -119,18 +107,6 @@
                 app:layout_constraintStart_toStartOf="@+id/fileNameTextView"
                 app:layout_constraintTop_toBottomOf="@+id/fileNameTextView" />
 
-            <Spinner
-                android:id="@+id/pdfTypeSpinner"
-                spinnerVisibility="@{item}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:entries="@array/file_type_pdf"
-                android:selectedItemPosition="@={item.specificFormat}"
-                android:spinnerMode="dialog"
-                app:layout_constraintBottom_toBottomOf="@+id/arrowRightImageVIew"
-                app:layout_constraintStart_toEndOf="@+id/arrowRightImageVIew"
-                app:layout_constraintTop_toTopOf="@+id/arrowRightImageVIew" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

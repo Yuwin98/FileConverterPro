@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,6 +28,10 @@ class FavoriteFragment : BaseFragment(), FileListClickListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        activity?.let {
+            val moveCopy = it.findViewById<MotionLayout>(R.id.moveCopyLayout)
+            moveCopy.visibility = View.GONE
+        }
         _binding = FragmentFavoriteBinding.inflate(inflater, container, false)
 
         binding?.lifecycleOwner = viewLifecycleOwner

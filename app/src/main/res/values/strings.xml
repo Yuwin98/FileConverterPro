@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Image-PDF Converter</string>
+    <string name="app_name">Image Converter</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="item_size">Image Count: %1$d/%2$d</string>
@@ -28,14 +28,14 @@
     <string name="renameDialogButtonText">Rename</string>
     <string name="renameDialogCancelButtonText">Cancel</string>
     <string name="current_pdf_page">Current PDF Page</string>
-    <string name="delete_file_button">Delete File Button</string>
-    <string name="share_file_button">Share file Button</string>
-    <string name="edit_file_button">Edit File button</string>
-    <string name="favorite_button">favorite button</string>
+    <string name="delete_file_txt">Delete File</string>
+    <string name="share_file_button">Share file</string>
+    <string name="edit_file_button">Edit File</string>
+    <string name="favorite_button">Move to favourite</string>
     <string name="open_in_another_pdf_viewing_app_button">Open In another PDF viewing app button</string>
     <string name="opened_image_file">Opened Image File</string>
-    <string name="appInterstitalAdId">ca-app-pub-3940256099942544/1033173712</string>
-    <string name="appBannerAdId">ca-app-pub-9767087107670640/4111828143</string>
+    <string name="appInterstitialAdId">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="appBannerAdId">ca-app-pub-3940256099942544/6300978111</string>
     <string name="moveFileText">Move</string>
     <string name="copyTextView">Copy</string>
     <string name="shareText">Share</string>
@@ -63,6 +63,33 @@
     <string name="clear_folder_text">Clear Folder</string>
     <string name="progressbar_view_text">Action In Progress</string>
     <string name="edit_btn_text">Edit</string>
+    <string name="app_banner_ad">App Banner Ad</string>
+    <string name="favourite_items_list">Favourite items list</string>
+    <string name="my_converted_files_list">My converted files list</string>
+    <string name="my_converted_files_in_a_directory">My converted files in a directory</string>
+    <string name="quality_value_for_images">Quality Value for images</string>
+    <string name="pdf_into_png">PDF Into PNG</string>
+    <string name="pdf_into_webp">PDF Into WEBP</string>
+    <string name="pdf_into_jpg">PDF Into JPG</string>
+    <string name="merge_pdf_files_into_one_pdf">Merge PDF Files Into One PDF</string>
+    <string name="convert_images_to_png">Convert Images to PNG</string>
+    <string name="png_image">Png Image</string>
+    <string name="images_into_png">Images Into PNG</string>
+    <string name="jpg_image">Jpg Image</string>
+    <string name="images_into_jpg">Images Into JPG</string>
+    <string name="convert_images_into_jpg">Convert Images into JPG</string>
+    <string name="convert_images_into_webp">Convert Images into Webp</string>
+    <string name="webp_image">Webp Image</string>
+    <string name="images_into_webp">Images Into WEBP</string>
+    <string name="pdf_image">Pdf Image</string>
+    <string name="merge_images_into_single_pdf">Merge Images Into Single PDF</string>
+    <string name="merge_images_into_pdf_file">Merge Images into PDF file</string>
+    <string name="convert_image_into_a_pdf_file">Convert Image into a pdf File</string>
+    <string name="image_into_pdf">Image Into PDF</string>
+    <string name="convert_pdf_into_png_files">Convert Pdf into Png files</string>
+    <string name="merge_two_pdf_files_into_one">Merge Two Pdf files into one</string>
+    <string name="convert_pdf_into_webp_images">Convert Pdf into webp images</string>
+    <string name="convert_pdf_into_jpg_images">Convert Pdf into Jpg images</string>
 
     <string-array name="file_types">
         <item>PNG</item>

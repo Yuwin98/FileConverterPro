@@ -3,16 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
-    app:startDestination="@id/home">
+    app:startDestination="@id/dashboardFragment">
 
     <fragment
-        android:id="@+id/home"
+        android:id="@+id/files"
         android:name="com.yuwin.fileconverterpro.FileListFragment"
         android:label="My Files"
         tools:layout="@layout/fragment_main_screen">
-        <action
-            android:id="@+id/action_home_to_convert"
-            app:destination="@id/convert" />
         <action
             android:id="@+id/action_home_to_imageViewFragment"
             app:destination="@id/imageViewFragment"
@@ -41,42 +38,45 @@
         android:label="Convert Files"
         tools:layout="@layout/fragment_convert">
         <action
-            android:id="@+id/action_convert_self"
-            app:destination="@id/convert" />
-        <action
             android:id="@+id/action_convert_to_convertProgressFragment"
             app:destination="@id/convertProgressFragment"
-            app:popUpTo="@id/navigation"
-            app:popUpToInclusive="true"
             app:enterAnim="@anim/from_right"
             app:exitAnim="@anim/to_left"
+            app:popUpTo="@id/navigation"
+            app:popUpToInclusive="true"
             app:popEnterAnim="@anim/from_left"
             app:popExitAnim="@anim/to_right" />
         <argument
             android:name="UriList"
             app:argType="com.yuwin.fileconverterpro.UriList" />
+        <argument
+            android:name="convertAll"
+            app:argType="boolean" />
+        <argument
+            android:name="convertInto"
+            app:argType="string" />
+        <argument
+            android:name="isPdfMerge"
+            app:argType="boolean" />
+        <argument
+            android:name="mergeImagesIntoPdf"
+            app:argType="boolean" />
+        <argument
+            android:name="singleImageToPdf"
+            app:argType="boolean" />
+        <argument android:name="pdfIntoImages"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/settings"
         android:name="com.yuwin.fileconverterpro.SettingsFragment"
         android:label="Settings"
-        tools:layout="@layout/fragment_settings" >
-        <action
-            android:id="@+id/action_settings_to_convert"
-            app:destination="@id/convert"
-            app:popUpTo="@id/navigation"
-            app:popUpToInclusive="true"/>
-    </fragment>
+        tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/favorite"
         android:name="com.yuwin.fileconverterpro.FavoriteFragment"
         android:label="Favorites"
         tools:layout="@layout/fragment_favorite">
-        <action
-            android:id="@+id/action_info_to_convert"
-            app:destination="@id/convert"
-            app:popUpTo="@id/navigation"
-            app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_favorite_to_imageViewFragment"
             app:destination="@id/imageViewFragment"
@@ -105,13 +105,29 @@
             app:argType="integer" />
         <action
             android:id="@+id/action_convertProgressFragment_to_home"
-            app:destination="@id/home"
+            app:destination="@id/files"
             app:popUpTo="@id/navigation"
             app:popUpToInclusive="true"/>
         <argument
             android:name="pdfQuality"
             app:argType="integer"
             android:defaultValue="0" />
+        <argument
+            android:name="pdfMerge"
+            app:argType="boolean" />
+        <argument
+            android:name="mergeImagesIntoPdf"
+            app:argType="boolean" />
+        <argument
+            android:name="convertInto"
+            app:argType="string" />
+        <argument
+            android:name="convertAll"
+            app:argType="boolean" />
+        <argument android:name="singleImageIntoPdf"
+            app:argType="boolean" />
+        <argument android:name="pdfIntoImages"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/imageViewFragment"
@@ -123,8 +139,8 @@
             app:argType="com.yuwin.fileconverterpro.db.ConvertedFile" />
         <action
             android:id="@+id/action_imageViewFragment_to_home"
-            app:destination="@id/home"
-            app:popUpTo="@id/navigation" />
+            app:destination="@id/files"
+            app:popUpTo="@id/navigation"/>
     </fragment>
     <fragment
         android:id="@+id/pdfViewerFragment"
@@ -136,8 +152,8 @@
             app:argType="com.yuwin.fileconverterpro.db.ConvertedFile" />
         <action
             android:id="@+id/action_pdfViewerFragment_to_home"
-            app:destination="@id/home"
-            app:popUpToInclusive="true" />
+            app:destination="@id/files"
+            app:popUpTo="@id/navigation"/>
     </fragment>
     <fragment
         android:id="@+id/directoryViewFragment"
@@ -146,10 +162,10 @@
         tools:layout="@layout/fragment_directory_view">
         <action
             android:id="@+id/action_directoryViewFragment_to_home"
-            app:destination="@id/home"
+            app:destination="@id/files"
             app:enterAnim="@anim/from_left"
             app:exitAnim="@anim/to_right"
-            app:popUpTo="@id/home"
+            app:popUpTo="@id/files"
             app:popUpToInclusive="true" />
         <argument
             android:name="data"
@@ -161,7 +177,7 @@
             app:exitAnim="@anim/to_top"
             app:popEnterAnim="@anim/from_top"
             app:popExitAnim="@anim/to_bottom"
-            app:popUpTo="@id/directoryViewFragment" />
+            app:popUpTo="@id/directoryViewFragment"/>
         <action
             android:id="@+id/action_directoryViewFragment_to_pdfViewerFragment"
             app:destination="@id/pdfViewerFragment"
@@ -169,7 +185,7 @@
             app:exitAnim="@anim/to_top"
             app:popEnterAnim="@anim/from_top"
             app:popExitAnim="@anim/to_bottom"
-            app:popUpTo="@id/directoryViewFragment" />
+            app:popUpTo="@id/directoryViewFragment"/>
         <action
             android:id="@+id/action_directoryViewFragment_self"
             app:popUpTo="@id/directoryViewFragment"
@@ -177,9 +193,18 @@
             app:enterAnim="@anim/from_right"
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
-            app:popExitAnim="@anim/to_right" />
+            app:popExitAnim="@anim/to_right"
+            app:popUpToInclusive="false"/>
+    </fragment>
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.yuwin.fileconverterpro.DashboardFragment"
+        android:label="Dashboard"
+        tools:layout="@layout/fragment_dashboard">
         <action
-            android:id="@+id/action_directoryViewFragment_to_convert"
+            android:id="@+id/action_dashboardFragment_to_convert"
             app:destination="@id/convert" />
     </fragment>
+
+
 </navigation>

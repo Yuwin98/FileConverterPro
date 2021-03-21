@@ -15,8 +15,8 @@ android {
         applicationId "com.yuwin.fileconverterpro"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 6
-        versionName "6.0"
+        versionCode 11
+        versionName "11"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

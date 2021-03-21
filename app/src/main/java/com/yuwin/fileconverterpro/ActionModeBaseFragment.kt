@@ -50,7 +50,6 @@ abstract class ActionModeBaseFragment : Fragment() {
 
     //---------------------------------------------------------------------
 
-
     private lateinit var navHostFragment: FragmentContainerView
 
 
@@ -140,6 +139,7 @@ abstract class ActionModeBaseFragment : Fragment() {
             moveCopyActionButton = it.findViewById(R.id.moveCopyActionButton)
             detailsCardButton = it.findViewById(R.id.detailsCardButton)
         }
+
         commonActionBarTransitionListener = object : MotionLayout.TransitionListener {
             override fun onTransitionStarted(motionLayout: MotionLayout?, p1: Int, p2: Int) {
 
@@ -219,26 +219,25 @@ abstract class ActionModeBaseFragment : Fragment() {
 
 
         moveFilesButton.setOnClickListener {
-
+            moveCopyBarVisibility(View.VISIBLE)
+            moveCopyTransitionStart()
             (activity as MainActivity).filesToModify = selectedFiles.toMutableList()
             moveCopyItemCount.text = Util.getContentSize(selectedFiles.size)
             (activity as MainActivity).isCopyOperation = false
             attachHostToMoveCopyLayout()
             moveCopyActionButton.text = getString(R.string.move_here_text)
-            moveCopyBarVisibility(View.VISIBLE)
-            moveCopyTransitionStart()
-            commonTransitionToEnd()
+
             actionMode?.finish()
         }
 
         copyFilesButton.setOnClickListener {
+            moveCopyBarVisibility(View.VISIBLE)
+            moveCopyTransitionStart()
             (activity as MainActivity).filesToModify = selectedFiles.toMutableList()
             (activity as MainActivity).isCopyOperation = true
             attachHostToMoveCopyLayout()
             moveCopyActionButton.text = getString(R.string.copy_here_text)
-            moveCopyBarVisibility(View.VISIBLE)
-            moveCopyTransitionStart()
-            commonTransitionToEnd()
+            moveCopyItemCount.text = Util.getContentSize(selectedFiles.size)
             actionMode?.finish()
         }
 
@@ -289,7 +288,7 @@ abstract class ActionModeBaseFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
-                        !mainViewModel.checkNewFolderNameUnique(File(fileToRename.filePath), name) -> {
+                        mainViewModel.checkNewFolderNameUnique(File(fileToRename.filePath), name) -> {
                             Toast.makeText(
                                 requireContext(),
                                 "Folder already exists",
@@ -305,13 +304,12 @@ abstract class ActionModeBaseFragment : Fragment() {
                             } else {
                                 mainViewModel.renameFile(fileToRename, name)
                             }
-                            multiSelection = false
-                            selectedFiles.clear()
-                            actionMode?.finish()
+
 
 
                         }
                     }
+                    actionMode?.finish()
                 }.setNegativeButton("Cancel") { dialog, _ ->
                     dialog.dismiss()
                 }.show()
@@ -413,7 +411,6 @@ abstract class ActionModeBaseFragment : Fragment() {
                         "${selectedFiles.size} file(s) deleted",
                         Toast.LENGTH_SHORT
                     ).show()
-                    selectedFiles.clear()
                     actionMode?.finish()
                     dialog.dismiss()
                 }
@@ -462,7 +459,7 @@ abstract class ActionModeBaseFragment : Fragment() {
         if (newLocation in setOfPaths) {
             Toast.makeText(
                 requireContext(),
-                "Destination folder is the source folder",
+                "Destination folder cannot be same as the source folder",
                 Toast.LENGTH_SHORT
             ).show()
             activity?.runOnUiThread {
@@ -567,7 +564,7 @@ abstract class ActionModeBaseFragment : Fragment() {
         commonActionBar.transitionToStart()
     }
 
-    fun moveCopyTransitionStart() {
+    private fun moveCopyTransitionStart() {
         moveCopyActionBar.transitionToStart()
     }
 
@@ -782,18 +779,12 @@ abstract class ActionModeBaseFragment : Fragment() {
 
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onPause() {
+        super.onPause()
         Log.d("MotionLayoutListeners", " On DestroyView called on motion layout listeners")
         commonActionBar.removeTransitionListener(commonActionBarTransitionListener)
         moveCopyActionBar.removeTransitionListener(moveCopyActionModeTransitionListener)
         detailsLayout.removeTransitionListener(detailsLayoutTransitionListener)
     }
 
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        commonActionBar.addTransitionListener(commonActionBarTransitionListener)
-        moveCopyActionBar.addTransitionListener(moveCopyActionModeTransitionListener)
-        detailsLayout.addTransitionListener(detailsLayoutTransitionListener)
-    }
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/home"
-        android:title="My Files"
-        android:icon="@drawable/ic_home"/>
+    <item android:id="@+id/dashboard"
+        android:title="Dashboard"
+        android:icon="@drawable/ic_gridview"/>
 
-    <item android:id="@+id/chooseImage"
-        android:title="Convert"
-        android:icon="@drawable/ic_convert"/>
+    <item android:id="@+id/files"
+        android:title="Files"
+        android:icon="@drawable/ic_files"/>
 
     <item android:id="@+id/favorites"
         android:title="Favorites"

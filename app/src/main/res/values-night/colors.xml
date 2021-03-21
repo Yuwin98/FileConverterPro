@@ -4,7 +4,7 @@
     <color name="colorPrimaryDark">#8854d0</color>
     <color name="colorAccent">#a55eea</color>
 
-    <color name="darker">#121212</color>
+    <color name="darker">#000</color>
     <color name="dark">#313C44</color>
     <color name="completeGreen">#2ecc71</color>
     <color name="pdfBackground">#FAFAFA</color>
@@ -21,11 +21,17 @@
     <color name="cardBackground">#55414141</color>
     <color name="toolsBackground">#121212</color>
 
+    <color name="detailsCardOk">@color/colorPrimary</color>
 
+    <color name="bottomNavigationViewColor">@color/darker</color>
+
+    <color name="moveCopyTextColor">#C3A9DA</color>
+
+    <color name="NoFilesColor">#bdc3c7</color>
     <color name="backgroundColor">@color/dark</color>
     <color name="splashScreenColor">@color/darker</color>
-    <color name="actionBarBackgroundColor">#1c1c1c</color>
-    <color name="navigationBarColor">@color/darker</color>
+    <color name="actionBarBackgroundColor">#121212</color>
+    <color name="navigationBarColor">#121212</color>
 
     <color name="statusBarColor">@color/darker</color>
     <color name="contextualStatusBarColor">@android:color/black</color>

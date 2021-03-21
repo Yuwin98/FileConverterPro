@@ -1,6 +1,7 @@
 package com.yuwin.fileconverterpro
 
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -14,6 +15,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.yuwin.fileconverterpro.Util.Companion.isDarkThemeOn
+import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentMainScreenBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
@@ -39,6 +42,7 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
     private val filesListAdapter by lazy { FilesListAdapter(this) }
     private val filesGridAdapter by lazy { FilesGridAdapter(this) }
     private var isGrid = false
+    private var isSelectAll = false
 
     private var data: List<ConvertedFile>? = null
 
@@ -52,8 +56,16 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
         binding?.lifecycleOwner = viewLifecycleOwner
         viewModel = ViewModelProvider(this).get(FileListViewModel::class.java)
         mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
-        mainViewModel.readIfGridEnabled.observe(viewLifecycleOwner, {
+        mainViewModel.readIfGridEnabled.observeOnce(viewLifecycleOwner, {
             isGrid = it
+            val item = menu?.findItem(R.id.viewChange)
+            if (isGrid) {
+                item?.setIcon(R.drawable.ic_listview)
+                item?.title = "List View"
+            } else {
+                item?.setIcon(R.drawable.ic_gridview)
+                item?.title = "Grid View"
+            }
         })
 
         return binding?.root
@@ -74,8 +86,10 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
                 setupRecyclerView(isGrid)
 
             } else {
-                val rootPath = Util.getExternalDir(requireContext())
-                data = Util.filterItemsInDirectory(File(rootPath), items)
+                items.map { it.isSelected = false }
+
+                data = items
+                data = mainViewModel.deepFilter(FILTER.DATE, data!!)
 
                 if (data!!.isNullOrEmpty()) {
                     binding?.let {
@@ -83,13 +97,13 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
                         it.noFilesTextView.visibility = View.VISIBLE
                     }
                 } else {
+                    setupRecyclerView(isGrid)
                     binding?.let {
                         it.noFilesImageView.visibility = View.GONE
                         it.noFilesTextView.visibility = View.GONE
                     }
                 }
 
-                setupRecyclerView(isGrid)
             }
         })
 
@@ -140,7 +154,6 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
                     .setMessage("This will create an empty folder")
                     .setPositiveButton("Create") { dialog, _ ->
                         val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
-                        editText.setText(R.string.new_folder_text)
                         val name = editText.text.toString()
                         dialog.dismiss()
                         when {
@@ -165,10 +178,16 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
-                            mainViewModel.checkNewFolderNameUnique(File(Util.getExternalDir(requireContext())), name) -> {
+                            mainViewModel.checkNewFolderNameUnique(
+                                File(
+                                    Util.getExternalDir(
+                                        requireContext()
+                                    )
+                                ), name
+                            ) -> {
                                 Toast.makeText(
                                     requireContext(),
-                                    "Filename already exists",
+                                    "Folder already exists",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -199,68 +218,77 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
 
             }
             R.id.sortFileSize -> {
-                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
-                    setTitleBar("My Files (SIZE)")
-                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
-                    val filteredItems = mainViewModel.deepFilter(FILTER.SIZE, directoryFiles)
-                    filterSortAndUpdateData(filteredItems)
-                })
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath)
+                    .observe(viewLifecycleOwner, { items ->
+                        setTitleBar("My Files (SIZE)")
+                        val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                        val filteredItems = mainViewModel.deepFilter(FILTER.SIZE, directoryFiles)
+                        filterSortAndUpdateData(filteredItems)
+                    })
             }
             R.id.sortFileName -> {
-                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
-                    setTitleBar("My Files (NAME)")
-                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
-                    val filteredItems = mainViewModel.deepFilter(FILTER.NAME, directoryFiles)
-                    filterSortAndUpdateData(filteredItems)
-                })
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath)
+                    .observe(viewLifecycleOwner, { items ->
+                        setTitleBar("My Files (NAME)")
+                        val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                        val filteredItems = mainViewModel.deepFilter(FILTER.NAME, directoryFiles)
+                        filterSortAndUpdateData(filteredItems)
+                    })
             }
             R.id.sortFileDate -> {
-                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
-                    setTitleBar("My Files (DATE)")
-                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
-                    val filteredItems = mainViewModel.deepFilter(FILTER.DATE, directoryFiles)
-                    filterSortAndUpdateData(filteredItems)
-                })
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath)
+                    .observe(viewLifecycleOwner, { items ->
+                        setTitleBar("My Files (DATE)")
+                        val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                        val filteredItems = mainViewModel.deepFilter(FILTER.DATE, directoryFiles)
+                        filterSortAndUpdateData(filteredItems)
+                    })
             }
             R.id.sortFileType -> {
-                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
-                    setTitleBar("My Files (TYPE)")
-                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
-                    val filteredItems = mainViewModel.deepFilter(FILTER.TYPE, directoryFiles)
-                    filterSortAndUpdateData(filteredItems)
-                })
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath)
+                    .observe(viewLifecycleOwner, { items ->
+                        setTitleBar("My Files (TYPE)")
+                        val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                        val filteredItems = mainViewModel.deepFilter(FILTER.TYPE, directoryFiles)
+                        filterSortAndUpdateData(filteredItems)
+                    })
             }
             R.id.filterJpg -> {
-                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
-                    setTitleBar("My Files (JPG/JPEG)")
-                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
-                    val filteredItems = mainViewModel.deepFilter(FILTER.JPG, directoryFiles)
-                    filterSortAndUpdateData(filteredItems)
-                })
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath)
+                    .observe(viewLifecycleOwner, { items ->
+                        setTitleBar("My Files (JPG/JPEG)")
+                        val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                        val filteredItems = mainViewModel.deepFilter(FILTER.JPG, directoryFiles)
+                        filterSortAndUpdateData(filteredItems)
+                    })
             }
             R.id.filterPdf -> {
-                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
-                    setTitleBar("My Files (PDF)")
-                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
-                    val filteredItems = mainViewModel.deepFilter(FILTER.PDF_FILE, directoryFiles)
-                    filterSortAndUpdateData(filteredItems)
-                })
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath)
+                    .observe(viewLifecycleOwner, { items ->
+                        setTitleBar("My Files (PDF)")
+                        val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                        val filteredItems =
+                            mainViewModel.deepFilter(FILTER.PDF_FILE, directoryFiles)
+                        filterSortAndUpdateData(filteredItems)
+                    })
             }
             R.id.filterPng -> {
-                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
-                    setTitleBar("My Files (PNG)")
-                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
-                    val filteredItems = mainViewModel.deepFilter(FILTER.PNG, directoryFiles)
-                    filterSortAndUpdateData(filteredItems)
-                })
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath)
+                    .observe(viewLifecycleOwner, { items ->
+                        setTitleBar("My Files (PNG)")
+                        val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                        val filteredItems = mainViewModel.deepFilter(FILTER.PNG, directoryFiles)
+                        filterSortAndUpdateData(filteredItems)
+                    })
             }
             R.id.filterWebp -> {
-                mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
-                    setTitleBar("My Files (WEBP)")
-                    val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
-                    val filteredItems = mainViewModel.deepFilter(FILTER.WEBP, directoryFiles)
-                    filterSortAndUpdateData(filteredItems)
-                })
+                mainViewModel.getAllDirectoryFilesWithPath(rootPath)
+                    .observe(viewLifecycleOwner, { items ->
+                        setTitleBar("My Files (WEBP)")
+                        val directoryFiles = Util.filterItemsInDirectory(File(rootPath), items)
+                        val filteredItems = mainViewModel.deepFilter(FILTER.WEBP, directoryFiles)
+                        filterSortAndUpdateData(filteredItems)
+                    })
             }
         }
         return true
@@ -303,7 +331,6 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
             updateData(data!!.toMutableList())
         }
     }
-
 
 
     private fun setupListRecyclerView() {
@@ -404,7 +431,16 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
             changeRenameButtonVisibility(View.VISIBLE)
         }
 
+    }
 
+    private fun selectAllFiles(selectAll: Boolean) {
+        if (selectAll) {
+            selectedFiles.clear()
+        }
+
+        for (i in 0 until data?.size!!) {
+            applySelection(i)
+        }
     }
 
     private fun setActionModeTitle() {
@@ -438,6 +474,17 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
 
     override fun onActionItemClicked(actionMode: ActionMode?, item: MenuItem?): Boolean {
         when (item?.itemId) {
+            R.id.selectAll -> {
+                if (!isSelectAll) {
+                    item.setIcon(R.drawable.ic_select_all)
+                    isSelectAll = true
+                    selectAllFiles(isSelectAll)
+                } else {
+                    item.setIcon(R.drawable.ic_done_all_white)
+                    isSelectAll = false
+                    selectAllFiles(isSelectAll)
+                }
+            }
             R.id.actionMoveToFolder -> {
                 val editTextView = layoutInflater.inflate(R.layout.edittext_layout, null)
                 MaterialAlertDialogBuilder(requireContext())
@@ -446,7 +493,6 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
                     .setMessage("This will create a folder and move selected files into it")
                     .setPositiveButton("Create") { dialog, _ ->
                         val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
-                        editText.setText(R.string.new_folder_text)
                         val name = editText.text.toString()
                         dialog.dismiss()
                         when {
@@ -471,7 +517,13 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
-                            mainViewModel.checkNewFolderNameUnique(File(Util.getExternalDir(requireContext())), name) -> {
+                            mainViewModel.checkNewFolderNameUnique(
+                                File(
+                                    Util.getExternalDir(
+                                        requireContext()
+                                    )
+                                ), name
+                            ) -> {
                                 Toast.makeText(
                                     requireContext(),
                                     "Folder already exists",
@@ -481,7 +533,7 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
                             !mainViewModel.checkIfFileNameValid(name) -> {
                                 Toast.makeText(
                                     requireContext(),
-                                    "Filename can only consist of (a-zA-z0-9!_)",
+                                    "Filename can only consist of (a-zA-z0-9_)",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -544,8 +596,6 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
         selectedFiles.clear()
         multiSelection = false
         commonTransitionToStart()
-
-
     }
 
     private fun applyStatusBarColor(color: Int) {

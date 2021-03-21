@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/selectAll"
+        android:title="Select All"
+        android:icon="@drawable/ic_done_all_white"
+        app:showAsAction="always"/>
+
     <item android:id="@+id/actionMoveToFolder"
         android:title="@string/move_to_folder_text"
         android:icon="@drawable/ic_new_folder"

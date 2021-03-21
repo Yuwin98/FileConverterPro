@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.SeekBar
 import android.widget.Toast
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
@@ -35,6 +36,10 @@ class SettingsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        activity?.let {
+            val moveCopy = it.findViewById<MotionLayout>(R.id.moveCopyLayout)
+            moveCopy.visibility = View.GONE
+        }
 
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         _binding?.lifecycleOwner = viewLifecycleOwner

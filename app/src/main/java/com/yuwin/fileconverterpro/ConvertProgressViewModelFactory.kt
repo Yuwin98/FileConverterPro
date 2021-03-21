@@ -5,11 +5,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-class ConvertProgressViewModelFactory(private val application: Application, val data: List<ConvertInfo>, private val quality: Int, private val pdfQuality: Int): ViewModelProvider.Factory {
+class ConvertProgressViewModelFactory(private val application: Application, val data: List<ConvertInfo>, private val quality: Int, private val pdfQuality: Int, private val convertInto: String): ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(ConvertProgressViewModel::class.java)) {
             Log.d("ConvertedFilesFragment", "Convert Progress ViewModel Before Creation")
-            return ConvertProgressViewModel(application, data, quality, pdfQuality) as T
+            return ConvertProgressViewModel(application, data, quality, pdfQuality,convertInto) as T
         }
         throw IllegalArgumentException("Unable to construct view model")
     }

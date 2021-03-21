@@ -6,7 +6,7 @@
     <Transition
         motion:constraintSetEnd="@+id/commonActionBarEnd"
         motion:constraintSetStart="@id/commonActionBarStart"
-        motion:duration="250">
+        motion:duration="300">
        <KeyFrameSet>
        </KeyFrameSet>
     </Transition>

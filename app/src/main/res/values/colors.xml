@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="colorPrimary">#e74c3c</color>
-    <color name="colorPrimaryDark">#c0392b</color>
+    <color name="colorPrimary">#7F1B10</color>
+    <color name="colorPrimaryDark">#65150c</color>
     <color name="colorAccent">#d35400</color>
 
     <color name="darker">#121212</color>
@@ -11,27 +11,31 @@
     <color name="cancelButton">@color/darker</color>
     <color name="backgroundColor">@color/colorBackground</color>
     <color name="pdfBackground">#FAFAFA</color>
-    <color name="colorDateTypeSize">#999999</color>
+    <color name="colorDateTypeSize">#424242</color>
     <color name="toolsBackground">#000000</color>
     <color name="detailCardBackground">#FFFFFF</color>
     <color name="detailsCardBackgroundLight">#59000000</color>
 
+    <color name="detailsCardOk">#7F1B10</color>
     <color name="colorPrimaryLight">#3d221f</color>
 
-    <color name="colorBackground">#EFEFEF</color>
+    <color name="colorBackground">#FFF</color>
     <color name="splashScreenColor">@android:color/white</color>
     <color name="colorText">#000000</color>
-    <color name="cardBackground">#FAFAFA</color>
+    <color name="cardBackground">#f2f2f2</color>
     <color name="selectedFileItemBackground">#44E74C3C</color>
 
+    <color name="moveCopyTextColor">#F8CDC9</color>
+
     <color name="actionBarBackgroundColor">@color/colorPrimary</color>
-    <color name="navigationBarColor">@color/cardBackground</color>
-    <color name="NoFilesColor">#bdc3c7</color>
+    <color name="navigationBarColor">@color/colorPrimary</color>
+    <color name="NoFilesColor">#34393D</color>
 
     <color name="statusBarColor">@color/colorPrimaryDark</color>
     <color name="contextualStatusBarColor">@android:color/black</color>
     <color name="contextualActionBarColor">@color/darker</color>
 
+    <color name="bottomNavigationViewColor">@android:color/white</color>
 
     <color name="fc1">#1abc9c</color>
     <color name="fc2">#16a085</color>

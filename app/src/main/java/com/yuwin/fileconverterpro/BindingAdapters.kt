@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
 import java.text.SimpleDateFormat
@@ -26,14 +27,6 @@ import java.util.*
 class BindingAdapters {
 
     companion object {
-
-        @BindingAdapter("setGridBackground")
-        @JvmStatic
-        fun setGridBackground(view: ConstraintLayout, isSelected: Boolean) {
-            if (!isSelected) {
-                view.setBackgroundResource(R.drawable.stroke_background)
-            }
-        }
 
         @BindingAdapter("loadThumbnailFromUri")
         @JvmStatic
@@ -68,7 +61,9 @@ class BindingAdapters {
                     ImageViewCompat.setImageTintList(view, ColorStateList.valueOf(folderColor))
                 }
                 else -> {
-                    Glide.with(view).load(convertedFile.uri).into(view)
+                    Glide.with(view)
+                        .load(convertedFile.uri)
+                        .into(view)
                 }
             }
         }
@@ -77,7 +72,10 @@ class BindingAdapters {
         @BindingAdapter("loadImageFromUri")
         @JvmStatic
         fun loadImage(view: ImageView, uri: Uri) {
-            Glide.with(view).load(uri).into(view)
+            Glide.with(view)
+                .load(uri)
+
+                .into(view)
         }
 
         @BindingAdapter("loadImagePDFThumbnail")
@@ -115,29 +113,13 @@ class BindingAdapters {
             return bitmap
         }
 
-        @BindingAdapter("getDefaultConvertFormat")
-        @JvmStatic
-        fun getDefaultConvertFormat(view: TextView, item: ConvertInfo) {
-            if (item.isPdfConversion == true) {
-                view.text = FormatTypesPDF.values()[item.defaultConvertFormat!!].toString()
-            } else {
-                view.text = FormatTypes.values()[item.defaultConvertFormat!!].toString()
-            }
-        }
+
 
         @BindingAdapter("getDateString")
         @JvmStatic
         fun getDateString(view: TextView, date: Date) {
             val sdf = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
             view.text = sdf.format(date)
-        }
-
-        @BindingAdapter("getFileSize")
-        @JvmStatic
-        fun getFileSize(view: TextView, filePath: String) {
-            val file = File(filePath)
-            val size = file.length()
-            view.text = Util.convertBytes(size)
         }
 
         @BindingAdapter("fileNameListAdapter")
@@ -242,42 +224,6 @@ class BindingAdapters {
         }
 
 
-        @BindingAdapter("spinnerVisibility")
-        @JvmStatic
-        fun spinnerVisibility(view: Spinner, item: ConvertInfo) {
-            if (item.fileType == "PDF" && item.convertAll == false) {
-                Log.d("mimeTypePDF", "A pdf conversion")
-                when (view.id) {
-                    R.id.fileTypeSpinner -> {
-                        view.visibility = View.GONE
-                    }
-                    R.id.pdfTypeSpinner -> {
-                        view.visibility = View.VISIBLE
-                    }
-                }
-
-            } else if (item.convertAll == false) {
-                Log.d("mimeTypePDF", "Image conversion")
-
-                when (view.id) {
-                    R.id.fileTypeSpinner -> {
-                        view.visibility = View.VISIBLE
-                    }
-                    R.id.pdfTypeSpinner -> {
-                        view.visibility = View.GONE
-                    }
-                }
-            } else {
-                when (view.id) {
-                    R.id.fileTypeSpinner -> {
-                        view.visibility = View.GONE
-                    }
-                    R.id.pdfTypeSpinner -> {
-                        view.visibility = View.GONE
-                    }
-                }
-            }
-        }
 
 
     }

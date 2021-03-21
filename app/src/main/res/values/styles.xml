@@ -6,13 +6,14 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="actionModeBackground">@color/contextualActionBarColor</item>
+        <item name="colorOnPrimary">@color/colorPrimaryDark</item>
 
         <item name="android:textColor">@color/colorText</item>
         <item name="fontFamily">@font/allerta</item>
 
 
         <item name="android:statusBarColor">@color/statusBarColor</item>
-        <item name="actionBarStyle">@style/CustomActionBarStyle</item>
+<!--        <item name="actionBarStyle">@style/CustomActionBarStyle</item>-->
 
     </style>
 

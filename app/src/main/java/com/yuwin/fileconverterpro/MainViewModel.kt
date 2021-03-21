@@ -2,6 +2,7 @@ package com.yuwin.fileconverterpro
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.lifecycle.*
 import com.yuwin.fileconverterpro.db.AppDatabase
@@ -14,14 +15,13 @@ import java.io.*
 import java.nio.channels.FileChannel
 import java.util.*
 
-class MainViewModel(app: Application) : AndroidViewModel(app) {
+class MainViewModel(private val app: Application) : AndroidViewModel(app) {
 
     private val repository = DataStoreRepository(app)
     private val convertedFileDao = AppDatabase.getInstance(app).convertedFileDao()
     private val databaseRepository = Repository(convertedFileDao)
 
     private val _scrollPosition = MutableLiveData<Int>()
-    val scrollPosition: LiveData<Int> get() = _scrollPosition
 
     private var externalDir = Util.getExternalDir(app.applicationContext).substringBeforeLast('/')
 
@@ -29,10 +29,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val readAllDirectoryFiles = databaseRepository.getAllFilesInDirectory().asLiveData()
 
 
-// set Recyclerview position
-fun setRecyclerViewPosition(currentPosition: Int) {
-    _scrollPosition.postValue(currentPosition)
-}
+
 
 //    DATABASE CRUD Operations
 
@@ -58,7 +55,11 @@ fun setRecyclerViewPosition(currentPosition: Int) {
         val newFileNameWithExtension = "$newName.${convertedFile.fileType}"
         val fileParent = File(convertedFile.filePath).parent + "/"
 
-        val newPath = Util.getStoragePathWithExtension(fileParent, newName, ".${convertedFile.fileType}")
+        val newPath = Util.getStoragePathWithExtension(
+            fileParent,
+            newName,
+            ".${convertedFile.fileType}"
+        )
         val newUri = File(newPath).toUri()
 
         File(convertedFile.filePath).renameTo(File(newPath))
@@ -143,12 +144,15 @@ fun setRecyclerViewPosition(currentPosition: Int) {
     }
 
     fun checkNewFolderNameUnique(file: File, name: String): Boolean {
+        if(!file.isDirectory) {
+            return false
+        }
         val files = file.listFiles().map { it.name }
         return files.contains(name)
     }
 
     fun checkIfFileNameValid(name: String): Boolean {
-        val fileName = "[\\w-]+"
+        val fileName = "[a-zA-Z0-9][a-zA-Z0-9_ -]*[a-zA-Z0-9_-]"
         val regex = Regex(fileName)
         return regex.matches(name)
     }
@@ -220,7 +224,7 @@ fun setRecyclerViewPosition(currentPosition: Int) {
                 return items.sortedWith(compareBy { it.date }).reversed()
             }
             FILTER.TYPE -> {
-                return items.sortedWith(compareBy<ConvertedFile> {it.fileType}.thenByDescending {it.date})
+                return items.sortedWith(compareBy<ConvertedFile> { it.fileType }.thenByDescending { it.date })
             }
             FILTER.SIZE -> {
                 return items.sortedByDescending { Util.retrieveFileSize(File(it.filePath)) }
@@ -286,12 +290,19 @@ fun setRecyclerViewPosition(currentPosition: Int) {
     ) {
         var inDir = true
         val dst = "${to}/${file.fileName}"
+
+        if(File(dst).exists()) {
+           viewModelScope.launch {
+                Toast.makeText(app, "${file.fileName} already exist on destination. Rename before moving", Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
+
         File(file.filePath).renameTo(File(dst))
 
         if (externalDir == File(dst).parent) {
             inDir = false
         }
-        //  Log.d("MoveFiles", "MoveFile: $inDir")
 
         val newFile = file.apply {
             filePath = File(dst).path
@@ -353,14 +364,14 @@ fun setRecyclerViewPosition(currentPosition: Int) {
 
     private fun copyDirectory(file: ConvertedFile, to: String, millis: String): String {
 
-        val dst = "${to}/copy-$millis-${file.fileName}"
+        val dst = "${to}/${file.fileName}"
         if (!File(dst).exists()) {
             File(dst).mkdir()
         } else {
             return dst
         }
 
-        val fileName = "copy-$millis-${file.fileName}"
+        val fileName = file.fileName
         val newFileUri = File(dst).toUri()
         val date = Date(millis.toLong())
         val thumbNailUri = file.thumbnailUri
@@ -400,10 +411,18 @@ fun setRecyclerViewPosition(currentPosition: Int) {
         to: String,
         millis: String
     ) {
-        val dst = "${to}/copy-$millis-${file.fileName}"
+        val dst = "${to}/${file.fileName}"
+
+        if(File(dst).exists()) {
+            viewModelScope.launch {
+                Toast.makeText(app, "${file.fileName} already exist on destination. Rename before coping", Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
+
         copyFiles(file.filePath, dst)
 
-        val fileName = "copy-$millis-${file.fileName}"
+        val fileName = file.fileName
         val newFileUri = File(dst).toUri()
         val date = Date(millis.toLong())
         val thumbNailUri = file.thumbnailUri

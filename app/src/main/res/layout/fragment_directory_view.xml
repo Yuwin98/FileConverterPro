@@ -42,6 +42,7 @@
 
 
         <androidx.recyclerview.widget.RecyclerView
+            android:contentDescription="@string/my_converted_files_in_a_directory"
             android:id="@+id/directoryRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

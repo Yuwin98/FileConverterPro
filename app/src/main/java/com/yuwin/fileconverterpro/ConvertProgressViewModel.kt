@@ -1,11 +1,14 @@
 package com.yuwin.fileconverterpro
 
+import android.R.attr.maxHeight
+import android.R.attr.maxWidth
 import android.app.Application
 import android.graphics.*
 import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
@@ -24,7 +27,8 @@ class ConvertProgressViewModel(
     private val app: Application,
     val data: List<ConvertInfo>,
     private val quality: Int,
-    private val pdfQuality: Int
+    private val pdfQuality: Int,
+    private val convertInto: String
 ) : AndroidViewModel(app) {
 
     private val _completePercentage = MutableLiveData<Double>()
@@ -319,9 +323,11 @@ class ConvertProgressViewModel(
             this.scope = CoroutineScope(SupervisorJob())
             _conversionPaused.postValue(false)
         }
-        scope.launch {
 
-            convertAndSaveIntoImages(data, quality)
+        job = scope.launch {
+            withContext(Dispatchers.Default) {
+                convertAndSaveIntoImages(data, quality)
+            }
 
         }.invokeOnCompletion { throwable ->
             if (throwable is CancellationException) {
@@ -335,8 +341,6 @@ class ConvertProgressViewModel(
         }
 
     }
-
-
 
 
     private suspend fun convertAndSaveIntoImages(
@@ -376,10 +380,9 @@ class ConvertProgressViewModel(
             pdfRenderer = withContext(Dispatchers.IO) { PdfRenderer(fileDescriptor) }
 
             val pageCount = pdfRenderer.pageCount
-            var job: Deferred<Unit>
             for (i in 0 until pageCount) {
 
-                job = scope.async {
+                val job = scope.async {
                     val currentPage = pdfRenderer.openPage(i)
 
                     val bitmap = currentPage?.let { _ ->
@@ -402,12 +405,7 @@ class ConvertProgressViewModel(
                             PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
                         )
 
-                        val convertToExtension = Util.getFileExtension(
-                            file.specificConvertFormat,
-                            file.defaultConvertFormat,
-                            file.convertAll,
-                            file.isPdfConversion
-                        )
+                        val convertToExtension = convertInto
                         val fileName = "$rootFileName-img-$currentFilePageNum"
                         val fileSavePath = getFileSavePath(folderPath, fileName, convertToExtension)
                         performConvert(bitmap, convertToExtension, quality, fileSavePath)
@@ -419,29 +417,20 @@ class ConvertProgressViewModel(
                             inDirectory = true
                         }
                         saveConvertedFile(currentImageFile)
-                        currentConvertedFiles.add(currentImageFile)
                         _convertedProgressMessage.postValue("$pageNum of $itemCount files converted")
                         _convertedFileName.postValue("$fileName Converting...")
                     }
-
-
                     pageNum += 1
                     currentFilePageNum += 1
                     currentPage.close()
                     increasePercentage(itemIncreasePercentage)
-
                 }
                 job.join()
-
-
             }
-
 
             pdfRenderer.close()
             fileDescriptor.close()
-
         }
-
     }
 
 
@@ -454,16 +443,12 @@ class ConvertProgressViewModel(
 
         try {
             val options = BitmapFactory.Options()
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888
             options.inScaled = false
             val inputBitmap = BitmapFactory.decodeStream(inputStream, null, options)
-            val bitmap = inputBitmap?.let { scaleBitmapToAspectRatio(it, 1024, 1024) }
-            val convertToExtension = Util.getFileExtension(
-                item.specificConvertFormat,
-                item.defaultConvertFormat,
-                item.convertAll,
-                item.isPdfConversion
-            )
-            val fileName = getFileName(item.fileName) + "-" + Util.getCurrentTimeMillis() + "-"
+            val bitmap = inputBitmap?.let { scaleBitmapToAspectRatio(it, 1080, 1920) }
+            val convertToExtension = convertInto
+            val fileName = getFileName(item.fileName) + "-" + Util.getCurrentTimeMillis()
             val fileSavePath = getFileSavePath(storageDir, fileName, convertToExtension)
             if (bitmap != null) {
                 performConvert(bitmap, convertToExtension, quality, fileSavePath)
@@ -483,7 +468,6 @@ class ConvertProgressViewModel(
             inputStream?.close()
         }
     }
-
 
     private fun saveConvertedFile(file: ConvertedFile) {
         if (file.fileType != "pdf") {
@@ -513,7 +497,8 @@ class ConvertProgressViewModel(
 
                 val fos = FileOutputStream(filePath)
                 try {
-                    bitmap.compress(Bitmap.CompressFormat.PNG, quality, fos)
+                    Log.d("imgQuality", quality.toString())
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
                 } catch (e: java.lang.Exception) {
 
                 } finally {
@@ -541,7 +526,6 @@ class ConvertProgressViewModel(
 
         }
     }
-
 
     private fun createAndSaveSinglePagePdf(inputBitmap: Bitmap, storageDir: String) {
         val getPageSize = getPdfQuality(pdfQuality)
@@ -723,7 +707,15 @@ class ConvertProgressViewModel(
             RectF(0F, 0F, reqWidthInPixels.toFloat(), reqHeightInPixels.toFloat()),
             Matrix.ScaleToFit.CENTER
         )
-        return Bitmap.createBitmap(targetBmp, 0, 0, targetBmp.width, targetBmp.height, matrix, true)
+        return Bitmap.createBitmap(
+            targetBmp,
+            0,
+            0,
+            targetBmp.width,
+            targetBmp.height,
+            matrix,
+            true
+        )
     }
 
     private fun getPdfQuality(value: Int): Pair<Int, Int> {

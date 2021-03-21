@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -33,9 +34,12 @@ class ConvertFragment : Fragment() {
 
     private var imageLimit = 5
 
+    private var convertAll = false
+    private lateinit var convertInto: String
+
     private var binding: FragmentConvertBinding? = null
 
-    private var qualityInt: Int = 0
+    private var qualityInt: Int = 100
     private var pdfQuality: Int = 0
     private var mimeType = ""
 
@@ -58,17 +62,23 @@ class ConvertFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         setHasOptionsMenu(true)
+        activity?.let {
+            val moveCopy = it.findViewById<MotionLayout>(R.id.moveCopyLayout)
+            moveCopy.visibility = View.GONE
+        }
         binding = FragmentConvertBinding.inflate(inflater, container, false)
         binding?.viewModel = convertViewModel
         binding?.lifecycleOwner = viewLifecycleOwner
 
+        convertAll = args.convertAll
+        convertInto = args.convertInto
 
         val uriList = args.UriList.items
         data = setupData(uriList)
         setupRecyclerView()
         mimeType = data[0].fileType.toLowerCase(Locale.ROOT)
 
-        mainViewModel.readIsPremium.observe(viewLifecycleOwner, { isPremium ->
+        mainViewModel.readIsPremium.observeOnce(viewLifecycleOwner, { isPremium ->
             if (isPremium == 1 && !isPdfConversion()) {
                 imageLimit = 50
                 setSpinnerAdapter(isPremium, false)
@@ -102,83 +112,6 @@ class ConvertFragment : Fragment() {
             convertViewModel.setIsPdfConversion(false)
         }
 
-        mainViewModel.readDefaultFormat.observeOnce(viewLifecycleOwner, {
-            binding?.convertAllSpinner?.setSelection(it)
-        })
-
-        convertViewModel.isPdfConversion.observe(viewLifecycleOwner, {
-            val newData = convertAdapter.getAdapterData()
-            val iterator = newData.iterator()
-            while (iterator.hasNext()) {
-                val oldValue = iterator.next()
-                oldValue.isPdfConversion = it
-            }
-            updateData(newData)
-
-            if (it) {
-                binding?.convertAllPdfSpinner?.visibility = View.VISIBLE
-                binding?.convertAllSpinner?.visibility = View.GONE
-            } else {
-                binding?.convertAllSpinner?.visibility = View.VISIBLE
-                binding?.convertAllPdfSpinner?.visibility = View.GONE
-            }
-        })
-
-        binding?.convertAllCheckBox?.setOnCheckedChangeListener { _, isChecked ->
-            convertViewModel.setOnConvertAllCheckChanged(
-                isChecked
-            )
-        }
-        convertViewModel.allConvert.observe(viewLifecycleOwner, {
-            val newData = convertAdapter.getAdapterData()
-            val iterator = newData.iterator()
-            while (iterator.hasNext()) {
-                val oldValue = iterator.next()
-                oldValue.convertAll = it
-            }
-
-            updateData(newData)
-
-        })
-
-        binding?.convertAllPdfSpinner?.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                convertViewModel.setDefaultSpinnerPosition(position)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-            }
-
-        }
-        binding?.convertAllSpinner?.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                convertViewModel.setDefaultSpinnerPosition(position)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-            }
-
-        }
-        convertViewModel.defaultPosition.observe(viewLifecycleOwner, {
-            val newData = convertAdapter.getAdapterData()
-            val iterator = newData.iterator()
-            while (iterator.hasNext()) {
-                val oldValue = iterator.next()
-                oldValue.defaultConvertFormat = it
-            }
-
-            updateData(newData)
-        })
         mainViewModel.readQuality.observe(viewLifecycleOwner, {
             binding?.qualitySeekBar?.progress = it
         })
@@ -221,8 +154,7 @@ class ConvertFragment : Fragment() {
         binding?.convertButton?.setOnClickListener {
             val data = ConvertInfoList(convertAdapter.getAdapterData())
             if (data.items.isNotEmpty()) {
-                val isMerge = isPdfMerge()
-                if (isMerge && data.items.size < 2) {
+                if (args.isPdfMerge && data.items.size < 2) {
                     Toast.makeText(
                         requireContext(),
                         "2 Files needed for merging",
@@ -233,7 +165,13 @@ class ConvertFragment : Fragment() {
                     val action = ConvertFragmentDirections.actionConvertToConvertProgressFragment(
                         data,
                         qualityInt,
-                        pdfQuality
+                        pdfQuality,
+                        args.isPdfMerge,
+                        args.mergeImagesIntoPdf,
+                        args.convertInto,
+                        convertAll,
+                        args.singleImageToPdf,
+                        args.pdfIntoImages
                     )
                     findNavController().navigate(action)
                 }
@@ -288,9 +226,7 @@ class ConvertFragment : Fragment() {
                     newData = newData.take(take).toMutableList()
                     updateNewData(
                         newData,
-                        oldData[0].convertAll,
-                        oldData[0].isPdfConversion,
-                        oldData[0].defaultConvertFormat
+                        args.convertInto,
                     )
                     newData.let { lst1 -> oldData.let(lst1::addAll) }
                 } else {
@@ -307,9 +243,7 @@ class ConvertFragment : Fragment() {
                 if (oldData.isNotEmpty()) {
                     updateNewData(
                         newData,
-                        oldData[0].convertAll,
-                        oldData[0].isPdfConversion,
-                        oldData[0].defaultConvertFormat
+                        args.convertInto,
                     )
                     newData.let { lst1 -> oldData.let(lst1::addAll) }
                 }
@@ -336,29 +270,17 @@ class ConvertFragment : Fragment() {
                 fileSize,
                 uri.path ?: "N/A",
                 fileType ?: "N/A",
-                false,
-                isPdfConversion,
-                0,
-                0,
+                args.convertInto
             )
             data.add(convertInfo)
         }
         return data
     }
 
-    private fun isPdfMerge(): Boolean {
-        val item = data[0]
-        return if (item.isPdfConversion == true) {
-            val format = FormatTypesPDF.values()[item.defaultConvertFormat!!].toString()
-            item.convertAll == true && format == "MergePDF"
-        } else {
-            false
-        }
-    }
+
 
     private fun isPdfConversion(): Boolean {
-        val item = data[0]
-        return item.isPdfConversion == true
+        return args.isPdfMerge || args.pdfIntoImages
     }
 
     private fun setupRecyclerView() {
@@ -370,16 +292,12 @@ class ConvertFragment : Fragment() {
 
     private fun updateNewData(
         list: MutableList<ConvertInfo>,
-        convertAll: Boolean?,
-        isPdfConversion: Boolean?,
-        defaultConvertType: Int?
+        convertInto: String
     ) {
         val iterator = list.iterator()
         while (iterator.hasNext()) {
             val oldValue = iterator.next()
-            oldValue.convertAll = convertAll
-            oldValue.defaultConvertFormat = defaultConvertType
-            oldValue.isPdfConversion = isPdfConversion
+            oldValue.convertInto = convertInto
         }
     }
 

@@ -15,7 +15,7 @@ class ConvertDiffUtil(
     }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-       return oldList[oldItemPosition].uri == newList[newItemPosition].uri
+       return oldList[oldItemPosition] == newList[newItemPosition]
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

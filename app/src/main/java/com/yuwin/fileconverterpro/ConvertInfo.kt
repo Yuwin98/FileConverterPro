@@ -14,22 +14,6 @@ data class ConvertInfo
     val fileSize: String,
     val filePath: String,
     val fileType: String,
-    var convertAll: Boolean?,
-    var isPdfConversion: Boolean?,
-    var specificConvertFormat: Int?,
-    var defaultConvertFormat: Int?,
-    ): Parcelable, BaseObservable() {
-
-
-        var specificFormat: Int?
-        @Bindable get() = specificConvertFormat
-        set(value) {
-            specificConvertFormat = value
-            Log.d("format", specificConvertFormat.toString())
-            notifyPropertyChanged(BR.specificFormat)
-        }
-
-
-    }
-
+    var convertInto: String
+    ): Parcelable
 

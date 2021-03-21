@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -41,7 +42,8 @@ class ConvertProgressFragment : BaseFragment() {
                 requireContext().applicationContext as Application,
                 args.data.items,
                 args.quality,
-                args.pdfQuality
+                args.pdfQuality,
+                args.convertInto
             )
         ).get(ConvertProgressViewModel::class.java)
     }
@@ -58,7 +60,10 @@ class ConvertProgressFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        activity?.let {
+            val moveCopy = it.findViewById<MotionLayout>(R.id.moveCopyLayout)
+            moveCopy.visibility = View.GONE
+        }
 
 
         binding.circularProgressBar.apply {
@@ -133,37 +138,28 @@ class ConvertProgressFragment : BaseFragment() {
 
 
     private fun startConversion() {
-        val data = args.data.items[0]
-        val defaultFileExtension = data.isPdfConversion?.let {
-            Util.getFileExtension(
-                data.specificFormat, data.defaultConvertFormat, data.convertAll,
-                it
-            )
-        }
 
-        when (data.isPdfConversion) {
-            true -> {
-                if (data.convertAll == true && defaultFileExtension == ".mergepdf") {
-                    binding.pauseButton.text = getString(R.string.stopText)
-                    binding.resumeButton.text = getString(R.string.restartText)
-                    convertProgressViewModel.mergePDF()
-                } else {
-                    binding.pauseButton.text = getString(R.string.stopText)
-                    binding.resumeButton.text = getString(R.string.restartText)
-                    convertProgressViewModel.pdfIntoImage()
-                }
+        when {
+            args.pdfMerge -> {
+                binding.pauseButton.text = getString(R.string.stopText)
+                binding.resumeButton.text = getString(R.string.restartText)
+                convertProgressViewModel.mergePDF()
             }
-
-            false -> {
-                if (data.convertAll == true && defaultFileExtension == ".mergeintopdf") {
-                    binding.pauseButton.text = getString(R.string.stopText)
-                    binding.resumeButton.text = getString(R.string.restartText)
-                    convertProgressViewModel.createMultiPagePdf()
-                } else {
-                    convertProgressViewModel.convertFiles()
-                }
+            args.mergeImagesIntoPdf -> {
+                binding.pauseButton.text = getString(R.string.stopText)
+                binding.resumeButton.text = getString(R.string.restartText)
+                convertProgressViewModel.createMultiPagePdf()
+            }
+            args.pdfIntoImages -> {
+                binding.pauseButton.text = getString(R.string.stopText)
+                binding.resumeButton.text = getString(R.string.restartText)
+                convertProgressViewModel.pdfIntoImage()
+            }
+            else -> {
+                convertProgressViewModel.convertFiles()
             }
         }
+
 
 
     }
