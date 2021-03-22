@@ -74,7 +74,15 @@ class BindingAdapters {
         fun loadImage(view: ImageView, uri: Uri) {
             Glide.with(view)
                 .load(uri)
+                .into(view)
+        }
 
+        @BindingAdapter("loadImageFromBitmap")
+        @JvmStatic
+        fun loadImageFromBitmap(view: ImageView, bitmap: Bitmap) {
+            Glide.with(view)
+                .load(bitmap)
+                .apply(RequestOptions().override(480, 720))
                 .into(view)
         }
 
@@ -165,6 +173,12 @@ class BindingAdapters {
                     ContextCompat.getDrawable(view.context, R.drawable.ic_favorite_border)
                 )
             }
+        }
+
+        @BindingAdapter("changeCheckBoxState")
+        @JvmStatic
+        fun changeCheckBoxState(view: CheckBox, isSelected: Boolean) {
+            view.isChecked = isSelected
         }
 
         @BindingAdapter("changeSelectedListItemColor")

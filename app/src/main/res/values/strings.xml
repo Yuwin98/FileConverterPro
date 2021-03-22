@@ -90,6 +90,7 @@
     <string name="merge_two_pdf_files_into_one">Merge Two Pdf files into one</string>
     <string name="convert_pdf_into_webp_images">Convert Pdf into webp images</string>
     <string name="convert_pdf_into_jpg_images">Convert Pdf into Jpg images</string>
+    <string name="pdf_preview_page">Pdf Preview Page</string>
 
     <string-array name="file_types">
         <item>PNG</item>

@@ -20,6 +20,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.yuwin.fileconverterpro.Constants.Companion.FREE_IMAGE_LIMIT
+import com.yuwin.fileconverterpro.Constants.Companion.PDF_LIMIT
+import com.yuwin.fileconverterpro.Constants.Companion.PREMIUM_IMAGE_LIMIT
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentConvertBinding
 import java.util.*
@@ -32,7 +35,7 @@ class ConvertFragment : Fragment() {
     private val args by navArgs<ConvertFragmentArgs>()
     private var data = mutableListOf<ConvertInfo>()
 
-    private var imageLimit = 5
+    private var imageLimit = FREE_IMAGE_LIMIT
 
     private var convertAll = false
     private lateinit var convertInto: String
@@ -80,22 +83,22 @@ class ConvertFragment : Fragment() {
 
         mainViewModel.readIsPremium.observeOnce(viewLifecycleOwner, { isPremium ->
             if (isPremium == 1 && !isPdfConversion()) {
-                imageLimit = 50
+                imageLimit = PREMIUM_IMAGE_LIMIT
                 setSpinnerAdapter(isPremium, false)
                 (requireActivity() as AppCompatActivity).supportActionBar?.title =
                     "Convert Images (${data.size}/$imageLimit)"
             } else if (isPremium == 0 && !isPdfConversion()) {
-                imageLimit = 5
+                imageLimit = FREE_IMAGE_LIMIT
                 setSpinnerAdapter(isPremium, false)
                 (requireActivity() as AppCompatActivity).supportActionBar?.title =
                     "Convert Images (${data.size}/$imageLimit)"
             } else if (isPremium == 1 && isPdfConversion()) {
-                imageLimit = 2
+                imageLimit = PDF_LIMIT
                 setSpinnerAdapter(isPremium, true)
                 (requireActivity() as AppCompatActivity).supportActionBar?.title =
                     "Convert Images (${data.size}/$imageLimit)"
             } else if (isPremium == 0 && isPdfConversion()) {
-                imageLimit = 2
+                imageLimit = PDF_LIMIT
                 setSpinnerAdapter(isPremium, true)
                 (requireActivity() as AppCompatActivity).supportActionBar?.title =
                     "Convert Images (${data.size}/$imageLimit)"
@@ -106,7 +109,6 @@ class ConvertFragment : Fragment() {
             "Convert Images (${data.size}/$imageLimit)"
 
         if (mimeType == "pdf") {
-            Log.d("mimeTypePDF", "In PDF set true")
             convertViewModel.setIsPdfConversion(true)
         } else {
             convertViewModel.setIsPdfConversion(false)
@@ -171,7 +173,8 @@ class ConvertFragment : Fragment() {
                         args.convertInto,
                         convertAll,
                         args.singleImageToPdf,
-                        args.pdfIntoImages
+                        args.pdfIntoImages,
+                        args.pageInfoList
                     )
                     findNavController().navigate(action)
                 }
@@ -263,7 +266,6 @@ class ConvertFragment : Fragment() {
         for (uri in uriList) {
             val (fileName, fileSize) = Util.getImageDetails(requireContext(), uri)
             val fileType = Util.getMimeType(requireContext(), uri)
-            val isPdfConversion = fileType == "PDF"
             val convertInfo = ConvertInfo(
                 uri,
                 fileName,
@@ -299,12 +301,6 @@ class ConvertFragment : Fragment() {
             val oldValue = iterator.next()
             oldValue.convertInto = convertInto
         }
-    }
-
-    private fun updateData(data: List<ConvertInfo>) {
-        this.data = data as MutableList<ConvertInfo>
-        convertAdapter.setData(data)
-        convertAdapter.notifyDataSetChanged()
     }
 
     private fun chooseImages() {

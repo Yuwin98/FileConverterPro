@@ -66,6 +66,11 @@
             app:argType="boolean" />
         <argument android:name="pdfIntoImages"
             app:argType="boolean" />
+        <argument
+            android:name="pageInfoList"
+            app:argType="com.yuwin.fileconverterpro.SelectedPageInfoList"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/settings"
@@ -128,6 +133,11 @@
             app:argType="boolean" />
         <argument android:name="pdfIntoImages"
             app:argType="boolean" />
+        <argument
+            android:name="pageInfoList"
+            app:argType="com.yuwin.fileconverterpro.SelectedPageInfoList"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/imageViewFragment"
@@ -204,6 +214,60 @@
         <action
             android:id="@+id/action_dashboardFragment_to_convert"
             app:destination="@id/convert" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_pdfReviewFragment"
+            app:destination="@id/pdfReviewFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_favorite"
+            app:destination="@id/favorite"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out" />
+    </fragment>
+    <fragment
+        android:id="@+id/pdfReviewFragment"
+        android:name="com.yuwin.fileconverterpro.PdfReviewFragment"
+        android:label="PDF Preview"
+        tools:layout="@layout/fragment_pdf_review">
+        <action
+            android:id="@+id/action_pdfReviewFragment_to_convert"
+            app:destination="@id/convert" />
+        <argument
+            android:name="UriList"
+            app:argType="com.yuwin.fileconverterpro.UriList" />
+        <argument
+            android:name="convertAll"
+            app:argType="boolean" />
+        <argument
+            android:name="convertInto"
+            app:argType="string" />
+        <argument
+            android:name="isPdfMerge"
+            app:argType="boolean" />
+        <argument
+            android:name="mergeImagesIntoPdf"
+            app:argType="boolean" />
+        <argument
+            android:name="singleImageToPdf"
+            app:argType="boolean" />
+        <argument
+            android:name="pdfIntoImages"
+            app:argType="boolean" />
+        <argument
+            android:name="currentPdfUri"
+            app:argType="integer"
+            android:defaultValue="0" />
+        <action
+            android:id="@+id/action_pdfReviewFragment_self"
+            app:destination="@id/pdfReviewFragment" />
+        <argument
+            android:name="pageInfoList"
+            app:argType="com.yuwin.fileconverterpro.SelectedPageInfoList"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
 
 

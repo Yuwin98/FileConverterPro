@@ -61,7 +61,7 @@ class DashboardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding?.imgtojpgcardView?.setOnClickListener {
-            convertInto = ".jpeg"
+            convertInto = ".jpg"
             chooseImageIfPermissionGranted()
         }
         binding?.imgtopngcardView?.setOnClickListener {
@@ -93,7 +93,7 @@ class DashboardFragment : Fragment() {
             choosePdfIfPermissionGranted()
         }
         binding?.pdfToJpgCardView?.setOnClickListener {
-            convertInto = ".jpg"
+            convertInto = ".jpeg"
             pdfIntoImages = true
             choosePdfIfPermissionGranted()
         }
@@ -228,7 +228,7 @@ class DashboardFragment : Fragment() {
             val newUriList = UriList(uriList)
 
 
-            val action = DashboardFragmentDirections.actionDashboardFragmentToConvert(
+            var action = DashboardFragmentDirections.actionDashboardFragmentToConvert(
                 newUriList,
                 convertAll,
                 convertInto,
@@ -237,6 +237,20 @@ class DashboardFragment : Fragment() {
                 singleImageIntoPdf,
                 pdfIntoImages
             )
+
+            if(mergePdf || pdfIntoImages) {
+                action = DashboardFragmentDirections.actionDashboardFragmentToPdfReviewFragment(
+                    newUriList,
+                    convertAll,
+                    convertInto,
+                    mergePdf,
+                    mergeImagesIntoPdf,
+                    singleImageIntoPdf,
+                    pdfIntoImages
+                )
+            }
+
+
             findNavController().navigate(action)
         } else if (requestCode == IMAGE_REQUEST_CODE || requestCode == PDF_REQUEST_CODE) {
             findNavController().navigate(R.id.dashboardFragment)

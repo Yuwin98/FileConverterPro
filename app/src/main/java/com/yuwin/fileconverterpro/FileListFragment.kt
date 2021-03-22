@@ -1,7 +1,6 @@
 package com.yuwin.fileconverterpro
 
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -15,7 +14,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.yuwin.fileconverterpro.Util.Companion.isDarkThemeOn
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentMainScreenBinding
 import com.yuwin.fileconverterpro.db.ConvertedFile

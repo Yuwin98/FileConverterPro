@@ -43,7 +43,8 @@ class ConvertProgressFragment : BaseFragment() {
                 args.data.items,
                 args.quality,
                 args.pdfQuality,
-                args.convertInto
+                args.convertInto,
+                args.pageInfoList
             )
         ).get(ConvertProgressViewModel::class.java)
     }

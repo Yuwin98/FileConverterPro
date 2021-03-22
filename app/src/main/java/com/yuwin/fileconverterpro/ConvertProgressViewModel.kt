@@ -1,7 +1,5 @@
 package com.yuwin.fileconverterpro
 
-import android.R.attr.maxHeight
-import android.R.attr.maxWidth
 import android.app.Application
 import android.graphics.*
 import android.graphics.pdf.PdfDocument
@@ -28,7 +26,8 @@ class ConvertProgressViewModel(
     val data: List<ConvertInfo>,
     private val quality: Int,
     private val pdfQuality: Int,
-    private val convertInto: String
+    private val convertInto: String,
+    private val pageInfoList: SelectedPageInfoList?
 ) : AndroidViewModel(app) {
 
     private val _completePercentage = MutableLiveData<Double>()
@@ -207,7 +206,21 @@ class ConvertProgressViewModel(
 
         val itemIncreasePercentage = (95.0 / itemCount)
 
-        data.forEachIndexed { _, file ->
+        data.forEachIndexed { index, file ->
+
+            val selectedPageInfo = pageInfoList?.items
+
+            val pdfIndex: Int
+            var selectedPagesList: List<Int> = emptyList()
+
+            if (selectedPageInfo != null) {
+                if(selectedPageInfo.any { it.pdfIndex == index && it.selectedPages.isNotEmpty()}) {
+                    pdfIndex = index
+                    selectedPagesList = selectedPageInfo[pdfIndex].selectedPages
+                }else {
+                    return@forEachIndexed
+                }
+            }
 
             fileDescriptor = withContext(Dispatchers.IO) {
                 app.contentResolver.openFileDescriptor(
@@ -220,6 +233,11 @@ class ConvertProgressViewModel(
             val pageCount = pdfRenderer.pageCount
 
             for (i in 0 until pageCount) {
+
+                if(!selectedPagesList.contains(i)) {
+                    continue
+                }
+
                 val job = scope.async {
 
 
@@ -367,13 +385,29 @@ class ConvertProgressViewModel(
         }
 
         val itemIncreasePercentage = (95.0 / itemCount)
-        data.forEachIndexed { _, file ->
-            var currentFilePageNum = 1
+        data.forEachIndexed { index, file ->
             val rootFileName = Util.getCurrentTimeMillis()
-            val folderName = File(file.filePath).nameWithoutExtension + "-$rootFileName"
-            val folderPath =
-                createFileDirectory(folderName, itemCount)
-            this.imageFolderPath = folderPath
+            val selectedPageInfo = pageInfoList?.items
+            var folderPath = ""
+            val pdfIndex: Int
+            var selectedPagesList: List<Int> = emptyList()
+
+            if (selectedPageInfo != null) {
+                if(selectedPageInfo.any { it.pdfIndex == index && it.selectedPages.isNotEmpty() }) {
+                    pdfIndex = index
+                    selectedPagesList = selectedPageInfo[pdfIndex].selectedPages
+                    val folderName = File(file.filePath).nameWithoutExtension + "-$rootFileName"
+                    folderPath =
+                        createFileDirectory(folderName, itemCount)
+                    this.imageFolderPath = folderPath
+                }else {
+                    return@forEachIndexed
+                }
+            }
+
+
+            var currentFilePageNum = 1
+
             fileDescriptor = withContext(Dispatchers.IO) {
                 app.contentResolver.openFileDescriptor(file.uri, "r")!!
             }
@@ -381,6 +415,10 @@ class ConvertProgressViewModel(
 
             val pageCount = pdfRenderer.pageCount
             for (i in 0 until pageCount) {
+
+                if(!selectedPagesList.contains(i)) {
+                    continue
+                }
 
                 val job = scope.async {
                     val currentPage = pdfRenderer.openPage(i)
