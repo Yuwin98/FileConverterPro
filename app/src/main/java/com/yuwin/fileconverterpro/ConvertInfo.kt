@@ -2,8 +2,6 @@ package com.yuwin.fileconverterpro
 
 import android.net.Uri
 import android.os.Parcelable
-import android.util.Log
-import androidx.databinding.*
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -14,6 +12,8 @@ data class ConvertInfo
     val fileSize: String,
     val filePath: String,
     val fileType: String,
+    val selectedPagesText: String?,
+    val isSelectedPagesOperation: Boolean,
     var convertInto: String
     ): Parcelable
 

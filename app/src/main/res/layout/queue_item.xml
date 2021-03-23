@@ -24,6 +24,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <TextView
+                android:id="@+id/selectedPageCountTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/allerta"
+                android:text="@{item.selectedPagesText}"
+                android:textSize="18dp"
+                android:visibility="@{item.selectedPagesOperation ? View.VISIBLE: View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/allFileConvertTextView" />
+
             <ImageView
                 android:id="@+id/imagePreviewImageView"
                 loadImagePDFThumbnail="@{item}"
@@ -61,8 +73,8 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/allerta"
                 android:maxLines="1"
-                android:textSize="16sp"
                 android:text="@{item.convertInto.toUpperCase().substring(1)}"
+                android:textSize="20dp"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@+id/arrowRightImageVIew"
                 app:layout_constraintStart_toEndOf="@+id/arrowRightImageVIew"
@@ -76,7 +88,7 @@
                 android:layout_marginBottom="8dp"
                 android:fontFamily="@font/allerta"
                 android:text="@{item.fileType}"
-                android:textSize="16sp"
+                android:textSize="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/fileSizeTextView"
                 app:layout_constraintTop_toBottomOf="@+id/fileSizeTextView" />
@@ -92,6 +104,7 @@
                 android:fontFamily="@font/allerta"
                 android:maxLines="1"
                 android:text="@{item.fileName}"
+                android:textSize="18dp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imagePreviewImageView"
@@ -104,6 +117,7 @@
                 android:layout_marginTop="8dp"
                 android:fontFamily="@font/allerta"
                 android:text="@{item.fileSize}"
+                android:textSize="16dp"
                 app:layout_constraintStart_toStartOf="@+id/fileNameTextView"
                 app:layout_constraintTop_toBottomOf="@+id/fileNameTextView" />
 

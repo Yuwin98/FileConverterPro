@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
@@ -57,6 +56,9 @@ class ConvertFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        (activity as MainActivity).requestInterstitial()
+
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
@@ -75,6 +77,8 @@ class ConvertFragment : Fragment() {
 
         convertAll = args.convertAll
         convertInto = args.convertInto
+
+
 
         val uriList = args.UriList.items
         data = setupData(uriList)
@@ -221,6 +225,35 @@ class ConvertFragment : Fragment() {
             imageLimit = if (requestCode == PDF_REQUEST_CODE) 2 else imageLimit
 
             val myUriList = UriList(uriList)
+
+            if(args.pdfIntoImages || args.isPdfMerge) {
+                val oldUriList = args.UriList.items.toMutableList()
+                val currentSize = convertAdapter.getAdapterData().size + uriList.size
+                val newIndex = oldUriList.size
+
+                if(currentSize > PDF_LIMIT) {
+                    Toast.makeText(requireContext(), "PDF Convert Limit reached", Toast.LENGTH_SHORT).show()
+                    return
+                }else {
+                    oldUriList.addAll(uriList)
+                    val toPreviewUriList = UriList(oldUriList)
+                    val action = ConvertFragmentDirections.actionConvertToPdfReviewFragment(
+                        toPreviewUriList,
+                        args.convertAll,
+                        args.convertInto,
+                        args.isPdfMerge,
+                        args.mergeImagesIntoPdf,
+                        args.singleImageToPdf,
+                        args.pdfIntoImages,
+                        newIndex,
+                        args.pageInfoList
+                    )
+                    findNavController().navigate(action)
+                    return
+                }
+
+            }
+
             var newData: MutableList<ConvertInfo> = setupData(myUriList.items)
             val oldData: MutableList<ConvertInfo> = convertAdapter.getAdapterData()
             if (newData.size + oldData.size > imageLimit) {
@@ -263,7 +296,11 @@ class ConvertFragment : Fragment() {
 
     private fun setupData(uriList: List<Uri>): MutableList<ConvertInfo> {
         val data = mutableListOf<ConvertInfo>()
-        for (uri in uriList) {
+        uriList.forEachIndexed { index, uri ->
+            val currentIndex = args.pageInfoList?.items?.get(index)?.pdfIndex
+            val totalPages = currentIndex?.let { args.pageInfoList?.items?.get(it)?.totalPages }
+            val selectedPages = currentIndex?.let { args.pageInfoList?.items?.get(it)?.selectedPages?.size }
+            val pageString = "$selectedPages/$totalPages"
             val (fileName, fileSize) = Util.getImageDetails(requireContext(), uri)
             val fileType = Util.getMimeType(requireContext(), uri)
             val convertInfo = ConvertInfo(
@@ -272,6 +309,8 @@ class ConvertFragment : Fragment() {
                 fileSize,
                 uri.path ?: "N/A",
                 fileType ?: "N/A",
+                pageString,
+                isPdfConversion(),
                 args.convertInto
             )
             data.add(convertInfo)

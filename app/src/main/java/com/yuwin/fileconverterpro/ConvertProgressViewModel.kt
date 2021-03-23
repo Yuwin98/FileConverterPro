@@ -204,7 +204,7 @@ class ConvertProgressViewModel(
             pdfRenderer.close()
         }
 
-        val itemIncreasePercentage = (95.0 / itemCount)
+
 
         data.forEachIndexed { index, file ->
 
@@ -213,14 +213,23 @@ class ConvertProgressViewModel(
             val pdfIndex: Int
             var selectedPagesList: List<Int> = emptyList()
 
+
+
             if (selectedPageInfo != null) {
-                if(selectedPageInfo.any { it.pdfIndex == index && it.selectedPages.isNotEmpty()}) {
+                itemCount = 0
+                val allItemCount =  selectedPageInfo.map { it.selectedPages.size }
+                allItemCount.forEach { count -> itemCount += count }
+                if (selectedPageInfo.any { it.pdfIndex == index && it.selectedPages.isNotEmpty() }) {
                     pdfIndex = index
                     selectedPagesList = selectedPageInfo[pdfIndex].selectedPages
-                }else {
+
+                } else {
                     return@forEachIndexed
                 }
             }
+
+            var itemIncreasePercentage = (95.0 / itemCount)
+
 
             fileDescriptor = withContext(Dispatchers.IO) {
                 app.contentResolver.openFileDescriptor(
@@ -234,7 +243,7 @@ class ConvertProgressViewModel(
 
             for (i in 0 until pageCount) {
 
-                if(!selectedPagesList.contains(i)) {
+                if (!selectedPagesList.contains(i)) {
                     continue
                 }
 
@@ -384,7 +393,7 @@ class ConvertProgressViewModel(
             pdfRenderer.close()
         }
 
-        val itemIncreasePercentage = (95.0 / itemCount)
+
         data.forEachIndexed { index, file ->
             val rootFileName = Util.getCurrentTimeMillis()
             val selectedPageInfo = pageInfoList?.items
@@ -393,17 +402,21 @@ class ConvertProgressViewModel(
             var selectedPagesList: List<Int> = emptyList()
 
             if (selectedPageInfo != null) {
-                if(selectedPageInfo.any { it.pdfIndex == index && it.selectedPages.isNotEmpty() }) {
+                itemCount = 0
+                val allItemCount =  selectedPageInfo.map { it.selectedPages.size }
+                allItemCount.forEach { count -> itemCount += count }
+                if (selectedPageInfo.any { it.pdfIndex == index && it.selectedPages.isNotEmpty() }) {
                     pdfIndex = index
                     selectedPagesList = selectedPageInfo[pdfIndex].selectedPages
                     val folderName = File(file.filePath).nameWithoutExtension + "-$rootFileName"
                     folderPath =
                         createFileDirectory(folderName, itemCount)
                     this.imageFolderPath = folderPath
-                }else {
+                } else {
                     return@forEachIndexed
                 }
             }
+            val itemIncreasePercentage = (95.0 / itemCount)
 
 
             var currentFilePageNum = 1
@@ -416,7 +429,7 @@ class ConvertProgressViewModel(
             val pageCount = pdfRenderer.pageCount
             for (i in 0 until pageCount) {
 
-                if(!selectedPagesList.contains(i)) {
+                if (!selectedPagesList.contains(i)) {
                     continue
                 }
 

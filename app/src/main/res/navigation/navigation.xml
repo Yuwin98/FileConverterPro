@@ -71,6 +71,12 @@
             app:argType="com.yuwin.fileconverterpro.SelectedPageInfoList"
             app:nullable="true"
             android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_convert_to_pdfReviewFragment"
+            app:destination="@id/pdfReviewFragment" />
+        <action
+            android:id="@+id/action_convert_to_dashboardFragment"
+            app:destination="@id/dashboardFragment" />
     </fragment>
     <fragment
         android:id="@+id/settings"
@@ -229,7 +235,7 @@
     </fragment>
     <fragment
         android:id="@+id/pdfReviewFragment"
-        android:name="com.yuwin.fileconverterpro.PdfReviewFragment"
+        android:name="com.yuwin.fileconverterpro.PdfPreviewFragment"
         android:label="PDF Preview"
         tools:layout="@layout/fragment_pdf_review">
         <action

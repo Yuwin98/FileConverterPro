@@ -3,7 +3,7 @@
 
     <color name="colorPrimary">#7F1B10</color>
     <color name="colorPrimaryDark">#65150c</color>
-    <color name="colorAccent">#d35400</color>
+    <color name="colorAccent">#7F1B10</color>
 
     <color name="darker">#121212</color>
     <color name="dark">#313C44</color>
@@ -19,10 +19,10 @@
     <color name="detailsCardOk">#7F1B10</color>
     <color name="colorPrimaryLight">#3d221f</color>
 
-    <color name="colorBackground">#FFF</color>
+    <color name="colorBackground">#F2F2F2</color>
     <color name="splashScreenColor">@android:color/white</color>
     <color name="colorText">#000000</color>
-    <color name="cardBackground">#f2f2f2</color>
+    <color name="cardBackground">#e2e2e2</color>
     <color name="selectedFileItemBackground">#44E74C3C</color>
 
     <color name="moveCopyTextColor">#F8CDC9</color>
@@ -34,8 +34,21 @@
     <color name="statusBarColor">@color/colorPrimaryDark</color>
     <color name="contextualStatusBarColor">@android:color/black</color>
     <color name="contextualActionBarColor">@color/darker</color>
+    <color name="numberBackgroundColor">@color/dark</color>
 
     <color name="bottomNavigationViewColor">@android:color/white</color>
+
+    <color name="selectAllColor">#3f0d08</color>
+
+    <color name="imgPng">#248469</color>
+    <color name="imgJpg">#247d78</color>
+    <color name="imgWebp">#a06407</color>
+    <color name="imgMergePdf">#89000e</color>
+    <color name="imgPdf">#6d0c0c</color>
+    <color name="pdfPng">#bb410d</color>
+    <color name="pdfWebp">#9b0707</color>
+    <color name="pdfJpg">#a3434e</color>
+    <color name="mergePdf">#9b1e2e</color>
 
     <color name="fc1">#1abc9c</color>
     <color name="fc2">#16a085</color>

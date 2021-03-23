@@ -82,7 +82,6 @@ class BindingAdapters {
         fun loadImageFromBitmap(view: ImageView, bitmap: Bitmap) {
             Glide.with(view)
                 .load(bitmap)
-                .apply(RequestOptions().override(480, 720))
                 .into(view)
         }
 

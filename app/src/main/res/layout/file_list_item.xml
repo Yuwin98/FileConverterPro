@@ -54,7 +54,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/filesInfoLayout"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="@+id/filesListParent"
                 app:layout_constraintEnd_toEndOf="@+id/filesListParent"
                 app:layout_constraintStart_toEndOf="@+id/filesImageLayout"
@@ -71,7 +71,7 @@
                     android:fontFamily="@font/allerta"
                     android:maxLines="1"
                     android:textColor="@color/colorText"
-                    android:textSize="16sp"
+                    android:textSize="20dp"
                     app:layout_constraintEnd_toEndOf="@id/filesInfoLayout"
                     app:layout_constraintStart_toStartOf="@id/filesInfoLayout"
                     app:layout_constraintTop_toTopOf="@id/filesInfoLayout" />
@@ -81,9 +81,11 @@
                     getDateString="@{convertedFile.date}"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
                     android:fontFamily="@font/allerta"
                     android:textColor="@color/colorDateTypeSize"
-                    android:textSize="13sp"
+                    android:textSize="18dp"
+                    app:layout_constraintBottom_toTopOf="@+id/divider2"
                     app:layout_constraintEnd_toStartOf="@+id/filesListInfo"
                     app:layout_constraintStart_toStartOf="@+id/filesListName"
                     app:layout_constraintTop_toBottomOf="@+id/filesListName" />
@@ -95,7 +97,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/allerta"
                     android:textColor="@color/colorDateTypeSize"
-                    android:textSize="13sp"
+                    android:textSize="18dp"
                     app:layout_constraintEnd_toEndOf="@id/filesInfoLayout"
                     app:layout_constraintTop_toBottomOf="@+id/filesListName" />
 

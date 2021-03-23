@@ -66,7 +66,6 @@ class ConvertAdapter: RecyclerView.Adapter<ConvertAdapter.ViewHolder>(), ItemTou
 
     override fun onItemSwipe(position: Int) {
         data.removeAt(position)
-
         notifyItemRemoved(position)
     }
 

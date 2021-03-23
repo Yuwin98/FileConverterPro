@@ -14,6 +14,8 @@
 
     <color name="colorPrimaryLight">#271736</color>
 
+    <color name="selectAllColor">@color/colorPrimaryDark</color>
+
     <color name="colorBackground">#1E1F24</color>
     <color name="colorText">#FAFAFA</color>
     <color name="colorDateTypeSize">#999999</color>
@@ -29,6 +31,7 @@
 
     <color name="NoFilesColor">#bdc3c7</color>
     <color name="backgroundColor">@color/dark</color>
+    <color name="numberBackgroundColor">@color/dark</color>
     <color name="splashScreenColor">@color/darker</color>
     <color name="actionBarBackgroundColor">#121212</color>
     <color name="navigationBarColor">#121212</color>
@@ -36,4 +39,16 @@
     <color name="statusBarColor">@color/darker</color>
     <color name="contextualStatusBarColor">@android:color/black</color>
     <color name="contextualActionBarColor">@color/darker</color>
+
+
+    <color name="imgPng">#299375</color>
+    <color name="imgJpg">#1c605c</color>
+    <color name="imgWebp">#7c4e06</color>
+    <color name="imgMergePdf">#91000f</color>
+    <color name="imgPdf">#470808</color>
+    <color name="pdfPng">#89300a</color>
+    <color name="pdfWebp">#7c0606</color>
+    <color name="pdfJpg">#722f37</color>
+    <color name="mergePdf">#58111a</color>
+
 </resources>

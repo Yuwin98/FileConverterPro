@@ -17,7 +17,7 @@
     <string name="gridConvertedFileItemImageViewDescription">Converted file Item Grid</string>
     <string name="convertedFileListViewImageDescription">Converted file Item List View</string>
     <string name="pauseButtonText">Pause</string>
-    <string name="backHomeButtonText">Home</string>
+    <string name="backHomeButtonText">View Files</string>
     <string name="resumeButtonText">Resume</string>
     <string name="no_favourite_file_image_view">No favourite file Image View</string>
     <string name="no_favorite_files_available">No Favorite Files Available</string>

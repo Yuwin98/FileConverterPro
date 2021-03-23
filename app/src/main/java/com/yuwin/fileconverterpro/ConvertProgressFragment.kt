@@ -33,8 +33,7 @@ class ConvertProgressFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.d("showInterstitial", "Interstitial requested before")
-        (activity as MainActivity).requestInterstitial()
+
 
         convertProgressViewModel = ViewModelProvider(
             this,

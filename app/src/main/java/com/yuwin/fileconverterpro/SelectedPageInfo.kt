@@ -6,5 +6,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class SelectedPageInfo(
     val pdfIndex: Int,
+    val totalPages: Int,
     val selectedPages: List<Int>
 ): Parcelable

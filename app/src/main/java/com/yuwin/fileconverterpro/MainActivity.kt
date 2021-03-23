@@ -34,8 +34,6 @@ import java.lang.ref.WeakReference
 import java.util.*
 
 
-
-
 open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
     private lateinit var weakRef: WeakReference<MainActivity>
@@ -44,9 +42,9 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     private var bottomNavigationView: BottomNavigationView? = null
     private var imgLimit = FREE_IMAGE_LIMIT
     private var mInterstitialAd: InterstitialAd? = null
-    private var adRequest: AdRequest? = null
     private var myAdUnitId = ""
     private var mAdView: AdView? = null
+    private var adRequest: AdRequest? = null
     private var parentView: ConstraintLayout? = null
 
     private var tag = "MainActivity"
@@ -67,6 +65,10 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
         super.onCreate(savedInstanceState)
         setTheme(R.style.Theme_FileConverterPro)
         setContentView(R.layout.activity_main)
+
+        Log.d("adnotworking", "OnCreate Called")
+
+       adRequest = AdRequest.Builder().build()
         currentUserDirectory =
             ContextCompat.getExternalFilesDirs(applicationContext, null)[0].absolutePath
         myAdUnitId = getString(R.string.appInterstitialAdId)
@@ -119,11 +121,14 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
             } else {
                 this.imgLimit = FREE_IMAGE_LIMIT
-                MobileAds.initialize(this)
                 mAdView = findViewById(R.id.bannerAdView)
+                Log.d("adnotworking", "Ad Creation")
+
+                MobileAds.initialize(this)
+                val adRequest = AdRequest.Builder().build()
                 mAdView?.visibility = View.VISIBLE
-                adRequest = AdRequest.Builder().build()
                 mAdView?.loadAd(adRequest)
+
             }
         })
 
@@ -158,9 +163,65 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
         })
     }
 
+    fun requestInterstitial() {
+        mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
+            if (isPremium == 0) {
+                adRequest?.let { createInterstitial(it) }
+            }
+        })
+    }
+
+    private fun createInterstitial(adRequest: AdRequest) {
+        val fullScreenCallback: FullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdDismissedFullScreenContent() {
+            }
+
+            override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
+            }
+
+            override fun onAdShowedFullScreenContent() {
+                mInterstitialAd = null
+            }
+        }
+        val adCallBack: InterstitialAdLoadCallback = object : InterstitialAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                Log.d(tag, adError.message)
+                mInterstitialAd = null
+            }
+
+            override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                mInterstitialAd = interstitialAd
+                mInterstitialAd?.fullScreenContentCallback = fullScreenCallback
+            }
+        }
+        InterstitialAd.load(this, myAdUnitId, adRequest, adCallBack)
+    }
+
+    fun showInterstitial() {
+        mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
+            if (mInterstitialAd != null && isPremium == 0) {
+                mInterstitialAd?.show(this)
+            }
+        })
+
+    }
+
+    override fun onPause() {
+        Log.d("adnotworking", "OnPause Called")
+        mAdView?.pause()
+        super.onPause()
+
+    }
+
+    override fun onResume() {
+        Log.d("adnotworking", "OnResume Called")
+        super.onResume()
+        mAdView?.resume()
+    }
+
     override fun onDestroy() {
-        super.onDestroy()
-        Log.d("MainActivity1", "On Destroy")
+        Log.d("adnotworking", "OnDestroy Called")
+        mAdView?.destroy()
         mainViewModel = null
         mInterstitialAd = null
         adRequest = null
@@ -168,11 +229,11 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
         navController = null
         parentView?.removeView(mAdView)
         parentView?.removeAllViewsInLayout()
-        mAdView?.destroy()
-        mAdView = null
         parentView = null
+        mAdView = null
         billingClient?.endConnection()
         billingClient = null
+        super.onDestroy()
     }
 
     override fun onBackPressed() {
@@ -186,9 +247,14 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
             return
         }
 
-        if(navController?.currentDestination?.id == R.id.directoryViewFragment) {
+        if (navController?.currentDestination?.id == R.id.convert) {
+            navController?.navigate(R.id.action_convert_to_dashboardFragment)
+            return
+        }
+
+        if (navController?.currentDestination?.id == R.id.directoryViewFragment) {
             val parent = File(currentUserDirectory).parent
-            if(parent != null) {
+            if (parent != null) {
                 currentUserDirectory = parent
             }
         }
@@ -198,7 +264,7 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     override fun onSupportNavigateUp(): Boolean {
         navController?.let {
             val parent = File(currentUserDirectory).parent
-            if(parent != null) {
+            if (parent != null) {
                 currentUserDirectory = parent
             }
             return it.navigateUp() || super.onSupportNavigateUp()
@@ -334,51 +400,6 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
         }
     }
-
-
-    fun requestInterstitial() {
-            mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
-            if (isPremium == 0) {
-                this.adRequest?.let { createInterstitial(it) }
-            }
-        })
-    }
-
-    private fun createInterstitial(adRequest: AdRequest) {
-        val fullScreenCallback: FullScreenContentCallback = object : FullScreenContentCallback() {
-            override fun onAdDismissedFullScreenContent() {
-                mInterstitialAd = null
-            }
-
-            override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
-            }
-
-            override fun onAdShowedFullScreenContent() {
-                mInterstitialAd = null
-            }
-        }
-        val adCallBack: InterstitialAdLoadCallback = object : InterstitialAdLoadCallback() {
-            override fun onAdFailedToLoad(adError: LoadAdError) {
-                Log.d(tag, adError.message)
-            }
-
-            override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                mInterstitialAd = interstitialAd
-                mInterstitialAd?.fullScreenContentCallback = fullScreenCallback
-            }
-        }
-        InterstitialAd.load(this, myAdUnitId, adRequest, adCallBack)
-    }
-
-    fun showInterstitial() {
-        mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
-            if (mInterstitialAd != null && isPremium == 0) {
-                mInterstitialAd?.show(this)
-            }
-        })
-
-    }
-
 
 
     fun setBottomNavigationViewVisibility(visibility: Int) {
