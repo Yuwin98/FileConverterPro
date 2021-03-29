@@ -51,6 +51,10 @@ class FavoriteFragment : BaseFragment(), FileListClickListener {
                 }
                 setupRecyclerView()
             }else {
+                binding?.let {
+                    it.noFavoriteFilesImageView.visibility = View.GONE
+                    it.noFavoriteFilesTextView.visibility = View.GONE
+                }
                 data = items
                 setupRecyclerView()
             }

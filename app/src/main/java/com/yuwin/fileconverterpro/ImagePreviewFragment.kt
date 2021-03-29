@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -54,6 +55,9 @@ class ImagePreviewFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val file = args.convertedFile
+
+        (requireActivity() as AppCompatActivity).supportActionBar?.title = File(file.filePath).nameWithoutExtension
+
 
         binding.favoriteOutlineImageView.setOnClickListener {
             if (filePreviewViewModel.isFavorite.value == true) {

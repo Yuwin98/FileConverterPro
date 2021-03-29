@@ -17,6 +17,9 @@ class ConvertViewModel: ViewModel() {
     private val _qualityValue = MutableLiveData<String>()
     val qualityValue: LiveData<String> get() = _qualityValue
 
+    private val _paddingValue = MutableLiveData<Int>()
+    val paddingValue: LiveData<Int> get() = _paddingValue
+
     private val _isPDFConversion = MutableLiveData<Boolean>()
     val isPdfConversion: LiveData<Boolean> get() = _isPDFConversion
 
@@ -41,6 +44,10 @@ class ConvertViewModel: ViewModel() {
 
     fun setIsPdfConversion(value: Boolean) {
         _isPDFConversion.postValue(value)
+    }
+
+    fun setPaddingValue(value: Int) {
+        _paddingValue.postValue(value)
     }
 
 

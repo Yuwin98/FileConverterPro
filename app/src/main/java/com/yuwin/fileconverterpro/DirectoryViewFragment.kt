@@ -53,10 +53,7 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
         savedInstanceState: Bundle?
     ): View? {
         setHasOptionsMenu(true)
-        (requireActivity() as AppCompatActivity).supportActionBar?.title =
-            args.data.fileName.toUpperCase(
-                Locale.ROOT
-            )
+        (requireActivity() as AppCompatActivity).supportActionBar?.title = args.data.fileName
 
         _binding = FragmentDirectoryViewBinding.inflate(inflater, container, false)
         _binding?.lifecycleOwner = viewLifecycleOwner

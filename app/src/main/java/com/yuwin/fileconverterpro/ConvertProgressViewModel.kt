@@ -25,7 +25,9 @@ class ConvertProgressViewModel(
     private val app: Application,
     val data: List<ConvertInfo>,
     private val quality: Int,
-    private val pdfQuality: Int,
+    private val padding: Int,
+    private val fileQuality: Int,
+    private val pdfPageSize: Int,
     private val convertInto: String,
     private val pageInfoList: SelectedPageInfoList?
 ) : AndroidViewModel(app) {
@@ -497,7 +499,10 @@ class ConvertProgressViewModel(
             options.inPreferredConfig = Bitmap.Config.ARGB_8888
             options.inScaled = false
             val inputBitmap = BitmapFactory.decodeStream(inputStream, null, options)
-            val bitmap = inputBitmap?.let { scaleBitmapToAspectRatio(it, 1080, 1920) }
+            Log.d("Spinnervalues", fileQuality.toString())
+            val getImageSize = inputBitmap?.let { getImageSize(it, fileQuality) }
+            val bitmap =
+                inputBitmap?.let { getImageSize?.let { it1 -> scaleImage(it, it1.first, getImageSize.second) } }
             val convertToExtension = convertInto
             val fileName = getFileName(item.fileName) + "-" + Util.getCurrentTimeMillis()
             val fileSavePath = getFileSavePath(storageDir, fileName, convertToExtension)
@@ -509,6 +514,7 @@ class ConvertProgressViewModel(
                 )
                 saveConvertedFile(file)
             }
+
 
 
 
@@ -579,16 +585,16 @@ class ConvertProgressViewModel(
     }
 
     private fun createAndSaveSinglePagePdf(inputBitmap: Bitmap, storageDir: String) {
-        val getPageSize = getPdfQuality(pdfQuality)
-        val pageWidth = getPageSize.first
-        val pageHeight = getPageSize.second
-        val bitmap = scaleBitmapToAspectRatio(inputBitmap, pageHeight, pageWidth)
+        val pageSize = getPageSize(fileQuality, pdfPageSize)
+        val pageWidth = pageSize.first
+        val pageHeight = pageSize.second
+        val bitmap = scaleBitmapToAspectRatio(inputBitmap, pageWidth, pageHeight)
         val fileName = Util.getCurrentTimeMillis()
         val filePath = "${storageDir}${fileName}.pdf"
         val document = PdfDocument()
         val pageInfo: PdfDocument.PageInfo =
-            PdfDocument.PageInfo.Builder(pageWidth + 50, pageHeight + 50, 1)
-                .setContentRect(Rect(0, 0, pageWidth + 50, pageHeight + 50)).create()
+            PdfDocument.PageInfo.Builder(pageWidth + padding, pageHeight + padding, 1)
+                .setContentRect(Rect(0, 0, pageWidth + padding, pageHeight + padding)).create()
         val page: PdfDocument.Page = document.startPage(pageInfo)
         val canvas: Canvas = page.canvas
         val xOffset = ((canvas.width - bitmap.width) / 2).toFloat()
@@ -627,9 +633,9 @@ class ConvertProgressViewModel(
         val filePath = "${storageDir}${fileName}.pdf"
         val document = PdfDocument()
         var thumbNail: Bitmap? = null
-        val getPdfSize = getPdfQuality(pdfQuality)
-        val pageWidth = getPdfSize.first
-        val pageHeight = getPdfSize.second
+        val pageSize = getPageSize(fileQuality, pdfPageSize)
+        val pageWidth = pageSize.first
+        val pageHeight = pageSize.second
 
 
         items.forEachIndexed { index, item ->
@@ -648,17 +654,17 @@ class ConvertProgressViewModel(
                         }
                     }
 
-                    bitmap = withContext(Dispatchers.Default) {
-                        scaleBitmapToAspectRatio(
-                            bitmap,
-                            pageHeight,
-                            pageWidth
-                        )
-                    }
+                    bitmap = scaleBitmapToAspectRatio(
+                        bitmap,
+                        pageWidth,
+                        pageHeight
+                    )
+
+
 
                     val pageInfo: PdfDocument.PageInfo = PdfDocument.PageInfo
-                        .Builder(pageWidth + 50, pageHeight + 50, index + 1)
-                        .setContentRect(Rect(0, 0, pageWidth + 50, pageHeight + 50)).create()
+                        .Builder(pageWidth + padding, pageHeight + padding, index + 1)
+                        .setContentRect(Rect(0, 0, pageWidth + padding, pageHeight + padding)).create()
                     val page: PdfDocument.Page = document.startPage(pageInfo)
                     val canvas: Canvas = page.canvas
                     val xOffset = ((canvas.width - bitmap.width) / 2).toFloat()
@@ -747,10 +753,14 @@ class ConvertProgressViewModel(
         doc.writeTo(fos)
     }
 
+    private fun scaleImage(targetBmp: Bitmap, reqWidthInPixels: Int, reqHeightInPixels: Int): Bitmap? {
+        return Bitmap.createScaledBitmap(targetBmp, reqWidthInPixels, reqHeightInPixels, false)
+    }
+
     private fun scaleBitmapToAspectRatio(
         targetBmp: Bitmap,
-        reqHeightInPixels: Int,
-        reqWidthInPixels: Int
+        reqWidthInPixels: Int,
+        reqHeightInPixels: Int
     ): Bitmap {
         val matrix = Matrix()
         matrix.setRectToRect(
@@ -765,7 +775,7 @@ class ConvertProgressViewModel(
             targetBmp.width,
             targetBmp.height,
             matrix,
-            true
+            false
         )
     }
 
@@ -785,6 +795,174 @@ class ConvertProgressViewModel(
             }
             else -> {
                 return Pair(595, 842)
+            }
+        }
+    }
+
+    private fun getPageSize(fileQuality: Int, pageQuality: Int): Pair<Int, Int> {
+        when(fileQuality) {
+            0 -> {
+               when(pageQuality) {
+                   0 -> {
+                       return Pair(2384, 3370)
+                   }
+                   1 -> {
+                       return Pair(1684, 2384)
+                   }
+                   2 -> {
+                       return Pair(1191, 1684)
+                   }
+                   3 -> {
+                       return Pair(842, 1191)
+                   }
+                   4 -> {
+                       return Pair(595, 842)
+                   }
+                   5 -> {
+                       return Pair(420, 595)
+                   }
+                   else -> {
+                       return Pair(0, 0)
+                   }
+               }
+            }
+            1 -> {
+                when(pageQuality) {
+                    0 -> {
+                        return Pair(3179, 4494)
+                    }
+                    1 -> {
+                        return Pair(2245, 3179)
+                    }
+                    2 -> {
+                        return Pair(1587, 2245)
+                    }
+                    3 -> {
+                        return Pair(1123, 1587)
+                    }
+                    4 -> {
+                        return Pair(794, 1123)
+                    }
+                    5 -> {
+                        return Pair(559, 794)
+                    }
+                    else -> {
+                        return Pair(0, 0)
+                    }
+                }
+            }
+            2 -> {
+                when(pageQuality) {
+                    0 -> {
+                        return Pair(4967, 7022)
+                    }
+                    1 -> {
+                        return Pair(3508, 4967)
+                    }
+                    2 -> {
+                        return Pair(2480, 3508)
+                    }
+                    3 -> {
+                        return Pair(1754, 2480)
+                    }
+                    4 -> {
+                        return Pair(1240, 1754)
+                    }
+                    5 -> {
+                        return Pair(874, 1240)
+                    }
+                    else -> {
+                        return Pair(0, 0)
+                    }
+                }
+            }
+            3 -> {
+                when(pageQuality) {
+                    0 -> {
+                        return Pair(9933, 14043)
+                    }
+                    1 -> {
+                        return Pair(7016, 9933)
+                    }
+                    2 -> {
+                        return Pair(4960, 7016)
+                    }
+                    3 -> {
+                        return Pair(3508, 4960)
+                    }
+                    4 -> {
+                        return Pair(2480, 3508)
+                    }
+                    5 -> {
+                        return Pair(1748, 2480)
+                    }
+                    else -> {
+                        return Pair(0, 0)
+                    }
+                }
+            }
+            else -> {
+                return Pair(0, 0)
+            }
+
+        }
+    }
+
+    private fun getImageSize(bitmap: Bitmap,value: Int): Pair<Int,Int> {
+        when (value) {
+            0 -> {
+                return Pair(bitmap.width, bitmap.height)
+            }
+            1 -> {
+                return Pair(320, 320)
+            }
+            2 -> {
+                return Pair(1080, 566)
+            }
+            3 -> {
+                return Pair(1080, 1350)
+            }
+            4 -> {
+                return Pair(1080, 1080)
+            }
+            5 -> {
+                return Pair(1080, 1920)
+            }
+            6 -> {
+                return Pair(400, 400)
+            }
+            7 -> {
+                return Pair(1500, 500)
+            }
+            8 -> {
+                return Pair(1600, 1900)
+            }
+            9 -> {
+                return Pair(170, 170)
+            }
+            10 -> {
+                return Pair(851 , 315)
+            }
+            11 -> {
+                return Pair(1200, 630)
+            }
+            12 -> {
+                return Pair(1200, 628)
+            }
+            13 -> {
+                return Pair(1000, 1500)
+            }
+            14 -> {
+                return Pair(1000, 1000)
+            }
+            15 -> {
+                return Pair(1000, 2100)
+            }
+            16 -> {
+                return Pair(1000, 3000)
+            }
+            else -> {
+                return Pair(0,0)
             }
         }
     }

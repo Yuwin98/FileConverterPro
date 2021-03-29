@@ -278,7 +278,6 @@
 
             <TextView
                 android:id="@+id/fileDetailsTextView"
-                style="@style/FontTheme"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -322,7 +321,6 @@
 
             <TextView
                 android:id="@+id/fileShareTextView"
-                style="@style/FontTheme"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -367,7 +365,6 @@
 
             <TextView
                 android:id="@+id/fileDeleteText"
-                style="@style/FontTheme"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -401,19 +398,27 @@
 
     </androidx.fragment.app.FragmentContainerView>
 
-    <com.google.android.gms.ads.AdView
+<!--    <com.google.android.gms.ads.AdView-->
+<!--        android:id="@+id/bannerAdView"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:contentDescription="@string/app_banner_ad"-->
+<!--        android:visibility="visible"-->
+<!--        app:adSize="BANNER"-->
+<!--        app:adUnitId="@string/appBannerAdId"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"></com.google.android.gms.ads.AdView>-->
+
+    <FrameLayout
         android:id="@+id/bannerAdView"
-        android:contentDescription="@string/app_banner_ad"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        app:adSize="BANNER"
-        app:adUnitId="@string/appBannerAdId"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-    </com.google.android.gms.ads.AdView>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"

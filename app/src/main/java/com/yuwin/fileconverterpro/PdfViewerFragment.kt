@@ -12,10 +12,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yuwin.fileconverterpro.databinding.FragmentPdfViewerBinding
 import java.io.File
@@ -49,7 +51,8 @@ class PdfViewerFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(
             this,
-            FilePreviewViewModelFactory(requireActivity().application, args.pdfFile.id))
+            FilePreviewViewModelFactory(requireActivity().application, args.pdfFile.id)
+        )
             .get(FilePreviewViewModel::class.java)
     }
 
@@ -68,12 +71,15 @@ class PdfViewerFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        (requireActivity() as AppCompatActivity).supportActionBar?.title =
+            File(args.pdfFile.filePath).nameWithoutExtension
+
+
         pageNumber = 0
 
         if (savedInstanceState != null) {
             pageNumber = savedInstanceState.getInt(CURRENTPAGEINDEX, 0)
         }
-
 
 
         binding?.nextButton?.setOnClickListener {
@@ -166,7 +172,9 @@ class PdfViewerFragment : BaseFragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
-                        else -> {mainViewModel.renameFile(file, name)}
+                        else -> {
+                            mainViewModel.renameFile(file, name)
+                        }
                     }
 
                 }
@@ -207,7 +215,8 @@ class PdfViewerFragment : BaseFragment() {
         val target = Intent()
         target.action = Intent.ACTION_VIEW
         target.setDataAndType(uri, "application/pdf")
-        target.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        target.flags =
+            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
         val intent = Intent.createChooser(target, "Open PDF")
         try {
             startActivity(intent)
@@ -218,20 +227,23 @@ class PdfViewerFragment : BaseFragment() {
 
     private fun closePdfRenderer() {
         currentPage?.close()
-        pdfRenderer.close()
-        fileDescriptor.close()
+        if (this::pdfRenderer.isInitialized) {
+            pdfRenderer.close()
+        }
+        if(this::fileDescriptor.isInitialized) {
+            fileDescriptor.close()
+        }
     }
 
     private fun showCurrentPage(index: Int) {
         if (pdfRenderer.pageCount <= index || index < 0) {
             return
         }
-        Log.d("pdfpages", "${pdfRenderer.pageCount}: $index")
         currentPage?.close()
         currentPage = pdfRenderer.openPage(index)
         val bitmap = currentPage?.let {
             Bitmap.createBitmap(
-                it.width, it.height,
+                794, 1123,
                 Bitmap.Config.ARGB_8888
             )
         }
@@ -239,15 +251,14 @@ class PdfViewerFragment : BaseFragment() {
         if (bitmap != null) {
             currentPage?.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
         }
-        binding?.pdfPage?.setImageBitmap(bitmap)
-
+        binding?.pdfPage?.let { Glide.with(it).load(bitmap).into(it) }
     }
 
     private fun openPdfRenderer() {
         val file = File(args.pdfFile.filePath)
         fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
         pdfRenderer = PdfRenderer(fileDescriptor)
-        if(pdfRenderer.pageCount == 1) {
+        if (pdfRenderer.pageCount == 1) {
             binding?.nextButton?.visibility = View.GONE
             binding?.previousButton?.visibility = View.GONE
         }
@@ -255,7 +266,6 @@ class PdfViewerFragment : BaseFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-
         outState.putInt(CURRENTPAGEINDEX, pageNumber)
     }
 

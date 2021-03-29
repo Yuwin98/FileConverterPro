@@ -451,7 +451,7 @@ abstract class ActionModeBaseFragment : Fragment() {
         moveCopyTransitionEnd()
 
         val isCopy = (activity as MainActivity).isCopyOperation
-        val operation = if (isCopy) "copy" else "move"
+
 
         val setOfPaths = File(currentLocation).listFiles().map { it.parent }
 

@@ -16,10 +16,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.yuwin.fileconverterpro.Constants.Companion.FREE_IMAGE_LIMIT
+import com.yuwin.fileconverterpro.Constants.Companion.PREMIUM_IMAGE_LIMIT
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentDashboardBinding
 
-private const val MEDIA_LOCATION_PERMISSION_REQUEST_CODE = 999
+private const val MEDIA_LOCATION_PERMISSION_REQUEST_CODE_IMG = 999
+private const val MEDIA_LOCATION_PERMISSION_REQUEST_CODE_PDF = 998
 private const val IMAGE_REQUEST_CODE = 200
 private const val PDF_REQUEST_CODE = 500
 
@@ -36,7 +39,7 @@ class DashboardFragment : BaseFragment() {
     private var pdfIntoImages = false
 
     private val mainViewModel: MainViewModel by viewModels()
-    private var imgLimit = 5
+    private var imgLimit = FREE_IMAGE_LIMIT
 
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding
@@ -114,9 +117,9 @@ class DashboardFragment : BaseFragment() {
     private fun chooseImages() {
         mainViewModel.readIsPremium.observeOnce(this, {
             imgLimit = if (it == 1) {
-                Constants.PREMIUM_IMAGE_LIMIT
+                PREMIUM_IMAGE_LIMIT
             } else {
-                Constants.FREE_IMAGE_LIMIT
+                FREE_IMAGE_LIMIT
             }
         })
         val intent = Intent()
@@ -133,7 +136,10 @@ class DashboardFragment : BaseFragment() {
             if (isTherePermissionForMediaAccess(requireContext())) {
                 choosePdf()
             } else {
-                requestPermissionForMediaAccess(requireContext())
+                requestPermissionForMediaAccess(
+                    requireContext(),
+                    MEDIA_LOCATION_PERMISSION_REQUEST_CODE_PDF
+                )
             }
         }
     }
@@ -145,7 +151,10 @@ class DashboardFragment : BaseFragment() {
             if (isTherePermissionForMediaAccess(requireContext())) {
                 chooseImages()
             } else {
-                requestPermissionForMediaAccess(requireContext())
+                requestPermissionForMediaAccess(
+                    requireContext(),
+                    MEDIA_LOCATION_PERMISSION_REQUEST_CODE_IMG
+                )
             }
         }
     }
@@ -160,15 +169,17 @@ class DashboardFragment : BaseFragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun requestPermissionForMediaAccess(context: Context) {
-        ActivityCompat.requestPermissions(
-            context as Activity,
+    private fun requestPermissionForMediaAccess(
+        context: Context,
+        requestCode: Int
+    ) {
+        requestPermissions(
             arrayOf(
                 android.Manifest.permission.ACCESS_MEDIA_LOCATION,
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 android.Manifest.permission.READ_EXTERNAL_STORAGE
             ),
-            MEDIA_LOCATION_PERMISSION_REQUEST_CODE
+            requestCode
         )
     }
 
@@ -178,11 +189,19 @@ class DashboardFragment : BaseFragment() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
         when (requestCode) {
-            MEDIA_LOCATION_PERMISSION_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
+            MEDIA_LOCATION_PERMISSION_REQUEST_CODE_IMG -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(requireContext(), "Permission Given", Toast.LENGTH_SHORT).show()
+                    chooseImages()
+                } else {
+                    Toast.makeText(requireContext(), "Permission Denied", Toast.LENGTH_SHORT).show()
+                }
+            }
+            MEDIA_LOCATION_PERMISSION_REQUEST_CODE_PDF -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    choosePdf()
                 } else {
                     Toast.makeText(requireContext(), "Permission Denied", Toast.LENGTH_SHORT).show()
                 }

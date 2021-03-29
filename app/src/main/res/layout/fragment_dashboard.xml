@@ -17,625 +17,399 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.card.MaterialCardView
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/imgtopngcardView"
-                android:layout_width="wrap_content"
-                android:layout_height="120dp"
-                android:layout_marginTop="24dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/layout_bg"
                 android:clickable="true"
                 android:contentDescription="@string/convert_images_to_png"
-                android:elevation="20dp"
                 android:focusable="true"
-                app:cardBackgroundColor="@color/imgPng"
-                app:cardCornerRadius="10dp"
-                app:layout_constraintEnd_toStartOf="@+id/imgtojpgcardView"
-                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_chainStyle="spread"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
+                <ImageView
+                    android:id="@+id/pngImageView"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:contentDescription="@string/png_image"
+                    android:src="@drawable/png"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/imgtopngConstraintLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/pngTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="17dp"
+                    android:text="@string/images_into_png"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"
+                    android:textSize="22dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/pngImageView"
+                    app:layout_constraintStart_toEndOf="@+id/pngImageView"
+                    app:layout_constraintTop_toTopOf="@+id/pngImageView" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <ImageView
-                        android:id="@+id/pngImageView"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="8dp"
-                        android:contentDescription="@string/png_image"
-                        android:src="@drawable/png"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/pngTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/images_into_png"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="20dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/pngImageView" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/imgtojpgcardView"
-                android:layout_width="wrap_content"
-                android:layout_height="120dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/layout_bg"
                 android:clickable="true"
                 android:contentDescription="@string/convert_images_into_jpg"
-                android:elevation="20dp"
                 android:focusable="true"
-                app:cardBackgroundColor="@color/imgJpg"
-                app:cardCornerRadius="10dp"
-                app:layout_constraintBottom_toBottomOf="@+id/imgtopngcardView"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/imgtopngcardView"
-                app:layout_constraintTop_toTopOf="@+id/imgtopngcardView">
-
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/imgtojpgConstraintLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:id="@+id/jpgImageView"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="8dp"
-                        android:contentDescription="@string/jpg_image"
-                        android:src="@drawable/jpg"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/jpgTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/images_into_jpg"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="20dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/jpgImageView" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/imgtowebpcardView"
-                android:layout_width="0dp"
-                android:layout_height="120dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="24dp"
-                android:clickable="true"
-                android:contentDescription="@string/convert_images_into_webp"
-                android:elevation="20dp"
-                android:focusable="true"
-                app:cardBackgroundColor="@color/imgWebp"
-                app:cardCornerRadius="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/imgtopngcardView">
 
+                <ImageView
+                    android:id="@+id/jpgImageView"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:contentDescription="@string/jpg_image"
+                    android:src="@drawable/jpg"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/imgtowebpConstraintLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/jpgTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="17dp"
+                    android:text="@string/images_into_jpg"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"
+                    android:textSize="22dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/jpgImageView"
+                    app:layout_constraintStart_toEndOf="@+id/jpgImageView"
+                    app:layout_constraintTop_toTopOf="@+id/jpgImageView" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <ImageView
-                        android:id="@+id/webpImageView"
-                        android:layout_width="72dp"
-                        android:layout_height="72dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="8dp"
-                        android:contentDescription="@string/webp_image"
-                        android:src="@drawable/ic_webp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/webpTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/images_into_webp"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="20dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/webpImageView" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/imgtowebpcardView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/layout_bg"
+                android:clickable="true"
+                android:contentDescription="@string/convert_images_into_webp"
+                android:focusable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imgtojpgcardView">
 
-            <com.google.android.material.card.MaterialCardView
+                <ImageView
+                    android:id="@+id/webpImageView"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:contentDescription="@string/webp_image"
+                    android:src="@drawable/ic_webp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/webpTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/images_into_webp"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"
+                    android:textSize="22dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/webpImageView"
+                    app:layout_constraintStart_toEndOf="@+id/webpImageView"
+                    app:layout_constraintTop_toTopOf="@+id/webpImageView" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/mergeImagestopdfcardView"
                 android:layout_width="0dp"
-                android:layout_height="120dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="24dp"
+                android:background="@drawable/layout_bg"
                 android:clickable="true"
                 android:contentDescription="@string/merge_images_into_pdf_file"
-                android:elevation="20dp"
                 android:focusable="true"
-                app:cardBackgroundColor="@color/imgMergePdf"
-                app:cardCornerRadius="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/imgtowebpcardView">
 
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/mergetopdfConstraintLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:id="@+id/mergeIntoImage4"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:layout_marginTop="12dp"
-                        android:contentDescription="@string/pdf_image"
-                        android:src="@drawable/pdf"
-                        app:layout_constraintEnd_toEndOf="@+id/mergePdfTextView"
-                        app:layout_constraintTop_toTopOf="parent" />
+                <ImageView
+                    android:id="@+id/mergeIntoImage4"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:contentDescription="@string/pdf_image"
+                    android:src="@drawable/pdf"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
 
-                    <TextView
-                        android:id="@+id/mergePdfTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="8dp"
-                        android:autoSizeMaxTextSize="18sp"
-                        android:autoSizeTextType="none"
-                        android:text="@string/merge_images_into_single_pdf"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="20dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" />
+                <TextView
+                    android:id="@+id/mergePdfTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="17dp"
+                    android:text="@string/merge_images_into_single_pdf"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"
+                    android:textSize="22dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/mergeIntoImage4"
+                    app:layout_constraintStart_toEndOf="@+id/mergeIntoImage4"
+                    app:layout_constraintTop_toTopOf="@+id/mergeIntoImage4" />
 
-                    <ImageView
-                        android:id="@+id/mergeIntoImage1"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:layout_marginTop="12dp"
-                        android:contentDescription="@string/jpg_image"
-                        android:src="@drawable/jpg"
-                        app:layout_constraintStart_toStartOf="@+id/mergePdfTextView"
-                        app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <ImageView
-                        android:id="@+id/mergeIntoImage2"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:layout_marginTop="12dp"
-                        android:contentDescription="@string/jpg_image"
-                        android:src="@drawable/jpg"
-                        app:layout_constraintStart_toEndOf="@+id/mergeIntoImage1"
-                        app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:id="@+id/mergeIntoImage3"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:contentDescription="@string/arrow_right_image_view"
-                        android:src="@drawable/ic_arrow_forward"
-                        app:layout_constraintBottom_toBottomOf="@+id/mergeIntoImage2"
-                        app:layout_constraintEnd_toStartOf="@+id/mergeIntoImage4"
-                        app:layout_constraintStart_toEndOf="@+id/mergeIntoImage2"
-                        app:layout_constraintTop_toTopOf="@+id/mergeIntoImage2" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/imgtopdfcardView"
-                android:layout_width="wrap_content"
-                android:layout_height="120dp"
-                android:layout_marginTop="24dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/layout_bg"
                 android:clickable="true"
                 android:contentDescription="@string/convert_image_into_a_pdf_file"
-                android:elevation="20dp"
                 android:focusable="true"
-                app:cardBackgroundColor="@color/imgPdf"
-                app:cardCornerRadius="10dp"
-                app:layout_constraintEnd_toStartOf="@+id/pdfToPngCardView"
-                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/mergeImagestopdfcardView">
 
+                <ImageView
+                    android:id="@+id/pdfImageView"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:contentDescription="@string/pdf_image"
+                    android:src="@drawable/pdf"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/imgtopdfConstraintLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/pdfTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="17dp"
+                    android:text="@string/image_into_pdf"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"
+                    android:textSize="22dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/pdfImageView"
+                    app:layout_constraintStart_toEndOf="@+id/pdfImageView"
+                    app:layout_constraintTop_toTopOf="@+id/pdfImageView" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <ImageView
-                        android:id="@+id/pdfImageView"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="8dp"
-                        android:contentDescription="@string/pdf_image"
-                        android:src="@drawable/pdf"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/pdfTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/image_into_pdf"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="20dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/pdfImageView" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/pdfToPngCardView"
-                android:layout_width="wrap_content"
-                android:layout_height="120dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/layout_bg"
                 android:clickable="true"
                 android:contentDescription="@string/convert_pdf_into_png_files"
-                android:elevation="20dp"
                 android:focusable="true"
-                app:cardBackgroundColor="@color/pdfPng"
-                app:cardCornerRadius="10dp"
-                app:layout_constraintBottom_toBottomOf="@id/imgtopdfcardView"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/imgtopdfcardView"
-                app:layout_constraintTop_toTopOf="@id/imgtopdfcardView">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imgtopdfcardView">
+
+                <TextView
+                    android:id="@+id/pdfToPngTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="17dp"
+                    android:text="@string/pdf_into_png"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"
+                    android:textSize="22dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/imageView5"
+                    app:layout_constraintStart_toEndOf="@+id/imageView5"
+                    app:layout_constraintTop_toTopOf="@+id/imageView5" />
+
+                <ImageView
+                    android:id="@+id/imageView5"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:contentDescription="@string/png_image"
+                    android:src="@drawable/png"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/pdfToPngConstraintLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:id="@+id/pdfToPngImageView"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="12dp"
-                        android:contentDescription="@string/pdf_image"
-                        android:src="@drawable/pdf"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/pdfToPngTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/pdf_into_png"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="20dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/pdfToPngImageView" />
-
-                    <ImageView
-                        android:id="@+id/imageView4"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:contentDescription="@string/arrow_right_image_view"
-                        android:src="@drawable/ic_arrow_forward"
-                        app:layout_constraintBottom_toBottomOf="@+id/pdfToPngImageView"
-                        app:layout_constraintEnd_toStartOf="@+id/imageView5"
-                        app:layout_constraintStart_toEndOf="@+id/pdfToPngImageView"
-                        app:layout_constraintTop_toTopOf="@+id/pdfToPngImageView"
-                        app:layout_constraintVertical_bias=".5" />
-
-                    <ImageView
-                        android:id="@+id/imageView5"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="16dp"
-                        android:contentDescription="@string/png_image"
-                        android:src="@drawable/png"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/imageView4"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/pdfToWebpCardView"
-                android:layout_width="wrap_content"
-                android:layout_height="120dp"
-                android:layout_marginTop="24dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/layout_bg"
                 android:clickable="true"
                 android:contentDescription="@string/convert_pdf_into_webp_images"
-                android:elevation="20dp"
                 android:focusable="true"
-                app:cardBackgroundColor="@color/pdfWebp"
-                app:cardCornerRadius="10dp"
-                app:layout_constraintEnd_toStartOf="@+id/pdfToJpgCardView"
-                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/imgtopdfcardView">
+                app:layout_constraintTop_toBottomOf="@+id/pdfToPngCardView">
+
+                <TextView
+                    android:id="@+id/pdfToWebpTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/pdf_into_webp"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"
+                    android:textSize="22dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/pdfToWebpImageView3"
+                    app:layout_constraintStart_toEndOf="@+id/pdfToWebpImageView3"
+                    app:layout_constraintTop_toTopOf="@+id/pdfToWebpImageView3" />
+
+                <ImageView
+                    android:id="@+id/pdfToWebpImageView3"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:contentDescription="@string/webp_image"
+                    android:src="@drawable/ic_webp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/pdfToWebpConstraintLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:id="@+id/pdfToWebpImageView"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="12dp"
-                        android:contentDescription="@string/pdf_image"
-                        android:src="@drawable/pdf"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/pdfToWebpTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/pdf_into_webp"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="20dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/pdfToWebpImageView" />
-
-                    <ImageView
-                        android:id="@+id/pdfToWebpImageView2"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:contentDescription="@string/arrow_right_image_view"
-                        android:src="@drawable/ic_arrow_forward"
-                        app:layout_constraintBottom_toBottomOf="@+id/pdfToWebpImageView"
-                        app:layout_constraintEnd_toStartOf="@+id/pdfToWebpImageView3"
-                        app:layout_constraintStart_toEndOf="@+id/pdfToWebpImageView"
-                        app:layout_constraintTop_toTopOf="@+id/pdfToWebpImageView"
-                        app:layout_constraintVertical_bias=".5" />
-
-                    <ImageView
-                        android:id="@+id/pdfToWebpImageView3"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:contentDescription="@string/webp_image"
-                        android:src="@drawable/ic_webp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/pdfToWebpImageView2"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/pdfToJpgCardView"
-                android:layout_width="wrap_content"
-                android:layout_height="120dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/layout_bg"
                 android:clickable="true"
                 android:contentDescription="@string/convert_pdf_into_jpg_images"
-                android:elevation="20dp"
                 android:focusable="true"
-                app:cardBackgroundColor="@color/pdfJpg"
-                app:cardCornerRadius="10dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/pdfToWebpCardView"
-                app:layout_constraintTop_toTopOf="@+id/pdfToWebpCardView">
-
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/pdfToJpgConstraintLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:id="@+id/pdfToJpgImageView"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="12dp"
-                        android:contentDescription="@string/pdf_image"
-                        android:src="@drawable/pdf"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/pdfToJpgTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/pdf_into_jpg"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="20dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/pdfToJpgImageView" />
-
-                    <ImageView
-                        android:id="@+id/pdfToJpgImageView2"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:contentDescription="@string/arrow_right_image_view"
-                        android:src="@drawable/ic_arrow_forward"
-                        app:layout_constraintBottom_toBottomOf="@+id/pdfToJpgImageView"
-                        app:layout_constraintEnd_toStartOf="@+id/pdfToJpgImageView3"
-                        app:layout_constraintStart_toEndOf="@+id/pdfToJpgImageView"
-                        app:layout_constraintTop_toTopOf="@+id/pdfToJpgImageView"
-                        app:layout_constraintVertical_bias=".5" />
-
-                    <ImageView
-                        android:id="@+id/pdfToJpgImageView3"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="8dp"
-                        android:contentDescription="@string/jpg_image"
-                        android:src="@drawable/jpg"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/pdfToJpgImageView2"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/mergePdfcardView"
-                android:layout_width="0dp"
-                android:layout_height="120dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="24dp"
-                android:layout_marginBottom="24dp"
-                android:clickable="true"
-                android:contentDescription="@string/merge_two_pdf_files_into_one"
-                android:elevation="20dp"
-                android:focusable="true"
-                app:cardBackgroundColor="@color/mergePdf"
-                app:cardCornerRadius="10dp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/pdfToWebpCardView">
 
+                <TextView
+                    android:id="@+id/pdfToJpgTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="17dp"
+                    android:text="@string/pdf_into_jpg"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"
+                    android:textSize="22dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/pdfToJpgImageView3"
+                    app:layout_constraintStart_toEndOf="@+id/pdfToJpgImageView3"
+                    app:layout_constraintTop_toTopOf="@+id/pdfToJpgImageView3" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/mergePdfConstraintLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/pdfToJpgImageView3"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:contentDescription="@string/jpg_image"
+                    android:src="@drawable/jpg"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <ImageView
-                        android:id="@+id/mergePdfsImageView"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:layout_marginTop="12dp"
-                        android:contentDescription="@string/pdf_image"
-                        android:src="@drawable/pdf"
-                        app:layout_constraintStart_toStartOf="@+id/mergePdfsTextView"
-                        app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:id="@+id/mergePdfsImageView2"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:layout_marginTop="12dp"
-                        android:contentDescription="@string/pdf_image"
-                        android:src="@drawable/pdf"
-                        app:layout_constraintStart_toEndOf="@+id/mergePdfsImageView"
-                        app:layout_constraintTop_toTopOf="parent" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/mergePdfcardView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/layout_bg"
+                android:clickable="true"
+                android:contentDescription="@string/merge_two_pdf_files_into_one"
+                android:focusable="true"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/pdfToJpgCardView">
 
-                    <TextView
-                        android:id="@+id/mergePdfsTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/merge_pdf_files_into_one_pdf"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="18dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/mergePdfsImageView" />
+                <TextView
+                    android:id="@+id/mergePdfsTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="17dp"
+                    android:text="@string/merge_pdf_files_into_one_pdf"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"
+                    android:textSize="22dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/mergePdfsImageView4"
+                    app:layout_constraintStart_toEndOf="@+id/mergePdfsImageView4"
+                    app:layout_constraintTop_toTopOf="@+id/mergePdfsImageView4" />
 
-                    <ImageView
-                        android:id="@+id/mergePdfsImageView4"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:layout_marginTop="12dp"
-                        android:contentDescription="@string/pdf_image"
-                        android:src="@drawable/pdf"
-                        app:layout_constraintEnd_toEndOf="@+id/mergePdfsTextView"
-                        app:layout_constraintTop_toTopOf="parent" />
+                <ImageView
+                    android:id="@+id/mergePdfsImageView4"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:contentDescription="@string/pdf_image"
+                    android:src="@drawable/pdf"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:id="@+id/mergePdfsImageView3"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:contentDescription="@string/arrow_right_image_view"
-                        android:src="@drawable/ic_arrow_forward"
-                        app:layout_constraintBottom_toBottomOf="@+id/mergePdfsImageView2"
-                        app:layout_constraintEnd_toStartOf="@+id/mergePdfsImageView4"
-                        app:layout_constraintStart_toEndOf="@+id/mergePdfsImageView2"
-                        app:layout_constraintTop_toTopOf="@+id/mergePdfsImageView2" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

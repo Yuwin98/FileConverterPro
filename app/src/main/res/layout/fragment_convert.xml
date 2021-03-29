@@ -14,6 +14,7 @@
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/convertNestedScrollView"
+        android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -65,26 +66,24 @@
                 android:id="@+id/qualityValueTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="10dp"
                 android:fontFamily="@font/allerta"
                 android:hint="100"
                 android:text="@{viewModel.qualityValue}"
                 android:textSize="18dp"
                 app:layout_constraintBottom_toBottomOf="@+id/qualitySeekBar"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/qualitySeekBar"
                 app:layout_constraintTop_toTopOf="@+id/qualitySeekBar"
                 app:layout_constraintVertical_bias="1.0" />
 
             <TextView
-                android:id="@+id/pdfQualityTextView"
+                android:id="@+id/fileQualityTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:fontFamily="@font/allerta"
-                android:text="@string/pdfQualityText"
+                android:text="@string/file_quality"
                 android:textSize="18dp"
                 app:layout_constraintStart_toStartOf="@+id/textView"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -104,7 +103,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/pdfQualityTextView" />
+                app:layout_constraintTop_toBottomOf="@+id/paddingTextView" />
 
 
             <TextView
@@ -116,21 +115,84 @@
                 android:text="@string/defaultQuality"
                 android:textSize="16sp"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/pdfQualityTextView"
-                app:layout_constraintStart_toEndOf="@id/pdfQualityTextView"
-                app:layout_constraintTop_toTopOf="@id/pdfQualityTextView" />
+                app:layout_constraintBottom_toBottomOf="@id/fileQualityTextView"
+                app:layout_constraintStart_toEndOf="@id/fileQualityTextView"
+                app:layout_constraintTop_toTopOf="@id/fileQualityTextView" />
 
             <Spinner
                 android:id="@+id/fileQualitySpinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="20dp"
                 android:entries="@array/pdf_quality"
                 android:spinnerMode="dialog"
                 android:textAlignment="center"
-                app:layout_constraintStart_toEndOf="@+id/pdfQualityTextView"
+                app:layout_constraintStart_toEndOf="@+id/fileQualityTextView"
                 app:layout_constraintTop_toBottomOf="@+id/qualitySeekBar" />
+
+            <TextView
+                android:id="@+id/paddingTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:fontFamily="@font/allerta"
+                android:text="@string/padding_pdf_page"
+                android:textSize="18dp"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="@+id/pdfPageSizeTextView"
+                app:layout_constraintTop_toBottomOf="@+id/pdfPageSizeTextView" />
+
+            <EditText
+                android:id="@+id/paddingNumberEditText"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:ems="10"
+                android:inputType="number"
+                android:text="@string/_50"
+                android:textSize="18dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/paddingTextView"
+                app:layout_constraintStart_toEndOf="@+id/paddingTextView"
+                app:layout_constraintTop_toTopOf="@+id/paddingTextView"
+                app:layout_constraintVertical_bias="0.708" />
+
+            <TextView
+                android:id="@+id/paddingPixelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/allerta"
+                android:text="Px"
+                android:textSize="18dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/paddingNumberEditText"
+                app:layout_constraintStart_toEndOf="@+id/paddingNumberEditText"
+                app:layout_constraintTop_toTopOf="@+id/paddingNumberEditText" />
+
+            <TextView
+                android:id="@+id/pdfPageSizeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/allerta"
+                android:text="Page Size :"
+                android:textSize="18dp"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="@+id/fileQualityTextView"
+                app:layout_constraintTop_toBottomOf="@+id/fileQualityTextView" />
+
+            <Spinner
+                android:id="@+id/pdfPageSizeSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:entries="@array/pdfPageSize"
+                android:spinnerMode="dialog"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/pdfPageSizeTextView"
+                app:layout_constraintStart_toEndOf="@+id/pdfPageSizeTextView"
+                app:layout_constraintTop_toTopOf="@+id/pdfPageSizeTextView" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

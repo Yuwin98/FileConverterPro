@@ -1,9 +1,7 @@
 package com.yuwin.fileconverterpro
 
 import android.app.Application
-import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,7 +39,9 @@ class ConvertProgressFragment : BaseFragment() {
                 requireContext().applicationContext as Application,
                 args.data.items,
                 args.quality,
-                args.pdfQuality,
+                args.padding,
+                args.fileQuality,
+                args.pageSize,
                 args.convertInto,
                 args.pageInfoList
             )

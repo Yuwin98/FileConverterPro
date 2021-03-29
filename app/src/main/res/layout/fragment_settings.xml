@@ -356,7 +356,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:fontFamily="@font/allerta"
-                    android:text="Version - 1.0.0v"
+                    android:text="@string/version"
                     android:textSize="20dp"
                     app:layout_constraintBottom_toBottomOf="@+id/versionCardView"
                     app:layout_constraintStart_toEndOf="@+id/versionCardView" />

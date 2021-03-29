@@ -29,12 +29,13 @@
 
     <color name="moveCopyTextColor">#C3A9DA</color>
 
+    <color name="navBarColor">#000</color>
     <color name="NoFilesColor">#bdc3c7</color>
     <color name="backgroundColor">@color/dark</color>
     <color name="numberBackgroundColor">@color/dark</color>
     <color name="splashScreenColor">@color/darker</color>
     <color name="actionBarBackgroundColor">#121212</color>
-    <color name="navigationBarColor">#121212</color>
+    <color name="navigationBarColor">#000</color>
 
     <color name="statusBarColor">@color/darker</color>
     <color name="contextualStatusBarColor">@android:color/black</color>

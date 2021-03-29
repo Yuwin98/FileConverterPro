@@ -1,10 +1,13 @@
 package com.yuwin.fileconverterpro
 
 
+import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -43,8 +46,10 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     private var imgLimit = FREE_IMAGE_LIMIT
     private var mInterstitialAd: InterstitialAd? = null
     private var myAdUnitId = ""
-    private var mAdView: AdView? = null
     private var adRequest: AdRequest? = null
+    private lateinit var adView: AdView
+    private lateinit var adViewContainer: FrameLayout
+    private var initialLayoutComplete = false
     private var parentView: ConstraintLayout? = null
 
     private var tag = "MainActivity"
@@ -60,6 +65,23 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     var isCopyOperation = false
     lateinit var filesToModify: MutableList<ConvertedFile>
 
+    private val adSize: AdSize
+        get() {
+            val display = windowManager.defaultDisplay
+            val outMetrics = DisplayMetrics()
+            display.getMetrics(outMetrics)
+
+            val density = outMetrics.density
+
+            var adWidthPixels = outMetrics.widthPixels.toFloat()
+            if (adWidthPixels == 0f) {
+                adWidthPixels = outMetrics.widthPixels.toFloat()
+            }
+
+            val adWidth = (adWidthPixels / density).toInt()
+            return AdSize.getCurrentOrientationBannerAdSizeWithWidth(this, adWidth)
+        }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +90,11 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
         Log.d("adnotworking", "OnCreate Called")
 
-       adRequest = AdRequest.Builder().build()
+
+        supportActionBar?.setBackgroundDrawable(
+            ColorDrawable(ContextCompat.getColor(this,R.color.navigationBarColor)))
+
+        adRequest = AdRequest.Builder().build()
         currentUserDirectory =
             ContextCompat.getExternalFilesDirs(applicationContext, null)[0].absolutePath
         myAdUnitId = getString(R.string.appInterstitialAdId)
@@ -112,22 +138,28 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
         }
 
 
+
+
         mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
             if (isPremium == 1) {
                 this.imgLimit = PREMIUM_IMAGE_LIMIT
-                mAdView = findViewById(R.id.bannerAdView)
-                mAdView?.visibility = View.GONE
+                adViewContainer = findViewById(R.id.bannerAdView)
+                adViewContainer.visibility = View.GONE
 
 
             } else {
                 this.imgLimit = FREE_IMAGE_LIMIT
-                mAdView = findViewById(R.id.bannerAdView)
-                Log.d("adnotworking", "Ad Creation")
-
                 MobileAds.initialize(this)
-                val adRequest = AdRequest.Builder().build()
-                mAdView?.visibility = View.VISIBLE
-                mAdView?.loadAd(adRequest)
+                adViewContainer = findViewById(R.id.bannerAdView)
+                adView = AdView(this)
+                adViewContainer.addView(adView)
+                adViewContainer.viewTreeObserver.addOnGlobalLayoutListener {
+                    if (!initialLayoutComplete) {
+                        initialLayoutComplete = true
+                        loadBanner()
+                    }
+                }
+
 
             }
         })
@@ -163,10 +195,26 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
         })
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    private fun loadBanner() {
+        adView.adUnitId = getString(R.string.appBannerAdId)
+        adView.adSize = adSize
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
+    }
+
     fun requestInterstitial() {
         mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
             if (isPremium == 0) {
-                adRequest?.let { createInterstitial(it) }
+                val adRequest = AdRequest.Builder().build()
+                createInterstitial(adRequest)
             }
         })
     }
@@ -207,30 +255,29 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     }
 
     override fun onPause() {
-        Log.d("adnotworking", "OnPause Called")
-        mAdView?.pause()
+        if(this::adView.isInitialized) {
+            adView.pause()
+        }
         super.onPause()
 
     }
 
     override fun onResume() {
-        Log.d("adnotworking", "OnResume Called")
         super.onResume()
-        mAdView?.resume()
+        if (this::adView.isInitialized) {
+            adView.resume()
+        }
     }
 
     override fun onDestroy() {
-        Log.d("adnotworking", "OnDestroy Called")
-        mAdView?.destroy()
+        if(this::adView.isInitialized) {
+            adView.destroy()
+        }
         mainViewModel = null
         mInterstitialAd = null
         adRequest = null
         bottomNavigationView = null
         navController = null
-        parentView?.removeView(mAdView)
-        parentView?.removeAllViewsInLayout()
-        parentView = null
-        mAdView = null
         billingClient?.endConnection()
         billingClient = null
         super.onDestroy()
