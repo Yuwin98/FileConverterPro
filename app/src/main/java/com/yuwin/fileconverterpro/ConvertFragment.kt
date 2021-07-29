@@ -25,6 +25,7 @@ import com.yuwin.fileconverterpro.Constants.Companion.PDF_LIMIT
 import com.yuwin.fileconverterpro.Constants.Companion.PREMIUM_IMAGE_LIMIT
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentConvertBinding
+import java.lang.Exception
 import java.util.*
 
 private const val IMAGE_REQUEST_CODE = 100
@@ -341,25 +342,29 @@ class ConvertFragment : Fragment() {
 
     private fun setupData(uriList: List<Uri>): MutableList<ConvertInfo> {
         val data = mutableListOf<ConvertInfo>()
-        uriList.forEachIndexed { index, uri ->
-            val currentIndex = args.pageInfoList?.items?.get(index)?.pdfIndex
-            val totalPages = currentIndex?.let { args.pageInfoList?.items?.get(it)?.totalPages }
-            val selectedPages =
-                currentIndex?.let { args.pageInfoList?.items?.get(it)?.selectedPages?.size }
-            val pageString = "$selectedPages/$totalPages"
-            val (fileName, fileSize) = Util.getImageDetails(requireContext(), uri)
-            val fileType = Util.getMimeType(requireContext(), uri)
-            val convertInfo = ConvertInfo(
-                uri,
-                fileName,
-                fileSize,
-                uri.path ?: "N/A",
-                fileType ?: "N/A",
-                pageString,
-                isPdfConversion(),
-                args.convertInto
-            )
-            data.add(convertInfo)
+        for(i in uriList.indices) {
+            try {
+                val currentIndex = args.pageInfoList?.items?.get(i)?.pdfIndex
+                val totalPages = currentIndex?.let { args.pageInfoList?.items?.get(it)?.totalPages }
+                val selectedPages =
+                    currentIndex?.let { args.pageInfoList?.items?.get(it)?.selectedPages?.size }
+                val pageString = "$selectedPages/$totalPages"
+                val (fileName, fileSize) = Util.getImageDetails(requireContext(), uriList[i])
+                val fileType = Util.getMimeType(requireContext(), uriList[i])
+                val convertInfo = ConvertInfo(
+                    uriList[i],
+                    fileName,
+                    fileSize,
+                    uriList[i].path ?: "N/A",
+                    fileType ?: "N/A",
+                    pageString,
+                    isPdfConversion(),
+                    args.convertInto
+                )
+                data.add(convertInfo)
+            }catch (e: Exception) {
+                continue
+            }
         }
         return data
     }

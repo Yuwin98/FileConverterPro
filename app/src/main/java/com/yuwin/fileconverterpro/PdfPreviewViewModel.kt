@@ -88,25 +88,34 @@ class PdfPreviewViewModel(val app: Application) : AndroidViewModel(app) {
      fun createPageBitmapList() {
 
         for (i in 0 until pageCount) {
-            currentPage?.close()
-            currentPage = pdfRenderer?.openPage(i)
-            val bitmap = currentPage?.let {
-                Bitmap.createBitmap(
-                    it.width, it.height,
-                    Bitmap.Config.ARGB_8888
-                )
-            }
-
-            if (bitmap != null) {
-                bitmap.eraseColor(Color.WHITE)
-                Canvas(bitmap).drawBitmap(bitmap, 0f, 0f, null)
-                currentPage?.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                viewModelScope.launch {
-                    incrementProgressValue()
-                    changeProgressText(pageCount)
+            try {
+                currentPage?.close()
+                currentPage = pdfRenderer?.openPage(i)
+                val bitmap = currentPage?.let {
+                    Bitmap.createBitmap(
+                        it.width, it.height,
+                        Bitmap.Config.ARGB_8888
+                    )
                 }
-                val dataItem = PdfPreviewModel(bitmap, false)
-                _data.value?.add(dataItem)
+
+                if (bitmap != null) {
+                    bitmap.eraseColor(Color.WHITE)
+                    Canvas(bitmap).drawBitmap(bitmap, 0f, 0f, null)
+                    currentPage?.render(
+                        bitmap,
+                        null,
+                        null,
+                        PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+                    )
+                    viewModelScope.launch {
+                        incrementProgressValue()
+                        changeProgressText(pageCount)
+                    }
+                    val dataItem = PdfPreviewModel(bitmap, false)
+                    _data.value?.add(dataItem)
+                }
+            }catch (e: Exception) {
+                continue
             }
 
         }

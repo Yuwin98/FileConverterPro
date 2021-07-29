@@ -186,7 +186,7 @@ class ConvertProgressFragment : BaseFragment() {
     private fun roundOffDecimal(number: Double): Double {
         val df = DecimalFormat("#.#")
         df.roundingMode = RoundingMode.CEILING
-        var result: Double
+        var result: Double = number
         try {
            result =  df.format(number).toDouble()
         }catch (e: NumberFormatException) {
@@ -194,9 +194,9 @@ class ConvertProgressFragment : BaseFragment() {
         }catch (e: Exception) {
 
         }finally {
-            return floor(number)
+            return result
         }
-        return result
+
     }
 
 
