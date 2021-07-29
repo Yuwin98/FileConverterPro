@@ -8,7 +8,7 @@
         app:showAsAction="always"/>
 
     <item android:id="@+id/nextButton"
-        android:title="Next"
+        android:title="@string/next"
         app:showAsAction="always" />
 
 </menu>

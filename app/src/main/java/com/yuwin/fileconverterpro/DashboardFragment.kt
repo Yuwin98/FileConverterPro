@@ -60,24 +60,34 @@ class DashboardFragment : BaseFragment() {
 
         binding?.imgtojpgcardView?.setOnClickListener {
             convertInto = ".jpg"
+            mergePdf = false
+            pdfIntoImages = false
             chooseImageIfPermissionGranted()
         }
         binding?.imgtopngcardView?.setOnClickListener {
             convertInto = ".png"
+            mergePdf = false
+            pdfIntoImages = false
             chooseImageIfPermissionGranted()
         }
         binding?.imgtowebpcardView?.setOnClickListener {
             convertInto = ".webp"
+            mergePdf = false
+            pdfIntoImages = false
             chooseImageIfPermissionGranted()
         }
         binding?.mergeImagestopdfcardView?.setOnClickListener {
             mergeImagesIntoPdf = true
+            mergePdf = false
+            pdfIntoImages = false
             convertInto = ".pdf"
             chooseImageIfPermissionGranted()
         }
         binding?.imgtopdfcardView?.setOnClickListener {
             convertInto = ".pdf"
             singleImageIntoPdf = true
+            mergePdf = false
+            pdfIntoImages = false
             chooseImageIfPermissionGranted()
         }
         binding?.pdfToPngCardView?.setOnClickListener {
@@ -125,7 +135,7 @@ class DashboardFragment : BaseFragment() {
         val intent = Intent()
         intent.type = "image/*"
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-        intent.action = Intent.ACTION_GET_CONTENT
+        intent.action = Intent.ACTION_PICK
         startActivityForResult(Intent.createChooser(intent, "Select Images"), IMAGE_REQUEST_CODE)
     }
 

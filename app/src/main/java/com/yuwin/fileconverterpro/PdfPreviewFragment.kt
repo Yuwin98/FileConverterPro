@@ -3,6 +3,7 @@ package com.yuwin.fileconverterpro
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
@@ -266,8 +267,10 @@ class PdfPreviewFragment : BaseFragment(), FileListClickListener {
     }
 
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("PDF", "Destroyed")
+
         _binding?.pdfPreviewRecyclerView?.adapter = null
         _binding = null
     }

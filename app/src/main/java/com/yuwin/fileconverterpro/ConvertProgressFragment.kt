@@ -5,16 +5,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.yuwin.fileconverterpro.databinding.FragmentConvertProgressBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.lang.Exception
+import java.lang.NumberFormatException
 import java.math.RoundingMode
 import java.text.DecimalFormat
+import kotlin.math.floor
 
 
 class ConvertProgressFragment : BaseFragment() {
@@ -76,7 +83,7 @@ class ConvertProgressFragment : BaseFragment() {
             roundBorder = true
         }
         convertProgressViewModel.completePercentage.observe(viewLifecycleOwner, { progress ->
-            if (progress != null) {
+            if (progress != null && progress != 0.0) {
                 val progressOneDecimal = roundOffDecimal(progress)
                 val progressString = "$progressOneDecimal%"
                 binding.progressBarTextView.text = progressString
@@ -96,10 +103,22 @@ class ConvertProgressFragment : BaseFragment() {
                 if (conversionFinished) {
                     (requireActivity() as AppCompatActivity).supportActionBar?.title =
                         "Conversion Finished"
+
                     binding.pauseButton.visibility = View.GONE
                     binding.convertedFileNameTextView.visibility = View.GONE
                     binding.backHomeButton.visibility = View.VISIBLE
                     binding.resumeButton.visibility = View.GONE
+                    binding.backHomeButton.visibility = View.GONE
+                    lifecycleScope.launch {
+                        delay(300)
+                        findNavController().navigate(R.id.action_convertProgressFragment_to_home)
+                        mainViewModel.readIsPremium.observe(viewLifecycleOwner, {isPremium ->
+                            if(isPremium == 0) {
+                                (activity as MainActivity).showInterstitial()
+                            }
+                        })
+                    }
+
 
                 }
             })
@@ -167,7 +186,17 @@ class ConvertProgressFragment : BaseFragment() {
     private fun roundOffDecimal(number: Double): Double {
         val df = DecimalFormat("#.#")
         df.roundingMode = RoundingMode.CEILING
-        return df.format(number).toDouble()
+        var result: Double
+        try {
+           result =  df.format(number).toDouble()
+        }catch (e: NumberFormatException) {
+
+        }catch (e: Exception) {
+
+        }finally {
+            return floor(number)
+        }
+        return result
     }
 
 

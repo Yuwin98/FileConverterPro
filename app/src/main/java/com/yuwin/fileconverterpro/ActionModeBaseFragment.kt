@@ -242,6 +242,12 @@ abstract class ActionModeBaseFragment : Fragment() {
         }
 
         fileRenameButton.setOnClickListener {
+
+            if(selectedFiles.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), "No file or folder selected", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener;
+            }
+
             val renamingEntity = if (selectedFiles[0].isDirectory) "Folder" else "File"
             val editTextView = layoutInflater.inflate(R.layout.edittext_layout, null)
             MaterialAlertDialogBuilder(requireContext())

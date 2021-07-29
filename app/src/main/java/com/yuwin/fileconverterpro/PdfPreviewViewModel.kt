@@ -7,16 +7,19 @@ import android.graphics.Color
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.ParcelFileDescriptor
+import android.widget.Toast
 import androidx.lifecycle.*
 import kotlinx.coroutines.launch
+import java.io.FileNotFoundException
+import java.lang.Exception
 
 class PdfPreviewViewModel(val app: Application) : AndroidViewModel(app) {
 
     private var currentPage: PdfRenderer.Page? = null
 
-    private lateinit var pdfRenderer: PdfRenderer
+    private  var pdfRenderer: PdfRenderer? = null
 
-    private lateinit var fileDescriptor: ParcelFileDescriptor
+    private  var fileDescriptor: ParcelFileDescriptor? = null
 
     private val _progressValue = MutableLiveData<Int>().apply { value = 0 }
     val progressValue: LiveData<Int> get() = _progressValue
@@ -54,16 +57,31 @@ class PdfPreviewViewModel(val app: Application) : AndroidViewModel(app) {
 
 
      fun openPdfRenderer(fileUri: Uri) {
-        fileDescriptor =
-            app.applicationContext.contentResolver.openFileDescriptor(fileUri, "r")!!
-        pdfRenderer = PdfRenderer(fileDescriptor)
-        pageCount = pdfRenderer.pageCount
+         try {
+             fileDescriptor =
+                 app.applicationContext.contentResolver.openFileDescriptor(fileUri, "r")!!
+             fileDescriptor?.let { pfd ->
+                 pdfRenderer = PdfRenderer(pfd)
+                 pdfRenderer?.let {
+                     pageCount = it.pageCount
+                 }
+             }
+
+
+         }catch (e: FileNotFoundException) {
+            Toast.makeText(app, "File Not found", Toast.LENGTH_SHORT).show()
+         }catch (e: Exception) {
+             e.printStackTrace()
+         }
+
     }
 
-     fun closePdfRenderer() {
-        currentPage?.close()
-        pdfRenderer.close()
-        fileDescriptor.close()
+     private fun closePdfRenderer() {
+        if(currentPage != null) {
+            currentPage?.close()
+        }
+         pdfRenderer?.close()
+         fileDescriptor?.close()
 
     }
 
@@ -71,7 +89,7 @@ class PdfPreviewViewModel(val app: Application) : AndroidViewModel(app) {
 
         for (i in 0 until pageCount) {
             currentPage?.close()
-            currentPage = pdfRenderer.openPage(i)
+            currentPage = pdfRenderer?.openPage(i)
             val bitmap = currentPage?.let {
                 Bitmap.createBitmap(
                     it.width, it.height,
@@ -104,6 +122,7 @@ class PdfPreviewViewModel(val app: Application) : AndroidViewModel(app) {
 
     override fun onCleared() {
         super.onCleared()
+        closePdfRenderer()
         _data.postValue(null)
     }
 

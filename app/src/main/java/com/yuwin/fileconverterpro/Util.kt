@@ -120,11 +120,6 @@ class Util {
             }
         }
 
-        fun Context.isDarkThemeOn(): Boolean {
-            return resources.configuration.uiMode and
-                    Configuration.UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
-        }
-
 
         // Storage Details
         fun getExternalDir(context: Context): String {
@@ -153,15 +148,6 @@ class Util {
                 else -> "$value items"
             }
 
-        }
-
-        fun isExternalStorageWritable(): Boolean {
-            return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
-        }
-
-        fun isExternalStorageReadable(): Boolean {
-            return Environment.getExternalStorageState() in
-                    setOf(Environment.MEDIA_MOUNTED, Environment.MEDIA_MOUNTED_READ_ONLY)
         }
 
         fun getSendingType(context: Context, file: ConvertedFile): String {
@@ -299,14 +285,6 @@ class Util {
         fun getDataString(lastModified: Long): String {
             val df = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
             return df.format(lastModified)
-        }
-
-        fun File.copyTo(file: File) {
-            inputStream().use { input ->
-                file.outputStream().use { output ->
-                    input.copyTo(output)
-                }
-            }
         }
 
         fun getAllFolderColors(context: Context): List<Int> {

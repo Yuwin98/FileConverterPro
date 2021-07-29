@@ -1,41 +1,40 @@
 <resources>
     <string name="app_name">Image Converter</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="item_size">Image Count: %1$d/%2$d</string>
+    <string name="item_size" translatable="false">Image Count: %1$d/%2$d</string>
     <string name="stopText">Stop</string>
     <string name="restartText">Restart</string>
-    <string name="appPremiumSku">image_converter_premium</string>
+    <string name="appPremiumSku" translatable="false">image_converter_premium</string>
 
-    <string name="base64Key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA20NTZ9NcUHauNHTsgVRAfed6i1aOwAIndn600Gh4aEgsQnK7gdIjIk+Vdv6cjrePG+FkU55y2Re4MRHE1cROmLnZjvmfFkWMEFn9FslKX99uh6YmZ29Cg2KFJuNJe0mGEOH+ULMXwviGSRtsWg5AGLjTSbRCiabva5g7u7PxHkt4vtiQt+BWz6ecndOP6zKiDnZ+PkZT1L9bnWbbHcZzDpGTzEiD6d+Gn2fU1yPpf+uxLoa9fRTqa9SqspbaD3kjLdnH17/6aJXIyeZYSF8TAqjLeA9BiU5Z8K2JimC8m/RngvsZEVMtC5gq+a1styWWdgv4oJOwalPlA3RiZz01yQIDAQAB</string>
-    <string name="defaultQuality">72 PPI</string>
+    <string name="base64Key" translatable="false">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA20NTZ9NcUHauNHTsgVRAfed6i1aOwAIndn600Gh4aEgsQnK7gdIjIk+Vdv6cjrePG+FkU55y2Re4MRHE1cROmLnZjvmfFkWMEFn9FslKX99uh6YmZ29Cg2KFJuNJe0mGEOH+ULMXwviGSRtsWg5AGLjTSbRCiabva5g7u7PxHkt4vtiQt+BWz6ecndOP6zKiDnZ+PkZT1L9bnWbbHcZzDpGTzEiD6d+Gn2fU1yPpf+uxLoa9fRTqa9SqspbaD3kjLdnH17/6aJXIyeZYSF8TAqjLeA9BiU5Z8K2JimC8m/RngvsZEVMtC5gq+a1styWWdgv4oJOwalPlA3RiZz01yQIDAQAB</string>
+    <string name="defaultQuality" translatable="false">72 PPI</string>
     <string name="convertButtonText">Convert</string>
     <string name="pdfQualityText">PDF Quality :</string>
     <string name="qualityText">Quality</string>
-    <string name="convertAllCheckBoxText">Convert All Into :</string>
+    <string name="convertAllCheckBoxText" translatable="false">Convert All Into :</string>
     <string name="renameEditTextHint">Filename</string>
-    <string name="gridConvertedFileItemImageViewDescription">Converted file Item Grid</string>
-    <string name="convertedFileListViewImageDescription">Converted file Item List View</string>
+    <string name="gridConvertedFileItemImageViewDescription" translatable="false">Converted file Item Grid</string>
+    <string name="convertedFileListViewImageDescription" translatable="false">Converted file Item List View</string>
     <string name="pauseButtonText">Pause</string>
     <string name="backHomeButtonText">View Files</string>
     <string name="resumeButtonText">Resume</string>
-    <string name="no_favourite_file_image_view">No favourite file Image View</string>
+    <string name="no_favourite_file_image_view" translatable="false">No favourite file Image View</string>
     <string name="no_favorite_files_available">No Favorite Files Available</string>
     <string name="no_converted_files_available">No Converted Files Found</string>
-    <string name="arrow_right_image_view">Arrow Right Image View</string>
-    <string name="queue_item_image_preview">Queue Item Image Preview</string>
+    <string name="arrow_right_image_view" translatable="false">Arrow Right Image View</string>
+    <string name="queue_item_image_preview" translatable="false">Queue Item Image Preview</string>
     <string name="renameDialogEditTextHint">filename</string>
     <string name="renameDialogButtonText">Rename</string>
     <string name="renameDialogCancelButtonText">Cancel</string>
-    <string name="current_pdf_page">Current PDF Page</string>
+    <string name="current_pdf_page" translatable="false">Current PDF Page</string>
     <string name="delete_file_txt">Delete File</string>
     <string name="share_file_button">Share file</string>
     <string name="edit_file_button">Edit File</string>
     <string name="favorite_button">Move to favourite</string>
     <string name="open_in_another_pdf_viewing_app_button">Open In another PDF viewing app button</string>
     <string name="opened_image_file">Opened Image File</string>
-    <string name="appInterstitialAdId">ca-app-pub-9767087107670640/7400777402</string>
-    <string name="appBannerAdId">ca-app-pub-9767087107670640/9097002459</string>
+    <string name="appInterstitialAdId" translatable="false">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="appBannerAdId" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
     <string name="moveFileText">Move</string>
     <string name="copyTextView">Copy</string>
     <string name="shareText">Share</string>
@@ -50,7 +49,7 @@
     <string name="moveCopyAction">Move Here</string>
     <string name="new_folder_text">New-Folder</string>
     <string name="delete_all_text">Delete All Files</string>
-    <string name="grid_view_text">Grid View</string>
+    <string name="grid_view_text" translatable="false">Grid View</string>
     <string name="copy_here_text">Copy Here</string>
     <string name="move_here_text">Move Here</string>
     <string name="path_title_text">Path</string>
@@ -63,7 +62,7 @@
     <string name="clear_folder_text">Clear Folder</string>
     <string name="progressbar_view_text">Action In Progress</string>
     <string name="edit_btn_text">Edit</string>
-    <string name="app_banner_ad">App Banner Ad</string>
+    <string name="app_banner_ad" translatable="false">App Banner Ad</string>
     <string name="favourite_items_list">Favourite items list</string>
     <string name="my_converted_files_list">My converted files list</string>
     <string name="my_converted_files_in_a_directory">My converted files in a directory</string>
@@ -73,32 +72,50 @@
     <string name="pdf_into_jpg">PDF Into JPG</string>
     <string name="merge_pdf_files_into_one_pdf">Merge PDF Files</string>
     <string name="convert_images_to_png">Convert Images to PNG</string>
-    <string name="png_image">Png Image</string>
+    <string name="png_image" translatable="false">Png Image</string>
     <string name="images_into_png">Images Into PNG</string>
-    <string name="jpg_image">Jpg Image</string>
+    <string name="jpg_image" translatable="false">Jpg Image</string>
     <string name="images_into_jpg">Images Into JPG</string>
     <string name="convert_images_into_jpg">Convert Images into JPG</string>
     <string name="convert_images_into_webp">Convert Images into Webp</string>
-    <string name="webp_image">Webp Image</string>
+    <string name="webp_image" translatable="false">Webp Image</string>
     <string name="images_into_webp">Images Into WEBP</string>
-    <string name="pdf_image">Pdf Image</string>
+    <string name="pdf_image" translatable="false">Pdf Image</string>
     <string name="merge_images_into_single_pdf">Images Into PDF</string>
     <string name="merge_images_into_pdf_file">Merge Images into PDF</string>
     <string name="convert_image_into_a_pdf_file">Convert Image into a pdf File</string>
     <string name="image_into_pdf">Image Into PDF</string>
-    <string name="convert_pdf_into_png_files">Convert Pdf into Png files</string>
+    <string name="convert_pdf_into_png_files">Images Into PDF</string>
     <string name="merge_two_pdf_files_into_one">Merge PDF Files</string>
     <string name="convert_pdf_into_webp_images">Convert Pdf into webp images</string>
     <string name="convert_pdf_into_jpg_images">Convert Pdf into Jpg images</string>
-    <string name="pdf_preview_page">Pdf Preview Page</string>
-    <string name="version">Version - 15.7 V</string>
-    <string name="_50">50</string>
+    <string name="pdf_preview_page" translatable="false">Pdf Preview Page</string>
+    <string name="version">Version - 15.8 V</string>
+    <string name="_50" translatable="false">50</string>
     <string name="padding_pdf_page">Page Padding:</string>
-    <string name="value_0">0</string>
-    <string name="value_1000">1000</string>
+    <string name="value_0" translatable="false">0</string>
+    <string name="value_1000" translatable="false">1000</string>
     <string name="pdf_quality_text">Page Quality:</string>
     <string name="img_quality_text">Size:</string>
     <string name="file_quality">File Quality</string>
+    <string name="default_format">Default format :</string>
+    <string name="_100" translatable="false">100</string>
+    <string name="quality">Quality</string>
+    <string name="save_directory">Save directory</string>
+    <string name="rate_our_app">Rate our app</string>
+    <string name="go_premium">Go premium</string>
+    <string name="send_a_bug_report">Send a bug report</string>
+    <string name="files">Files</string>
+    <string name="menu">Menu</string>
+    <string name="favorites">Favorites</string>
+    <string name="settings">Settings</string>
+    <string name="sort">Sort</string>
+    <string name="date">Date</string>
+    <string name="size">Size</string>
+    <string name="name">Name</string>
+    <string name="type_created_at">Type-Created At</string>
+    <string name="filter">Filter</string>
+    <string name="next">Next</string>
 
     <string-array name="file_types">
         <item>PNG</item>

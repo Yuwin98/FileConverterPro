@@ -7,6 +7,7 @@ import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.util.Log
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
@@ -69,7 +70,7 @@ class ConvertProgressViewModel(
 
 
     init {
-        _completePercentage.postValue(0.0)
+        _completePercentage.postValue(2.0)
         _conversionFinished.postValue(false)
     }
 
@@ -198,12 +199,18 @@ class ConvertProgressViewModel(
 
 
         data.forEachIndexed { _, file ->
-            fileDescriptor = app.contentResolver.openFileDescriptor(file.uri, "r")!!
-            pdfRenderer = PdfRenderer(fileDescriptor)
-            itemCount += pdfRenderer.pageCount
+            try {
+                fileDescriptor = app.contentResolver.openFileDescriptor(file.uri, "r")!!
+                if (fileDescriptor != null) {
+                    pdfRenderer = PdfRenderer(fileDescriptor)
+                    itemCount += pdfRenderer.pageCount
 
-            fileDescriptor.close()
-            pdfRenderer.close()
+                    fileDescriptor.close()
+                    pdfRenderer.close()
+                }
+            }catch (e: Exception){
+
+            }
         }
 
 
@@ -519,7 +526,10 @@ class ConvertProgressViewModel(
 
 
             inputStream?.close()
-        } catch (e: Exception) {
+        }catch (e: FileNotFoundException) {
+            Toast.makeText(app,"File Not Found", Toast.LENGTH_SHORT).show()
+        }
+        catch (e: Exception) {
             e.printStackTrace()
         } finally {
             inputStream?.close()

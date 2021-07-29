@@ -2,19 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:id="@+id/dashboard"
-        android:title="Menu"
+        android:title="@string/menu"
         android:icon="@drawable/ic_gridview"/>
 
     <item android:id="@+id/files"
-        android:title="Files"
+        android:title="@string/files"
         android:icon="@drawable/ic_files"/>
 
     <item android:id="@+id/favorites"
-        android:title="Favorites"
+        android:title="@string/favorites"
         android:icon="@drawable/ic_favorite"/>
 
     <item android:id="@+id/settings"
-        android:title="Settings"
+        android:title="@string/settings"
         android:icon="@drawable/ic_settings"/>
 
 </menu>
