@@ -19,6 +19,7 @@ import androidx.navigation.fragment.findNavController
 import com.yuwin.fileconverterpro.Constants.Companion.FREE_IMAGE_LIMIT
 import com.yuwin.fileconverterpro.Constants.Companion.PREMIUM_IMAGE_LIMIT
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
+import com.yuwin.fileconverterpro.Util.Companion.setOnSingleClickListener
 import com.yuwin.fileconverterpro.databinding.FragmentDashboardBinding
 
 private const val MEDIA_LOCATION_PERMISSION_REQUEST_CODE_IMG = 999
@@ -58,54 +59,54 @@ class DashboardFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding?.imgtojpgcardView?.setOnClickListener {
+        binding?.imgtojpgcardView?.setOnSingleClickListener {
             convertInto = ".jpg"
             mergePdf = false
             pdfIntoImages = false
             chooseImageIfPermissionGranted()
         }
-        binding?.imgtopngcardView?.setOnClickListener {
+        binding?.imgtopngcardView?.setOnSingleClickListener {
             convertInto = ".png"
             mergePdf = false
             pdfIntoImages = false
             chooseImageIfPermissionGranted()
         }
-        binding?.imgtowebpcardView?.setOnClickListener {
+        binding?.imgtowebpcardView?.setOnSingleClickListener {
             convertInto = ".webp"
             mergePdf = false
             pdfIntoImages = false
             chooseImageIfPermissionGranted()
         }
-        binding?.mergeImagestopdfcardView?.setOnClickListener {
+        binding?.mergeImagestopdfcardView?.setOnSingleClickListener {
             mergeImagesIntoPdf = true
             mergePdf = false
             pdfIntoImages = false
             convertInto = ".pdf"
             chooseImageIfPermissionGranted()
         }
-        binding?.imgtopdfcardView?.setOnClickListener {
+        binding?.imgtopdfcardView?.setOnSingleClickListener {
             convertInto = ".pdf"
             singleImageIntoPdf = true
             mergePdf = false
             pdfIntoImages = false
             chooseImageIfPermissionGranted()
         }
-        binding?.pdfToPngCardView?.setOnClickListener {
+        binding?.pdfToPngCardView?.setOnSingleClickListener {
             convertInto = ".png"
             pdfIntoImages = true
             choosePdfIfPermissionGranted()
         }
-        binding?.pdfToWebpCardView?.setOnClickListener {
+        binding?.pdfToWebpCardView?.setOnSingleClickListener {
             convertInto = ".webp"
             pdfIntoImages = true
             choosePdfIfPermissionGranted()
         }
-        binding?.pdfToJpgCardView?.setOnClickListener {
+        binding?.pdfToJpgCardView?.setOnSingleClickListener {
             convertInto = ".jpeg"
             pdfIntoImages = true
             choosePdfIfPermissionGranted()
         }
-        binding?.mergePdfcardView?.setOnClickListener {
+        binding?.mergePdfcardView?.setOnSingleClickListener {
             mergePdf = true
             convertInto = ".pdf"
             choosePdfIfPermissionGranted()

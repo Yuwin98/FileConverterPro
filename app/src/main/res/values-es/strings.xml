@@ -78,7 +78,7 @@
     <string name="merge_two_pdf_files_into_one">Fusionar archivos PDF</string>
     <string name="convert_pdf_into_webp_images">Convertir PDF en imágenes webp</string>
     <string name="convert_pdf_into_jpg_images">Convertir PDF en imágenes Jpg</string>
-    <string name="version">Versión - 15,8 V</string>
+    <string name="version">Versión - 16.3 V</string>
     <string name="padding_pdf_page">Relleno de página:</string>
     <string name="files">Archivos</string>
     <string name="send_a_bug_report">Envíe un informe de error</string>

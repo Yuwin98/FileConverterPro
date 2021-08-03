@@ -92,8 +92,9 @@ class PdfPreviewViewModel(val app: Application) : AndroidViewModel(app) {
                 currentPage?.close()
                 currentPage = pdfRenderer?.openPage(i)
                 val bitmap = currentPage?.let {
+
                     Bitmap.createBitmap(
-                        it.width, it.height,
+                        Util.dipToPixels(app, 140f).toInt(), Util.dipToPixels(app, 140f).toInt(),
                         Bitmap.Config.ARGB_8888
                     )
                 }

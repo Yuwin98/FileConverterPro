@@ -52,7 +52,7 @@
     <string name="progressbar_view_text">進行中のアクション</string>
     <string name="edit_btn_text">編集</string>
     <string name="favourite_items_list">お気に入りのアイテムリスト</string>
-    <string name="version">バージョン-15.8b V</string>
+    <string name="version">バージョン-16.3 V</string>
     <string name="merge_two_pdf_files_into_one">PDFファイルをマージする</string>
     <string name="convert_pdf_into_webp_images">PDFをwebp画像に変換する</string>
     <string name="convert_pdf_into_jpg_images">PDFをJpg画像に変換する</string>

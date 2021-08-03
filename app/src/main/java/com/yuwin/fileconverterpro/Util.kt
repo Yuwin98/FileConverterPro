@@ -2,14 +2,13 @@ package com.yuwin.fileconverterpro
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Environment
+import android.os.SystemClock
 import android.provider.OpenableColumns
-import android.util.Log
+import android.util.TypedValue
+import android.view.View
 import android.webkit.MimeTypeMap
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -24,7 +23,6 @@ import java.text.CharacterIterator
 import java.text.SimpleDateFormat
 import java.text.StringCharacterIterator
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.sqrt
@@ -317,6 +315,29 @@ class Util {
 
 
             )
+        }
+
+        fun dipToPixels(context: Context, dipValue: Float): Float {
+            val metrics = context.resources.displayMetrics
+            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics)
+        }
+
+        class OnSingleClickListener(private val block: () -> Unit) : View.OnClickListener {
+
+            private var lastClickTime = 0L
+
+            override fun onClick(view: View) {
+                if (SystemClock.elapsedRealtime() - lastClickTime < 1000) {
+                    return
+                }
+                lastClickTime = SystemClock.elapsedRealtime()
+
+                block()
+            }
+        }
+
+        fun View.setOnSingleClickListener(block: () -> Unit) {
+            setOnClickListener(OnSingleClickListener(block))
         }
 
 

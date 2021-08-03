@@ -505,11 +505,12 @@ class ConvertProgressViewModel(
             val options = BitmapFactory.Options()
             options.inPreferredConfig = Bitmap.Config.ARGB_8888
             options.inScaled = false
+
             val inputBitmap = BitmapFactory.decodeStream(inputStream, null, options)
             Log.d("Spinnervalues", fileQuality.toString())
             val getImageSize = inputBitmap?.let { getImageSize(it, fileQuality) }
             val bitmap =
-                inputBitmap?.let { getImageSize?.let { it1 -> scaleImage(it, it1.first, getImageSize.second) } }
+                inputBitmap?.let { getImageSize?.let { it1 -> scaleImage(it, it1.first, it1.second) } }
             val convertToExtension = convertInto
             val fileName = getFileName(item.fileName) + "-" + Util.getCurrentTimeMillis()
             val fileSavePath = getFileSavePath(storageDir, fileName, convertToExtension)
@@ -577,7 +578,11 @@ class ConvertProgressViewModel(
             ".webp" -> {
                 val fos = FileOutputStream(filePath)
                 try {
-                    bitmap.compress(Bitmap.CompressFormat.WEBP, quality, fos)
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                        bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, quality, fos)
+                    }else {
+                        bitmap.compress(Bitmap.CompressFormat.WEBP, quality, fos)
+                    }
                 } catch (e: java.lang.Exception) {
                 } finally {
 

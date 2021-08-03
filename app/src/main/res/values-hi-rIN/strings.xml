@@ -25,7 +25,7 @@
     <string name="img_quality_text">आकार:</string>
     <string name="pdf_quality_text">पृष्ठ की गुणवत्ता:</string>
     <string name="padding_pdf_page">पृष्ठ पैडिंग:</string>
-    <string name="version">संस्करण - 15.8 V</string>
+    <string name="version">संस्करण - 16.3 V</string>
     <string name="convert_pdf_into_jpg_images">Ppg को Jpg चित्रों में बदलें</string>
     <string name="convert_pdf_into_webp_images">वेब छवियों में पीडीएफ में कनवर्ट करें</string>
     <string name="merge_two_pdf_files_into_one">पीडीएफ फाइलों को मर्ज करें</string>

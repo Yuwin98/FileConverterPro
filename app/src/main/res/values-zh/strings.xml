@@ -69,7 +69,7 @@
     <string name="merge_two_pdf_files_into_one">合并PDF文件</string>
     <string name="convert_pdf_into_webp_images">将PDF转换为WebP图像</string>
     <string name="convert_pdf_into_jpg_images">将Pdf转换为Jpg图像</string>
-    <string name="version">版本-15.7 V</string>
+    <string name="version">版本-16.3 V</string>
     <string name="padding_pdf_page">页面填充：</string>
     <string name="pdf_quality_text">页面质量：</string>
     <string name="img_quality_text">尺寸：</string>
