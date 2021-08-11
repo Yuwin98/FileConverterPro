@@ -86,7 +86,12 @@ class ConvertFragment : Fragment() {
         val uriList = args.UriList.items
         data = setupData(uriList)
         setupRecyclerView()
-        mimeType = data[0].fileType.toLowerCase(Locale.ROOT)
+
+        mimeType = if(data[0] != null) {
+            data[0].fileType.toLowerCase(Locale.ROOT)
+        }else {
+            "N/A"
+        }
 
 
         mainViewModel.readIsPremium.observeOnce(viewLifecycleOwner, { isPremium ->

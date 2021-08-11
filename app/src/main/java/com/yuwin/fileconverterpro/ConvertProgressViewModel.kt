@@ -237,7 +237,7 @@ class ConvertProgressViewModel(
                 }
             }
 
-            var itemIncreasePercentage = (95.0 / itemCount)
+            val itemIncreasePercentage = (95.0 / itemCount)
 
 
             fileDescriptor = withContext(Dispatchers.IO) {
@@ -387,23 +387,33 @@ class ConvertProgressViewModel(
         val getPageSize = getPdfQuality(0)
         val pageWidth = getPageSize.first
         val pageHeight = getPageSize.second
-        var fileDescriptor: ParcelFileDescriptor
+        var fileDescriptor: ParcelFileDescriptor?
         var pdfRenderer: PdfRenderer
         _completePercentage.postValue(0.0)
         var itemCount = 0
         var pageNum = 0
 
-        data.forEachIndexed { _, file ->
-            fileDescriptor = app.contentResolver.openFileDescriptor(file.uri, "r")!!
-            pdfRenderer = PdfRenderer(fileDescriptor)
+        for(file in data) {
+            fileDescriptor = try {
+                app.contentResolver.openFileDescriptor(file.uri, "r")
+            }catch (e: FileNotFoundException) {
+                null
+            }
+            if(fileDescriptor == null) {
+                Toast.makeText(app, "File Not Found", Toast.LENGTH_SHORT).show()
+                continue
+            }
+            pdfRenderer = withContext(Dispatchers.IO){PdfRenderer(fileDescriptor!!)}
             itemCount += pdfRenderer.pageCount
 
-            fileDescriptor.close()
+            withContext(Dispatchers.IO){
+                fileDescriptor!!.close()
+            }
             pdfRenderer.close()
         }
 
 
-        data.forEachIndexed { index, file ->
+        for((index, file) in data.withIndex()) {
             val rootFileName = Util.getCurrentTimeMillis()
             val selectedPageInfo = pageInfoList?.items
             var folderPath = ""
@@ -417,12 +427,12 @@ class ConvertProgressViewModel(
                 if (selectedPageInfo.any { it.pdfIndex == index && it.selectedPages.isNotEmpty() }) {
                     pdfIndex = index
                     selectedPagesList = selectedPageInfo[pdfIndex].selectedPages
-                    val folderName = File(file.filePath).nameWithoutExtension + "-$rootFileName"
+                    val folderName = File(file.uri.path!!).name + "-$rootFileName"
                     folderPath =
                         createFileDirectory(folderName, itemCount)
                     this.imageFolderPath = folderPath
                 } else {
-                    return@forEachIndexed
+                    return
                 }
             }
             val itemIncreasePercentage = (95.0 / itemCount)
@@ -430,8 +440,15 @@ class ConvertProgressViewModel(
 
             var currentFilePageNum = 1
 
-            fileDescriptor = withContext(Dispatchers.IO) {
-                app.contentResolver.openFileDescriptor(file.uri, "r")!!
+            fileDescriptor = try {
+                app.contentResolver.openFileDescriptor(file.uri, "r")
+            }catch (e: FileNotFoundException) {
+                null
+            }
+
+            if(fileDescriptor == null) {
+                Toast.makeText(app, "File Not Found", Toast.LENGTH_SHORT).show()
+                continue
             }
             pdfRenderer = withContext(Dispatchers.IO) { PdfRenderer(fileDescriptor) }
 
@@ -489,7 +506,9 @@ class ConvertProgressViewModel(
             }
 
             pdfRenderer.close()
-            fileDescriptor.close()
+            withContext(Dispatchers.IO) {
+                fileDescriptor.close()
+            }
         }
     }
 
@@ -499,13 +518,18 @@ class ConvertProgressViewModel(
     }
 
     private fun convertAndSaveFiles(item: ConvertInfo, storageDir: String, quality: Int) {
-        val inputStream = app.contentResolver.openInputStream(item.uri)
+        var inputStream: InputStream? = null
+        try {
+             inputStream = app.contentResolver.openInputStream(item.uri)
+        }catch (e: SecurityException) {
+            Toast.makeText(app.applicationContext, "Secured files are not accessible to the converter", Toast.LENGTH_LONG).show()
+        }
 
         try {
             val options = BitmapFactory.Options()
             options.inPreferredConfig = Bitmap.Config.ARGB_8888
             options.inScaled = false
-
+            if(inputStream == null) return
             val inputBitmap = BitmapFactory.decodeStream(inputStream, null, options)
             Log.d("Spinnervalues", fileQuality.toString())
             val getImageSize = inputBitmap?.let { getImageSize(it, fileQuality) }

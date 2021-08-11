@@ -36,6 +36,8 @@
             motion:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginBottom="64dp"
             motion:layout_constraintStart_toStartOf="parent"
-            android:translationY="0dp" />
+            android:translationY="0dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp" />
     </ConstraintSet>
 </MotionScene>

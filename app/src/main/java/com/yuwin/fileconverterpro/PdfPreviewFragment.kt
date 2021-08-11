@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavDirections
@@ -143,6 +144,10 @@ class PdfPreviewFragment : BaseFragment(), FileListClickListener {
                 }
             }
             R.id.nextButton -> {
+                if(pdfPreviewViewModel.selectedPage.value!!.toList().isEmpty()) {
+                    Toast.makeText(requireContext(), "Select an item first", Toast.LENGTH_LONG).show()
+                    return false
+                }
                 val selectedPageInfo = SelectedPageInfo(
                     args.currentPdfUri,
                     pdfPreviewViewModel.pageCount,

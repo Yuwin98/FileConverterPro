@@ -70,7 +70,10 @@ class PdfPreviewViewModel(val app: Application) : AndroidViewModel(app) {
 
          }catch (e: FileNotFoundException) {
             Toast.makeText(app, "File Not found", Toast.LENGTH_SHORT).show()
-         }catch (e: Exception) {
+         }catch (e: SecurityException) {
+             Toast.makeText(app, "File protected", Toast.LENGTH_LONG).show()
+         }
+         catch (e: Exception) {
              e.printStackTrace()
          }
 

@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yuwin.fileconverterpro.Util.Companion.observeOnce
+import com.yuwin.fileconverterpro.Util.Companion.setOnSingleClickListener
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import kotlinx.coroutines.*
 import java.io.File
@@ -218,7 +219,7 @@ abstract class ActionModeBaseFragment : Fragment() {
         detailsLayout.setTransitionListener(detailsLayoutTransitionListener)
 
 
-        moveFilesButton.setOnClickListener {
+        moveFilesButton.setOnSingleClickListener {
             moveCopyBarVisibility(View.VISIBLE)
             moveCopyTransitionStart()
             (activity as MainActivity).filesToModify = selectedFiles.toMutableList()
@@ -230,7 +231,7 @@ abstract class ActionModeBaseFragment : Fragment() {
             actionMode?.finish()
         }
 
-        copyFilesButton.setOnClickListener {
+        copyFilesButton.setOnSingleClickListener {
             moveCopyBarVisibility(View.VISIBLE)
             moveCopyTransitionStart()
             (activity as MainActivity).filesToModify = selectedFiles.toMutableList()
@@ -241,11 +242,11 @@ abstract class ActionModeBaseFragment : Fragment() {
             actionMode?.finish()
         }
 
-        fileRenameButton.setOnClickListener {
+        fileRenameButton.setOnSingleClickListener {
 
             if(selectedFiles.isNullOrEmpty()) {
                 Toast.makeText(requireContext(), "No file or folder selected", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener;
+                return@setOnSingleClickListener
             }
 
             val renamingEntity = if (selectedFiles[0].isDirectory) "Folder" else "File"
@@ -322,17 +323,17 @@ abstract class ActionModeBaseFragment : Fragment() {
         }
 
 
-        fileDetailsButton.setOnClickListener {
+        fileDetailsButton.setOnSingleClickListener {
             detailsLayout.visibility = View.VISIBLE
             setupDetailsCard(selectedFiles.size, selectedFiles)
             detailsLayout.transitionToEnd()
         }
 
-        detailsCardButton.setOnClickListener {
+        detailsCardButton.setOnSingleClickListener {
             detailsLayout.transitionToStart()
         }
 
-        fileShareButton.setOnClickListener {
+        fileShareButton.setOnSingleClickListener {
             var count = 0
             selectedFiles.forEach {
                 if (it.isDirectory)
@@ -390,7 +391,7 @@ abstract class ActionModeBaseFragment : Fragment() {
 
         }
 
-        fileDeleteButton.setOnClickListener {
+        fileDeleteButton.setOnSingleClickListener {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Delete")
                 .setMessage("This will delete selected files")
@@ -427,12 +428,12 @@ abstract class ActionModeBaseFragment : Fragment() {
 
         }
 
-        moveCopyCancelButton.setOnClickListener {
+        moveCopyCancelButton.setOnSingleClickListener {
             attachHostToCommonActionBar()
             moveCopyTransitionEnd()
         }
 
-        moveCopyActionButton.setOnClickListener {
+        moveCopyActionButton.setOnSingleClickListener {
             copyMoveOperation()
         }
 

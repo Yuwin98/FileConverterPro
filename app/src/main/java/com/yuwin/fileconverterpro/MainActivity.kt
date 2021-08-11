@@ -119,7 +119,7 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
                     if (billingResult.responseCode == BillingResponseCode.OK) {
                         val queryPurchase = it.queryPurchases(SkuType.SUBS)
                         val queryPurchases = queryPurchase.purchasesList
-                        if (queryPurchase != null && queryPurchases?.size!! > 0) {
+                        if (queryPurchase != null && queryPurchases != null && queryPurchases.size > 0) {
                             handlePurchases(queryPurchases)
                         } else {
                             mainViewModel?.setPremiumStatus(0)

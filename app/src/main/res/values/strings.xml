@@ -90,7 +90,7 @@
     <string name="convert_pdf_into_webp_images">Convert Pdf into webp images</string>
     <string name="convert_pdf_into_jpg_images">Convert Pdf into Jpg images</string>
     <string name="pdf_preview_page" translatable="false">Pdf Preview Page</string>
-    <string name="version">Version - 16.3 V</string>
+    <string name="version">Version - 16.6 V</string>
     <string name="_50" translatable="false">50</string>
     <string name="padding_pdf_page">Page Padding:</string>
     <string name="value_0" translatable="false">0</string>
