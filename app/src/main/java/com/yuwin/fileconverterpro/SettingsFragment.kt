@@ -22,6 +22,11 @@ import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.databinding.FragmentSettingsBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.os.Environment
+import android.provider.DocumentsContract
+import com.google.android.gms.common.internal.ImagesContract
+import java.io.File
+
 
 class SettingsFragment : Fragment() {
 
@@ -53,10 +58,10 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mainViewModel?.readIsPremium?.observe(viewLifecycleOwner, { isPremium ->
-            if(isPremium == 1) {
+            if (isPremium == 1) {
                 binding?.goPremiumCardView?.visibility = View.GONE
                 binding?.goPremiumTextView?.visibility = View.GONE
-            }else {
+            } else {
                 binding?.goPremiumCardView?.visibility = View.VISIBLE
                 binding?.goPremiumTextView?.visibility = View.VISIBLE
             }
@@ -85,27 +90,41 @@ class SettingsFragment : Fragment() {
         mainViewModel?.readDefaultFormat?.observeOnce(viewLifecycleOwner, {
             binding?.defaultFormatSpinner?.setSelection(it)
         })
-        binding?.defaultFormatSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                mainViewModel?.setFormatType(position)
-            }
+        binding?.defaultFormatSpinner?.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    mainViewModel?.setFormatType(position)
+                }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-            }
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
 
-        }
+            }
 
         binding?.rateUsTextView?.setOnClickListener {
             openReviewUrl()
         }
 
-        mainViewModel?.readCurrentStorage?.observe(viewLifecycleOwner) { path ->
-            binding?.currentStoragePath?.text = path
+
+        binding?.currentStoragePath?.text = mainViewModel?.readCurrentStorage
+
+        binding?.currentStoragePath?.setOnClickListener {
+            Toast.makeText(requireContext(),
+                "Navigate to (Pictures/Image Converter) folder in your file manager",
+            Toast.LENGTH_SHORT).show()
+
+        }
+
+        binding?.currentStoragePathPDF?.setOnClickListener {
+            Toast.makeText(requireContext(),
+                "Navigate to (Documents/Image Converter) folder in your file manager",
+                Toast.LENGTH_SHORT).show()
+
         }
 
         binding?.goPremiumTextView?.setOnClickListener {
@@ -119,23 +138,27 @@ class SettingsFragment : Fragment() {
     }
 
     private fun sendBugReport() {
-        if(hasInternetConnection()) {
+        if (hasInternetConnection()) {
             lifecycleScope.launch {
-                Toast.makeText(requireContext(),"Sending bug report", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Sending bug report", Toast.LENGTH_SHORT).show()
                 delay(3000)
-                Toast.makeText(requireContext(),"Bug report sent", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Bug report sent", Toast.LENGTH_SHORT).show()
             }
-        }else {
-            Toast.makeText(requireContext(), "Not connected to the internet", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(requireContext(), "Not connected to the internet", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
     private fun openReviewUrl() {
-        val uri: Uri = Uri.parse("market://details?id=${requireContext().applicationContext.packageName}")
+        val uri: Uri =
+            Uri.parse("market://details?id=${requireContext().applicationContext.packageName}")
         val goToMarket = Intent(Intent.ACTION_VIEW, uri)
-        goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or
-                Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
-                Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        goToMarket.addFlags(
+            Intent.FLAG_ACTIVITY_NO_HISTORY or
+                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+        )
         try {
             startActivity(goToMarket)
         } catch (e: ActivityNotFoundException) {

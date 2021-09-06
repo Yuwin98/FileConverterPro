@@ -1,11 +1,15 @@
 package com.yuwin.fileconverterpro
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
+import android.graphics.pdf.PdfDocument
 import android.net.Uri
+import android.os.Environment
 import android.os.SystemClock
+import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.TypedValue
 import android.view.View
@@ -18,6 +22,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
+import java.io.IOException
+import java.io.OutputStream
 import java.lang.String.format
 import java.text.CharacterIterator
 import java.text.SimpleDateFormat
@@ -315,6 +321,96 @@ class Util {
 
 
             )
+        }
+
+         fun getFilename(app: Context,uri: Uri): String? {
+            val cursor = app.contentResolver?.query(uri, null, null, null, null)
+            var filename: String? = null
+
+            cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)?.let { nameIndex ->
+                cursor.moveToFirst()
+
+                filename = cursor.getString(nameIndex)
+                cursor.close()
+            }
+
+            return filename
+        }
+
+        @Throws(IOException::class)
+        fun saveBitmap(
+            context: Context, bitmap: Bitmap, format: Bitmap.CompressFormat,
+            mimeType: String, displayName: String,
+            path: String = Environment.DIRECTORY_PICTURES + File.separator + "Image Converter"
+        ): Uri {
+
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
+                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                put(MediaStore.MediaColumns.RELATIVE_PATH, path)
+            }
+
+            val resolver = context.contentResolver
+            var uri: Uri? = null
+
+            try {
+                uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                    ?: throw IOException("Failed to create new MediaStore record.")
+
+                resolver.openOutputStream(uri)?.use {
+                    if (!bitmap.compress(format, 95, it))
+                        throw IOException("Failed to save bitmap.")
+                } ?: throw IOException("Failed to open output stream.")
+
+                return uri
+
+            } catch (e: IOException) {
+
+                uri?.let { orphanUri ->
+                    // Don't leave an orphan entry in the MediaStore
+                    resolver.delete(orphanUri, null, null)
+                }
+
+                throw e
+            }
+        }
+
+        @Throws(IOException::class)
+        fun savePDFFile(
+            context: Context, document: PdfDocument,displayName: String
+        ): Uri {
+
+
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + File.separator + "Image Converter")
+            }
+
+            val resolver = context.contentResolver
+            var uri: Uri? = null
+
+            try {
+                uri = resolver.insert(MediaStore.Files.getContentUri("external"), values)
+                    ?: throw IOException("Failed to create new MediaStore record.")
+
+                val outputStream: OutputStream? = context.contentResolver.openOutputStream(uri)
+
+                document.writeTo(outputStream)
+
+                outputStream?.close()
+
+                return  uri
+
+            } catch (e: IOException) {
+
+                uri?.let { orphanUri ->
+                    // Don't leave an orphan entry in the MediaStore
+                    resolver.delete(orphanUri, null, null)
+                }
+
+                throw e
+            }
         }
 
         fun dipToPixels(context: Context, dipValue: Float): Float {

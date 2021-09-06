@@ -28,7 +28,7 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
     }
 
     fun getAllFilesByName(): Flow<List<ConvertedFile>> {
-        return  convertedFileDao.getAllFilesByName()
+        return convertedFileDao.getAllFilesByName()
     }
 
     fun getAllFilesByType(): Flow<List<ConvertedFile>> {
@@ -41,6 +41,14 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
 
     fun getAllFilesBySize(): Flow<List<ConvertedFile>> {
         return convertedFileDao.getAllFilesBySize()
+    }
+
+    fun searchDatabaseInDirectory(query: String, filePath: String): Flow<List<ConvertedFile>> {
+        return convertedFileDao.searchDatabaseInDirectory(query, filePath)
+    }
+
+    fun searchDatabaseInRoot(query: String): Flow<List<ConvertedFile>> {
+        return convertedFileDao.searchDatabaseInRoot(query)
     }
 
     fun filterAllFilesByType(types: List<String>): Flow<List<ConvertedFile>> {
@@ -75,7 +83,6 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
     suspend fun updateFile(file: ConvertedFile) {
         return convertedFileDao.updateFile(file)
     }
-
 
 
 }

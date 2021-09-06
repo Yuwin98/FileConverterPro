@@ -1,6 +1,7 @@
 package com.yuwin.fileconverterpro
 
 import android.app.Application
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.core.net.toUri
@@ -32,6 +33,14 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
 
 
 //    DATABASE CRUD Operations
+
+    fun searchDatabaseInRoot(query: String): LiveData<List<ConvertedFile>> {
+        return databaseRepository.searchDatabaseInRoot(query).asLiveData()
+    }
+
+    fun searchDatabaseInDirectory(query: String, filePath: String): LiveData<List<ConvertedFile>> {
+        return databaseRepository.searchDatabaseInDirectory(query,filePath).asLiveData()
+    }
 
     suspend fun deleteSelectedFiles(file: ConvertedFile) {
         Util.deleteFileFromStorage(file)
@@ -248,7 +257,7 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
 
     // Read - Write Storage Directory
 
-    val readCurrentStorage = repository.storageDirectory.asLiveData()
+    val readCurrentStorage = Environment.DIRECTORY_PICTURES + File.separator + "Image Converter"
 
     // Read Write Premium Status
 

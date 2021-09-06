@@ -9,15 +9,15 @@ plugins {
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "com.yuwin.fileconverterpro"
         minSdkVersion 23
-        targetSdkVersion 30
-        versionCode 32
-        versionName "16.7"
+        targetSdkVersion 31
+        versionCode 37
+        versionName "17.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

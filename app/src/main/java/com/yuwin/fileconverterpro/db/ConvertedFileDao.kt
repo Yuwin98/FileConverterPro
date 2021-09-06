@@ -42,6 +42,12 @@ interface ConvertedFileDao {
     @Query("Select * from ConvertedFile where fileType in (:types) Order by Date DESC ")
     fun filterAllFilesByType(types: List<String>) : Flow<List<ConvertedFile>>
 
+    @Query("SELECT * FROM ConvertedFile WHERE filePath LIKE :filePath AND fileName LIKE :query")
+    fun searchDatabaseInDirectory(query: String, filePath: String): Flow<List<ConvertedFile>>
+
+    @Query("SELECT * FROM ConvertedFile WHERE inDirectory= 0 AND fileName Like :query Order By Date DESC")
+    fun searchDatabaseInRoot(query: String): Flow<List<ConvertedFile>>
+
     @Insert
     suspend fun insertFile(file: ConvertedFile)
 

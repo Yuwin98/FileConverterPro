@@ -5,6 +5,7 @@ import android.graphics.*
 import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
+import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import android.widget.Toast
@@ -182,8 +183,9 @@ class ConvertProgressViewModel(
         var fileDescriptor: ParcelFileDescriptor
         var pdfRenderer: PdfRenderer
         val document = PdfDocument()
-        val fileName = Util.getCurrentTimeMillis()
-        val filePath = "${storageDir}${fileName}.pdf"
+        val fileTimestamp = Util.getCurrentTimeMillis()
+        var filePath = storageDir
+        var realFileName = ""
         var thumbNail: Bitmap? = null
         var pageNum = 0
         var itemCount = 0
@@ -204,16 +206,18 @@ class ConvertProgressViewModel(
                 if (fileDescriptor != null) {
                     pdfRenderer = PdfRenderer(fileDescriptor)
                     itemCount += pdfRenderer.pageCount
-
+                    realFileName += Util.getFilename(app, file.uri)?.substringBeforeLast('.') + "-"
+                    filePath += Util.getFilename(app, file.uri)?.substringBeforeLast(".") + "-"
                     fileDescriptor.close()
                     pdfRenderer.close()
                 }
-            }catch (e: Exception){
+            } catch (e: Exception) {
 
             }
         }
 
-
+        realFileName = realFileName.substringBeforeLast('-')
+        filePath = "$filePath$fileTimestamp.pdf"
 
         data.forEachIndexed { index, file ->
 
@@ -226,7 +230,7 @@ class ConvertProgressViewModel(
 
             if (selectedPageInfo != null) {
                 itemCount = 0
-                val allItemCount =  selectedPageInfo.map { it.selectedPages.size }
+                val allItemCount = selectedPageInfo.map { it.selectedPages.size }
                 allItemCount.forEach { count -> itemCount += count }
                 if (selectedPageInfo.any { it.pdfIndex == index && it.selectedPages.isNotEmpty() }) {
                     pdfIndex = index
@@ -327,16 +331,16 @@ class ConvertProgressViewModel(
             var thumbNailUri: Uri? = null
             if (thumbNail != null) {
                 withContext(Dispatchers.IO) {
-                    thumbNailUri = savePdfThumbNail(thumbNail!!, fileName)
+                    thumbNailUri = savePdfThumbNail(thumbNail!!, fileTimestamp)
                 }
             }
 
             val fos = withContext(Dispatchers.IO) {
                 getOutputStream(filePath)
             }
-
+            Util.savePDFFile(app, document, realFileName)
             withContext(Dispatchers.IO) { writeDocument(document, fos) }
-            val file = createConvertedPdfFile(fileName, filePath, thumbNailUri)
+            val file = createConvertedPdfFile("$realFileName-$fileTimestamp", filePath, thumbNailUri)
 
             viewModelScope.launch(Dispatchers.IO) {
                 convertedFileList.add(file)
@@ -393,41 +397,44 @@ class ConvertProgressViewModel(
         var itemCount = 0
         var pageNum = 0
 
-        for(file in data) {
+        for (file in data) {
             fileDescriptor = try {
                 app.contentResolver.openFileDescriptor(file.uri, "r")
-            }catch (e: FileNotFoundException) {
+            } catch (e: FileNotFoundException) {
                 null
             }
-            if(fileDescriptor == null) {
+            if (fileDescriptor == null) {
                 Toast.makeText(app, "File Not Found", Toast.LENGTH_SHORT).show()
                 continue
             }
-            pdfRenderer = withContext(Dispatchers.IO){PdfRenderer(fileDescriptor!!)}
+            pdfRenderer = withContext(Dispatchers.IO) { PdfRenderer(fileDescriptor!!) }
             itemCount += pdfRenderer.pageCount
 
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 fileDescriptor!!.close()
             }
             pdfRenderer.close()
         }
 
 
-        for((index, file) in data.withIndex()) {
+        for ((index, file) in data.withIndex()) {
             val rootFileName = Util.getCurrentTimeMillis()
             val selectedPageInfo = pageInfoList?.items
             var folderPath = ""
+            var folderName = ""
+            var realFileName = ""
             val pdfIndex: Int
             var selectedPagesList: List<Int> = emptyList()
 
             if (selectedPageInfo != null) {
                 itemCount = 0
-                val allItemCount =  selectedPageInfo.map { it.selectedPages.size }
+                val allItemCount = selectedPageInfo.map { it.selectedPages.size }
                 allItemCount.forEach { count -> itemCount += count }
                 if (selectedPageInfo.any { it.pdfIndex == index && it.selectedPages.isNotEmpty() }) {
                     pdfIndex = index
                     selectedPagesList = selectedPageInfo[pdfIndex].selectedPages
-                    val folderName = File(file.uri.path!!).name + "-$rootFileName"
+                    realFileName = Util.getFilename(app, file.uri).toString()
+                    folderName = "${realFileName.substringBeforeLast('.')}-$rootFileName"
                     folderPath =
                         createFileDirectory(folderName, itemCount)
                     this.imageFolderPath = folderPath
@@ -442,11 +449,11 @@ class ConvertProgressViewModel(
 
             fileDescriptor = try {
                 app.contentResolver.openFileDescriptor(file.uri, "r")
-            }catch (e: FileNotFoundException) {
+            } catch (e: FileNotFoundException) {
                 null
             }
 
-            if(fileDescriptor == null) {
+            if (fileDescriptor == null) {
                 Toast.makeText(app, "File Not Found", Toast.LENGTH_SHORT).show()
                 continue
             }
@@ -483,9 +490,22 @@ class ConvertProgressViewModel(
                         )
 
                         val convertToExtension = convertInto
-                        val fileName = "$rootFileName-img-$currentFilePageNum"
+                        val fileName =
+                            "${realFileName.substringBeforeLast('.')}-img-$currentFilePageNum"
                         val fileSavePath = getFileSavePath(folderPath, fileName, convertToExtension)
                         performConvert(bitmap, convertToExtension, quality, fileSavePath)
+                        val mimeType = getMimeType(convertToExtension)
+                        val compressType = getCompressFormat(convertToExtension)
+                        Util.saveBitmap(
+                            app,
+                            bitmap,
+                            compressType,
+                            mimeType,
+                            fileName,
+                            Environment.DIRECTORY_PICTURES + File.separator + "Image Converter" + File.separator + realFileName.substringBeforeLast(
+                                '.'
+                            )
+                        )
                         val currentImageFile = createConvertedImageFile(
                             fileSavePath,
                             convertToExtension
@@ -520,21 +540,33 @@ class ConvertProgressViewModel(
     private fun convertAndSaveFiles(item: ConvertInfo, storageDir: String, quality: Int) {
         var inputStream: InputStream? = null
         try {
-             inputStream = app.contentResolver.openInputStream(item.uri)
-        }catch (e: SecurityException) {
-            Toast.makeText(app.applicationContext, "Secured files are not accessible to the converter", Toast.LENGTH_LONG).show()
+            inputStream = app.contentResolver.openInputStream(item.uri)
+        } catch (e: SecurityException) {
+            Toast.makeText(
+                app.applicationContext,
+                "Secured files are not accessible to the converter",
+                Toast.LENGTH_LONG
+            ).show()
         }
 
         try {
             val options = BitmapFactory.Options()
             options.inPreferredConfig = Bitmap.Config.ARGB_8888
             options.inScaled = false
-            if(inputStream == null) return
+            if (inputStream == null) return
             val inputBitmap = BitmapFactory.decodeStream(inputStream, null, options)
             Log.d("Spinnervalues", fileQuality.toString())
             val getImageSize = inputBitmap?.let { getImageSize(it, fileQuality) }
             val bitmap =
-                inputBitmap?.let { getImageSize?.let { it1 -> scaleImage(it, it1.first, it1.second) } }
+                inputBitmap?.let {
+                    getImageSize?.let { it1 ->
+                        scaleImage(
+                            it,
+                            it1.first,
+                            it1.second
+                        )
+                    }
+                }
             val convertToExtension = convertInto
             val fileName = getFileName(item.fileName) + "-" + Util.getCurrentTimeMillis()
             val fileSavePath = getFileSavePath(storageDir, fileName, convertToExtension)
@@ -544,21 +576,72 @@ class ConvertProgressViewModel(
                     fileSavePath,
                     convertToExtension
                 )
+                val mimeType = getMimeType(convertToExtension)
+                val compressType = getCompressFormat(convertToExtension)
+                if (mimeType != "application/pdf") {
+                    Util.saveBitmap(app, bitmap, compressType, mimeType, fileName)
+                } else {
+                    if (scope.isActive) {
+                        createAndSaveSinglePagePdf(
+                            bitmap,
+                            this.storageDir,
+                            getFileName(item.fileName)
+                        )
+                    }
+                }
                 saveConvertedFile(file)
             }
 
 
 
 
-            inputStream?.close()
-        }catch (e: FileNotFoundException) {
-            Toast.makeText(app,"File Not Found", Toast.LENGTH_SHORT).show()
-        }
-        catch (e: Exception) {
+            inputStream.close()
+        } catch (e: FileNotFoundException) {
+            Toast.makeText(app, "File Not Found", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
             e.printStackTrace()
         } finally {
             inputStream?.close()
         }
+    }
+
+    private fun getCompressFormat(mimeType: String): Bitmap.CompressFormat {
+        when (mimeType) {
+            ".jpg", ".jpeg" -> {
+                return Bitmap.CompressFormat.JPEG
+            }
+            ".png" -> {
+
+                return Bitmap.CompressFormat.PNG
+
+            }
+            ".webp" -> {
+                return Bitmap.CompressFormat.WEBP
+            }
+        }
+
+        return Bitmap.CompressFormat.JPEG
+    }
+
+    private fun getMimeType(mimeType: String): String {
+        when (mimeType) {
+            ".jpg", ".jpeg" -> {
+                return "image/jpeg"
+            }
+            ".png" -> {
+
+                return "image/png"
+
+            }
+            ".webp" -> {
+                return "image/webp"
+            }
+            ".pdf" -> {
+                return "application/pdf"
+            }
+        }
+
+        return "image/jpeg"
     }
 
     private fun saveConvertedFile(file: ConvertedFile) {
@@ -604,7 +687,7 @@ class ConvertProgressViewModel(
                 try {
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                         bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, quality, fos)
-                    }else {
+                    } else {
                         bitmap.compress(Bitmap.CompressFormat.WEBP, quality, fos)
                     }
                 } catch (e: java.lang.Exception) {
@@ -613,23 +696,20 @@ class ConvertProgressViewModel(
                     fos.close()
                 }
             }
-            ".pdf" -> {
-                if (scope.isActive) {
-                    createAndSaveSinglePagePdf(bitmap, this.storageDir)
-                }
-            }
-
-
         }
     }
 
-    private fun createAndSaveSinglePagePdf(inputBitmap: Bitmap, storageDir: String) {
+    private fun createAndSaveSinglePagePdf(
+        inputBitmap: Bitmap,
+        storageDir: String,
+        fileName: String
+    ) {
         val pageSize = getPageSize(fileQuality, pdfPageSize)
         val pageWidth = pageSize.first
         val pageHeight = pageSize.second
         val bitmap = scaleBitmapToAspectRatio(inputBitmap, pageWidth, pageHeight)
-        val fileName = Util.getCurrentTimeMillis()
-        val filePath = "${storageDir}${fileName}.pdf"
+        val fullFileName = "$fileName-${Util.getCurrentTimeMillis()}"
+        val filePath = "${storageDir}${fullFileName}.pdf"
         val document = PdfDocument()
         val pageInfo: PdfDocument.PageInfo =
             PdfDocument.PageInfo.Builder(pageWidth + padding, pageHeight + padding, 1)
@@ -645,17 +725,18 @@ class ConvertProgressViewModel(
 
         val fos = getOutputStream(filePath)
         try {
+            Util.savePDFFile(app, document, fileName)
             writeDocument(document, fos)
-            val thumbNailUri: Uri? = savePdfThumbNail(thumbNail, fileName)
+            val thumbNailUri: Uri? = savePdfThumbNail(thumbNail, fullFileName)
 
-            val file = createConvertedPdfFile(fileName, filePath, thumbNailUri)
+            val file = createConvertedPdfFile(fullFileName, filePath, thumbNailUri)
 
 
             viewModelScope.launch {
                 convertedFileList.add(file)
                 repository.insertFile(file)
-
             }
+
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
         } catch (e: IOException) {
@@ -700,10 +781,10 @@ class ConvertProgressViewModel(
                     )
 
 
-
                     val pageInfo: PdfDocument.PageInfo = PdfDocument.PageInfo
                         .Builder(pageWidth + padding, pageHeight + padding, index + 1)
-                        .setContentRect(Rect(0, 0, pageWidth + padding, pageHeight + padding)).create()
+                        .setContentRect(Rect(0, 0, pageWidth + padding, pageHeight + padding))
+                        .create()
                     val page: PdfDocument.Page = document.startPage(pageInfo)
                     val canvas: Canvas = page.canvas
                     val xOffset = ((canvas.width - bitmap.width) / 2).toFloat()
@@ -741,8 +822,10 @@ class ConvertProgressViewModel(
             val fos = withContext(Dispatchers.IO) {
                 getOutputStream(filePath)
             }
-
-            withContext(Dispatchers.IO) { writeDocument(document, fos) }
+            Util.savePDFFile(app, document, fileName)
+            withContext(Dispatchers.IO) {
+                writeDocument(document, fos)
+            }
             val file = createConvertedPdfFile(fileName, filePath, thumbNailUri)
 
             viewModelScope.launch(Dispatchers.IO) {
@@ -792,7 +875,11 @@ class ConvertProgressViewModel(
         doc.writeTo(fos)
     }
 
-    private fun scaleImage(targetBmp: Bitmap, reqWidthInPixels: Int, reqHeightInPixels: Int): Bitmap? {
+    private fun scaleImage(
+        targetBmp: Bitmap,
+        reqWidthInPixels: Int,
+        reqHeightInPixels: Int
+    ): Bitmap? {
         return Bitmap.createScaledBitmap(targetBmp, reqWidthInPixels, reqHeightInPixels, false)
     }
 
@@ -839,34 +926,34 @@ class ConvertProgressViewModel(
     }
 
     private fun getPageSize(fileQuality: Int, pageQuality: Int): Pair<Int, Int> {
-        when(fileQuality) {
+        when (fileQuality) {
             0 -> {
-               when(pageQuality) {
-                   0 -> {
-                       return Pair(2384, 3370)
-                   }
-                   1 -> {
-                       return Pair(1684, 2384)
-                   }
-                   2 -> {
-                       return Pair(1191, 1684)
-                   }
-                   3 -> {
-                       return Pair(842, 1191)
-                   }
-                   4 -> {
-                       return Pair(595, 842)
-                   }
-                   5 -> {
-                       return Pair(420, 595)
-                   }
-                   else -> {
-                       return Pair(0, 0)
-                   }
-               }
+                when (pageQuality) {
+                    0 -> {
+                        return Pair(2384, 3370)
+                    }
+                    1 -> {
+                        return Pair(1684, 2384)
+                    }
+                    2 -> {
+                        return Pair(1191, 1684)
+                    }
+                    3 -> {
+                        return Pair(842, 1191)
+                    }
+                    4 -> {
+                        return Pair(595, 842)
+                    }
+                    5 -> {
+                        return Pair(420, 595)
+                    }
+                    else -> {
+                        return Pair(0, 0)
+                    }
+                }
             }
             1 -> {
-                when(pageQuality) {
+                when (pageQuality) {
                     0 -> {
                         return Pair(3179, 4494)
                     }
@@ -891,7 +978,7 @@ class ConvertProgressViewModel(
                 }
             }
             2 -> {
-                when(pageQuality) {
+                when (pageQuality) {
                     0 -> {
                         return Pair(4967, 7022)
                     }
@@ -916,7 +1003,7 @@ class ConvertProgressViewModel(
                 }
             }
             3 -> {
-                when(pageQuality) {
+                when (pageQuality) {
                     0 -> {
                         return Pair(9933, 14043)
                     }
@@ -947,7 +1034,7 @@ class ConvertProgressViewModel(
         }
     }
 
-    private fun getImageSize(bitmap: Bitmap,value: Int): Pair<Int,Int> {
+    private fun getImageSize(bitmap: Bitmap, value: Int): Pair<Int, Int> {
         when (value) {
             0 -> {
                 return Pair(bitmap.width, bitmap.height)
@@ -980,7 +1067,7 @@ class ConvertProgressViewModel(
                 return Pair(170, 170)
             }
             10 -> {
-                return Pair(851 , 315)
+                return Pair(851, 315)
             }
             11 -> {
                 return Pair(1200, 630)
@@ -1001,7 +1088,7 @@ class ConvertProgressViewModel(
                 return Pair(1000, 3000)
             }
             else -> {
-                return Pair(0,0)
+                return Pair(0, 0)
             }
         }
     }

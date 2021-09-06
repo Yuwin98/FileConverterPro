@@ -7,6 +7,7 @@ import android.view.*
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
@@ -21,7 +22,7 @@ import java.io.File
 import java.util.*
 
 
-class FileListFragment : FileListClickListener, ActionMode.Callback,
+class FileListFragment : FileListClickListener, SearchView.OnQueryTextListener, ActionMode.Callback,
     ActionModeBaseFragment() {
 
     private var _binding: FragmentMainScreenBinding? = null
@@ -74,7 +75,7 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
 
         rootPath = Util.getExternalDir(requireContext())
 
-        viewModel?.readFilesInRoot?.observe(viewLifecycleOwner, { items ->
+        viewModel?.readFilesInRoot?.observeOnce(viewLifecycleOwner, { items ->
             if (items.isNullOrEmpty()) {
                 binding?.let {
                     it.noFilesImageView.visibility = View.VISIBLE
@@ -111,6 +112,11 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.home_action_menu, menu)
         this.menu = menu
+
+        val search = menu.findItem(R.id.menu_search)
+        val searchView = search.actionView as SearchView
+        searchView.setOnQueryTextListener(this)
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -607,6 +613,25 @@ class FileListFragment : FileListClickListener, ActionMode.Callback,
         binding?.filesRecyclerView?.adapter = null
         viewModel = null
         _binding = null
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        return true
+    }
+
+    override fun onQueryTextChange(query: String?): Boolean {
+        if(query != null) {
+            searchDatabase(query)
+        }
+        return true
+    }
+
+    private fun searchDatabase(query: String) {
+        val searchQuery = "%$query%"
+        mainViewModel.searchDatabaseInRoot(searchQuery).observeOnce(viewLifecycleOwner, {list ->
+            data = list.toMutableList()
+            updateData(list.toMutableList())
+        })
     }
 
 

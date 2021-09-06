@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
@@ -21,13 +22,15 @@ import java.io.File
 import java.util.*
 
 
-class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, ActionMode.Callback {
+class DirectoryViewFragment : ActionModeBaseFragment(), SearchView.OnQueryTextListener, FileListClickListener, ActionMode.Callback {
 
 
     private var isSelectAll = false
     private val args by navArgs<DirectoryViewFragmentArgs>()
 
     private var data = listOf<ConvertedFile>()
+
+    private var searchView: SearchView? = null
 
     private var _binding: FragmentDirectoryViewBinding? = null
     private val binding get() = _binding
@@ -77,7 +80,7 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
         folderName = convertedFile.fileName
 
         mainViewModel.getAllDirectoryFilesWithPath(convertedFile.filePath)
-            .observe(viewLifecycleOwner, { items ->
+            .observeOnce(viewLifecycleOwner, { items ->
                 if (items.isNullOrEmpty()) {
                     data = items
                     setupRecyclerView(isGrid)
@@ -222,6 +225,10 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.directory_home_action_menu, menu)
         this.menu = menu
+
+        val search = menu.findItem(R.id.menu_search)
+        searchView = search.actionView as SearchView
+        searchView!!.setOnQueryTextListener(this)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -423,6 +430,9 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
 
     override fun onPause() {
         super.onPause()
+        if(!searchView?.isIconified!!) {
+            searchView!!.isIconified = true
+        }
         actionMode?.finish()
     }
 
@@ -579,10 +589,32 @@ class DirectoryViewFragment : ActionModeBaseFragment(), FileListClickListener, A
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d("dirFragState", "OnDestroyView called")
+
         _binding?.directoryRecyclerView?.adapter = null
         _binding = null
         viewModel = null
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        return true
+    }
+
+    override fun onQueryTextChange(query: String?): Boolean {
+        (activity as MainActivity).supportActionBar?.setHomeButtonEnabled(false)
+        if(query != null) {
+          searchDatabase(query)
+        }
+        return true
+    }
+
+    private fun searchDatabase(query: String) {
+
+        mainViewModel.getAllDirectoryFilesWithPath(rootPath).observeOnce(viewLifecycleOwner, {list ->
+            data = Util.filterItemsInDirectory(File(rootPath), list)
+            data = data.sortedBy { it.fileType }
+            data = data.filter { it.fileName.contains(query) }
+            updateData(data.toMutableList())
+        })
     }
 
 
