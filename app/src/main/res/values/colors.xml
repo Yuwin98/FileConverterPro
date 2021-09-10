@@ -37,7 +37,7 @@
     <color name="contextualActionBarColor">@color/darker</color>
     <color name="numberBackgroundColor">@color/dark</color>
 
-    <color name="bottomNavigationViewColor">@android:color/white</color>
+    <color name="bottomNavigationViewColor">#f9f9f9</color>
 
     <color name="selectAllColor">#3f0d08</color>
 

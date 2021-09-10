@@ -55,8 +55,8 @@
 
     </item>
 
-    <item android:id="@+id/newFolder"
-        android:title="@string/new_folder_text"/>
+<!--    <item android:id="@+id/newFolder"-->
+<!--        android:title="@string/new_folder_text"/>-->
 
     <item android:id="@+id/deleteAll"
         android:title="@string/delete_all_text"/>

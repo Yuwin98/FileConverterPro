@@ -33,6 +33,9 @@ data class ConvertedFile(
 
         @ColumnInfo(name = "Uri")
         var uri: Uri,
+        
+        @ColumnInfo(name = "publicUri")
+        var publicUri: Uri?,
 
         @ColumnInfo(name = "thumbnailUri")
         val thumbnailUri: Uri?,

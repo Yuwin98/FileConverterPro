@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Yuwin/Desktop/ip/ip/FileConverterPro/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Yuwin/Desktop/ip/ip/FileConverterPro/app/src/main/res/layout/file_grid_item.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Yuwin/Desktop/ip/ip/FileConverterPro/app/src/main/res/layout/file_list_item.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Yuwin/Desktop/ip/ip/FileConverterPro/app/src/main/res/layout/fragment_settings.xml" value="0.5136842105263157" />
       </map>
     </option>

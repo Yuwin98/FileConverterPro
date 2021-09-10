@@ -338,9 +338,14 @@ class ConvertProgressViewModel(
             val fos = withContext(Dispatchers.IO) {
                 getOutputStream(filePath)
             }
-            Util.savePDFFile(app, document, realFileName)
+            val publicUri = Util.savePDFFile(app, document, realFileName)
             withContext(Dispatchers.IO) { writeDocument(document, fos) }
-            val file = createConvertedPdfFile("$realFileName-$fileTimestamp", filePath, thumbNailUri)
+            val file = createConvertedPdfFile(
+                "$realFileName-$fileTimestamp",
+                filePath,
+                thumbNailUri,
+                publicUri
+            )
 
             viewModelScope.launch(Dispatchers.IO) {
                 convertedFileList.add(file)
@@ -436,7 +441,7 @@ class ConvertProgressViewModel(
                     realFileName = Util.getFilename(app, file.uri).toString()
                     folderName = "${realFileName.substringBeforeLast('.')}-$rootFileName"
                     folderPath =
-                        createFileDirectory(folderName, itemCount)
+                        createFileDirectory(folderName, itemCount, null)
                     this.imageFolderPath = folderPath
                 } else {
                     return
@@ -496,19 +501,18 @@ class ConvertProgressViewModel(
                         performConvert(bitmap, convertToExtension, quality, fileSavePath)
                         val mimeType = getMimeType(convertToExtension)
                         val compressType = getCompressFormat(convertToExtension)
-                        Util.saveBitmap(
+                        val publicUri = Util.saveBitmap(
                             app,
                             bitmap,
                             compressType,
                             mimeType,
                             fileName,
-                            Environment.DIRECTORY_PICTURES + File.separator + "Image Converter" + File.separator + realFileName.substringBeforeLast(
-                                '.'
-                            )
-                        )
+                            Environment.DIRECTORY_PICTURES + File.separator + "Image Converter" + File.separator + folderName)
+
                         val currentImageFile = createConvertedImageFile(
                             fileSavePath,
-                            convertToExtension
+                            convertToExtension,
+                            publicUri
                         )
                         currentImageFile.apply {
                             inDirectory = true
@@ -572,14 +576,17 @@ class ConvertProgressViewModel(
             val fileSavePath = getFileSavePath(storageDir, fileName, convertToExtension)
             if (bitmap != null) {
                 performConvert(bitmap, convertToExtension, quality, fileSavePath)
-                val file = createConvertedImageFile(
-                    fileSavePath,
-                    convertToExtension
-                )
+
                 val mimeType = getMimeType(convertToExtension)
                 val compressType = getCompressFormat(convertToExtension)
                 if (mimeType != "application/pdf") {
-                    Util.saveBitmap(app, bitmap, compressType, mimeType, fileName)
+                    val publicUri = Util.saveBitmap(app, bitmap, compressType, mimeType, fileName)
+                    val file = createConvertedImageFile(
+                        fileSavePath,
+                        convertToExtension,
+                        publicUri
+                    )
+                    saveConvertedFile(file)
                 } else {
                     if (scope.isActive) {
                         createAndSaveSinglePagePdf(
@@ -589,11 +596,8 @@ class ConvertProgressViewModel(
                         )
                     }
                 }
-                saveConvertedFile(file)
+
             }
-
-
-
 
             inputStream.close()
         } catch (e: FileNotFoundException) {
@@ -725,11 +729,11 @@ class ConvertProgressViewModel(
 
         val fos = getOutputStream(filePath)
         try {
-            Util.savePDFFile(app, document, fileName)
+            val publicUri = Util.savePDFFile(app, document, fileName)
             writeDocument(document, fos)
             val thumbNailUri: Uri? = savePdfThumbNail(thumbNail, fullFileName)
 
-            val file = createConvertedPdfFile(fullFileName, filePath, thumbNailUri)
+            val file = createConvertedPdfFile(fullFileName, filePath, thumbNailUri, publicUri)
 
 
             viewModelScope.launch {
@@ -822,11 +826,11 @@ class ConvertProgressViewModel(
             val fos = withContext(Dispatchers.IO) {
                 getOutputStream(filePath)
             }
-            Util.savePDFFile(app, document, fileName)
+            val publicUri = Util.savePDFFile(app, document, fileName)
             withContext(Dispatchers.IO) {
                 writeDocument(document, fos)
             }
-            val file = createConvertedPdfFile(fileName, filePath, thumbNailUri)
+            val file = createConvertedPdfFile(fileName, filePath, thumbNailUri, publicUri)
 
             viewModelScope.launch(Dispatchers.IO) {
                 convertedFileList.add(file)
@@ -1109,7 +1113,7 @@ class ConvertProgressViewModel(
         return Util.getExternalDir(app.applicationContext)
     }
 
-    private fun createFileDirectory(name: String, fileCount: Int): String {
+    private fun createFileDirectory(name: String, fileCount: Int, publicUri: Uri?): String {
         try {
 
             val dirPath = Util.getExternalDir(app.applicationContext)
@@ -1130,6 +1134,7 @@ class ConvertProgressViewModel(
                 file.path,
                 "Directory",
                 file.toUri(),
+                publicUri,
                 null,
                 isFavorite = false,
                 isSelected = false,
@@ -1155,7 +1160,11 @@ class ConvertProgressViewModel(
         _completePercentage.postValue(100.0)
     }
 
-    private fun createConvertedImageFile(filePath: String, extension: String): ConvertedFile {
+    private fun createConvertedImageFile(
+        filePath: String,
+        extension: String,
+        publicUri: Uri
+    ): ConvertedFile {
         val millis = Util.getCurrentTimeMillis()
         val fileName = File(filePath).name
         val uri = File(filePath).toUri()
@@ -1170,6 +1179,7 @@ class ConvertProgressViewModel(
             filePath,
             extension.substring(1),
             uri,
+            publicUri,
             null,
             isFavorite = false,
             isSelected = false,
@@ -1183,7 +1193,8 @@ class ConvertProgressViewModel(
     private fun createConvertedPdfFile(
         fileName: String,
         filePath: String,
-        thumbNailUri: Uri?
+        thumbNailUri: Uri?,
+        publicUri: Uri
     ): ConvertedFile {
         val millis = Util.getCurrentTimeMillis()
         val uri = File(filePath).toUri()
@@ -1198,6 +1209,7 @@ class ConvertProgressViewModel(
             filePath,
             "pdf",
             uri,
+            publicUri,
             thumbNailUri,
             isFavorite = false,
             isSelected = false,

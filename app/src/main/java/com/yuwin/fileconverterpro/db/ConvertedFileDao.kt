@@ -48,6 +48,9 @@ interface ConvertedFileDao {
     @Query("SELECT * FROM ConvertedFile WHERE inDirectory= 0 AND fileName Like :query Order By Date DESC")
     fun searchDatabaseInRoot(query: String): Flow<List<ConvertedFile>>
 
+    @Query("SELECT * FROM ConvertedFile WHERE filePath LIKE :filePath")
+    fun getPublicUrisInFolder(filePath: String): Flow<List<ConvertedFile>>
+
     @Insert
     suspend fun insertFile(file: ConvertedFile)
 

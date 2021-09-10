@@ -1,7 +1,12 @@
 package com.yuwin.fileconverterpro
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.DocumentsContract
 import android.util.Log
 import android.view.ActionMode
 import android.view.View
@@ -12,6 +17,7 @@ import android.widget.Toast
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.viewModels
@@ -22,12 +28,15 @@ import com.yuwin.fileconverterpro.Util.Companion.observeOnce
 import com.yuwin.fileconverterpro.Util.Companion.setOnSingleClickListener
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import java.io.File
 
 
 abstract class ActionModeBaseFragment : Fragment() {
 
     protected open var bottomNavigationVisibility = View.VISIBLE
+
+    private val FOLDER_REQUEST_CODE = 1001
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -244,8 +253,9 @@ abstract class ActionModeBaseFragment : Fragment() {
 
         fileRenameButton.setOnSingleClickListener {
 
-            if(selectedFiles.isNullOrEmpty()) {
-                Toast.makeText(requireContext(), "No file or folder selected", Toast.LENGTH_SHORT).show()
+            if (selectedFiles.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), "No file or folder selected", Toast.LENGTH_SHORT)
+                    .show()
                 return@setOnSingleClickListener
             }
 
@@ -295,7 +305,10 @@ abstract class ActionModeBaseFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
-                        mainViewModel.checkNewFolderNameUnique(File(fileToRename.filePath), name) -> {
+                        mainViewModel.checkNewFolderNameUnique(
+                            File(fileToRename.filePath),
+                            name
+                        ) -> {
                             Toast.makeText(
                                 requireContext(),
                                 "Folder already exists",
@@ -311,7 +324,6 @@ abstract class ActionModeBaseFragment : Fragment() {
                             } else {
                                 mainViewModel.renameFile(fileToRename, name)
                             }
-
 
 
                         }
@@ -400,11 +412,27 @@ abstract class ActionModeBaseFragment : Fragment() {
                     selectedFiles.forEach {
                         if (!it.isDirectory) {
                             lifecycleScope.launch {
-                                mainViewModel.deleteSelectedFiles(it)
+                                mainViewModel.deleteSelectedFiles(it, context)
                             }
                         } else {
-                            mainViewModel.deleteFilesAndFoldersFromPath(it.filePath)
-                            File(it.filePath).deleteRecursively()
+                            lifecycleScope.launch {
+                                mainViewModel.getAllFilesInStorageFolder(it.filePath)
+                                    .collect { fileList ->
+                                        fileList.forEach { file ->
+                                            if (!file.isDirectory && file.publicUri != null || file.publicUri != Uri.EMPTY) {
+                                                file.publicUri?.let { it1 ->
+                                                    Util.deleteFileFromPublicStorage(
+                                                        context,
+                                                        it1
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        mainViewModel.deleteFilesAndFoldersFromPath(it.filePath)
+                                        File(it.filePath).deleteRecursively()
+                                    }
+                            }
+
                         }
 
                     }
@@ -439,7 +467,6 @@ abstract class ActionModeBaseFragment : Fragment() {
 
 
     }
-
 
 
     private fun copyMoveOperation() {

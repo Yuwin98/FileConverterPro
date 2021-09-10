@@ -1,7 +1,7 @@
 package com.yuwin.fileconverterpro
 
 import android.app.Application
-import androidx.core.net.toUri
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,7 +11,6 @@ import com.yuwin.fileconverterpro.db.ConvertedFile
 import com.yuwin.fileconverterpro.db.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
 
 class FilePreviewViewModel(private val app: Application, private val id: Long): AndroidViewModel(app) {
 
@@ -37,9 +36,9 @@ class FilePreviewViewModel(private val app: Application, private val id: Long): 
         }
     }
 
-    fun deleteFile(file: ConvertedFile) {
+    fun deleteFile(file: ConvertedFile, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            Util.deleteFileFromStorage(file)
+            Util.deleteFileFromStorage(file, context)
             repository.deleteFile(file)
         }
     }

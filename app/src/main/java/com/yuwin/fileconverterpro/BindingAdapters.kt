@@ -18,6 +18,7 @@ import androidx.core.widget.ImageViewCompat
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
 import java.text.SimpleDateFormat
@@ -43,7 +44,10 @@ class BindingAdapters {
             ImageViewCompat.setImageTintList(view, null)
             when (convertedFile.fileType) {
                 "pdf" -> {
-                    Glide.with(view).load(convertedFile.thumbnailUri).into(view)
+                    Glide.with(view)
+                        .load(convertedFile.thumbnailUri)
+                        .signature(ObjectKey(System.currentTimeMillis()))
+                        .into(view)
                 }
                 "Directory" -> {
                     if (view.id == R.id.fileListGridImageView) {
@@ -55,7 +59,11 @@ class BindingAdapters {
                         view.layoutParams.height = dims.toInt()
                         view.layoutParams.width = dims.toInt()
                     }
-                    Glide.with(view).load(R.drawable.ic_folder_black_).into(view)
+                    Glide.with(view)
+                        .load(R.drawable.ic_folder_black_)
+                        .signature(ObjectKey(System.currentTimeMillis()))
+                        .into(view)
+
                     val folderColorList = Util.getAllFolderColors(view.context)
                     val folderColor = folderColorList[convertedFile.directoryColor!!]
                     ImageViewCompat.setImageTintList(view, ColorStateList.valueOf(folderColor))
@@ -63,6 +71,7 @@ class BindingAdapters {
                 else -> {
                     Glide.with(view)
                         .load(convertedFile.uri)
+                        .signature(ObjectKey(System.currentTimeMillis()))
                         .into(view)
                 }
             }
@@ -119,7 +128,6 @@ class BindingAdapters {
 
             return bitmap
         }
-
 
 
         @BindingAdapter("getDateString")
@@ -235,8 +243,6 @@ class BindingAdapters {
                 view.text = file.fileSize
             }
         }
-
-
 
 
     }

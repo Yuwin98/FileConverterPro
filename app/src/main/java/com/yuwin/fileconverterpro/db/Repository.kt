@@ -68,6 +68,10 @@ class Repository(private val convertedFileDao: ConvertedFileDao) {
         convertedFileDao.deleteFilesAndFoldersInPath("$path%")
     }
 
+    fun getAllPublicUrisInFolder(filePath: String): Flow<List<ConvertedFile>> {
+        return convertedFileDao.getPublicUrisInFolder(filePath)
+    }
+
     suspend fun deleteAll() {
         return convertedFileDao.deleteAll()
     }

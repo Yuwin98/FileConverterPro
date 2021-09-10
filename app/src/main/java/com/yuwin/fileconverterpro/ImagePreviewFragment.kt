@@ -80,7 +80,7 @@ class ImagePreviewFragment : BaseFragment() {
                 .setMessage("This will delete this file")
                 .setPositiveButton("Delete") { dialog, _ ->
                     dialog.dismiss()
-                    filePreviewViewModel.deleteFile(file)
+                    context?.let { it1 -> filePreviewViewModel.deleteFile(file, it1) }
                     findNavController().navigate(R.id.action_imageViewFragment_to_home)
                 }
                 .setNegativeButton("Cancel") { dialog, _ ->

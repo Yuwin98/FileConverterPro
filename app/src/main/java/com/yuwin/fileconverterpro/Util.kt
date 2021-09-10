@@ -176,12 +176,17 @@ class Util {
             return "*/*"
         }
 
-        fun deleteFileFromStorage(file: ConvertedFile) {
+        fun deleteFileFromStorage(file: ConvertedFile, context: Context?) {
             val filePath = file.filePath
             if (file.fileType == "pdf" && file.thumbnailUri != null) {
                 File(file.thumbnailUri.path!!).delete()
             }
+            file.publicUri?.let { deleteFileFromPublicStorage(context, it) }
             File(filePath).delete()
+        }
+
+        fun deleteFileFromPublicStorage(context: Context?, publicUri: Uri) {
+            context?.contentResolver?.delete(publicUri, null, null)
         }
 
         fun startShareSheetSingle(
@@ -323,7 +328,7 @@ class Util {
             )
         }
 
-         fun getFilename(app: Context,uri: Uri): String? {
+        fun getFilename(app: Context, uri: Uri): String? {
             val cursor = app.contentResolver?.query(uri, null, null, null, null)
             var filename: String? = null
 
@@ -377,14 +382,17 @@ class Util {
 
         @Throws(IOException::class)
         fun savePDFFile(
-            context: Context, document: PdfDocument,displayName: String
+            context: Context, document: PdfDocument, displayName: String
         ): Uri {
 
 
             val values = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
                 put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + File.separator + "Image Converter")
+                put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    Environment.DIRECTORY_DOCUMENTS + File.separator + "Image Converter"
+                )
             }
 
             val resolver = context.contentResolver
@@ -400,7 +408,7 @@ class Util {
 
                 outputStream?.close()
 
-                return  uri
+                return uri
 
             } catch (e: IOException) {
 
@@ -411,6 +419,39 @@ class Util {
 
                 throw e
             }
+        }
+
+        @Throws(IOException::class)
+        fun saveFolder(context: Context, path: String): Uri {
+            val contentValues = ContentValues()
+            contentValues.put(
+                MediaStore.MediaColumns.RELATIVE_PATH,
+                path
+            )
+
+            val resolver = context.contentResolver
+            var uri: Uri? = null
+
+            try {
+                uri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
+                    ?: throw IOException("Failed to create new MediaStore record.")
+
+                val folder = File(uri.toString())
+                val isCreated = folder.exists()
+                if (!isCreated) {
+                    folder.mkdirs()
+                }
+                return uri
+            } catch (e: IOException) {
+
+                uri?.let { orphanUri ->
+                    // Don't leave an orphan entry in the MediaStore
+                    resolver.delete(orphanUri, null, null)
+                }
+
+                throw e
+            }
+
         }
 
         fun dipToPixels(context: Context, dipValue: Float): Float {

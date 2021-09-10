@@ -118,7 +118,7 @@ class PdfViewerFragment : BaseFragment() {
                 .setMessage("This will delete this file")
                 .setPositiveButton("Delete") { dialog, _ ->
                     dialog.dismiss()
-                    viewModel?.deleteFile(file)
+                    context?.let { it1 -> viewModel?.deleteFile(file, it1) }
                     findNavController().navigate(R.id.action_pdfViewerFragment_to_home)
                 }
                 .setNegativeButton("Cancel") { dialog, _ ->

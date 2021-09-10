@@ -80,7 +80,7 @@ class DirectoryViewFragment : ActionModeBaseFragment(), SearchView.OnQueryTextLi
         folderName = convertedFile.fileName
 
         mainViewModel.getAllDirectoryFilesWithPath(convertedFile.filePath)
-            .observeOnce(viewLifecycleOwner, { items ->
+            .observe(viewLifecycleOwner, { items ->
                 if (items.isNullOrEmpty()) {
                     data = items
                     setupRecyclerView(isGrid)
@@ -261,75 +261,75 @@ class DirectoryViewFragment : ActionModeBaseFragment(), SearchView.OnQueryTextLi
                     }
                     .show()
             }
-            R.id.newFolder -> {
-                val editTextView = layoutInflater.inflate(R.layout.edittext_layout, null)
-                MaterialAlertDialogBuilder(requireContext())
-                    .setView(editTextView)
-                    .setTitle("Create Folder")
-                    .setMessage("This will create an empty folder")
-                    .setPositiveButton("Create") { dialog, _ ->
-                        val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
-                        val name = editText.text.toString()
-
-                        dialog.dismiss()
-
-                        val fileParent = File(args.data.filePath).parent
-                        val file = File(fileParent)
-                        when {
-                            name.isBlank() -> {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Name cannot be empty",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            mainViewModel.checkFileNameTooLong(name) -> {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Maximum filename length is 30",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            mainViewModel.checkFileNameTooShort(name) -> {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Minimum filename length is 2",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            mainViewModel.checkNewFolderNameUnique(file, name) -> {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Filename already exists",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            !mainViewModel.checkIfFileNameValid(name) -> {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Filename can only consist of (a-zA-z0-9!_)",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            else -> {
-                                val currentDir = (activity as MainActivity).currentUserDirectory
-                                mainViewModel.createFileDirectory(
-                                    name,
-                                    selectedFiles.size,
-                                    currentDir,
-                                    true
-                                )
-                            }
-                        }
-
-                    }
-                    .setNegativeButton("Cancel") { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
-                editTextView.requestFocus()
-
-            }
+//            R.id.newFolder -> {
+//                val editTextView = layoutInflater.inflate(R.layout.edittext_layout, null)
+//                MaterialAlertDialogBuilder(requireContext())
+//                    .setView(editTextView)
+//                    .setTitle("Create Folder")
+//                    .setMessage("This will create an empty folder")
+//                    .setPositiveButton("Create") { dialog, _ ->
+//                        val editText = editTextView.findViewById<EditText>(R.id.renameFileEditText)
+//                        val name = editText.text.toString()
+//
+//                        dialog.dismiss()
+//
+//                        val fileParent = File(args.data.filePath).parent
+//                        val file = File(fileParent)
+//                        when {
+//                            name.isBlank() -> {
+//                                Toast.makeText(
+//                                    requireContext(),
+//                                    "Name cannot be empty",
+//                                    Toast.LENGTH_SHORT
+//                                ).show()
+//                            }
+//                            mainViewModel.checkFileNameTooLong(name) -> {
+//                                Toast.makeText(
+//                                    requireContext(),
+//                                    "Maximum filename length is 30",
+//                                    Toast.LENGTH_SHORT
+//                                ).show()
+//                            }
+//                            mainViewModel.checkFileNameTooShort(name) -> {
+//                                Toast.makeText(
+//                                    requireContext(),
+//                                    "Minimum filename length is 2",
+//                                    Toast.LENGTH_SHORT
+//                                ).show()
+//                            }
+//                            mainViewModel.checkNewFolderNameUnique(file, name) -> {
+//                                Toast.makeText(
+//                                    requireContext(),
+//                                    "Filename already exists",
+//                                    Toast.LENGTH_SHORT
+//                                ).show()
+//                            }
+//                            !mainViewModel.checkIfFileNameValid(name) -> {
+//                                Toast.makeText(
+//                                    requireContext(),
+//                                    "Filename can only consist of (a-zA-z0-9!_)",
+//                                    Toast.LENGTH_SHORT
+//                                ).show()
+//                            }
+//                            else -> {
+//                                val currentDir = (activity as MainActivity).currentUserDirectory
+//                                mainViewModel.createFileDirectory(
+//                                    name,
+//                                    selectedFiles.size,
+//                                    currentDir,
+//                                    true
+//                                )
+//                            }
+//                        }
+//
+//                    }
+//                    .setNegativeButton("Cancel") { dialog, _ ->
+//                        dialog.dismiss()
+//                    }
+//                    .show()
+//                editTextView.requestFocus()
+//
+//            }
             R.id.sortFileSize -> {
                 mainViewModel.getAllDirectoryFilesWithPath(rootPath).observe(viewLifecycleOwner, { items ->
                     setTitleBar("(SIZE) - $folderName")

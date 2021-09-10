@@ -1,6 +1,7 @@
 package com.yuwin.fileconverterpro
 
 import android.app.Application
+import android.content.Context
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
@@ -11,6 +12,7 @@ import com.yuwin.fileconverterpro.db.ConvertedFile
 import com.yuwin.fileconverterpro.db.Repository
 import com.yuwin.fileconverterpro.repository.DataStoreRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.io.*
 import java.nio.channels.FileChannel
@@ -42,11 +44,15 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
         return databaseRepository.searchDatabaseInDirectory(query,filePath).asLiveData()
     }
 
-    suspend fun deleteSelectedFiles(file: ConvertedFile) {
-        Util.deleteFileFromStorage(file)
+    suspend fun deleteSelectedFiles(file: ConvertedFile, context: Context?) {
+        Util.deleteFileFromStorage(file, context)
         viewModelScope.launch(Dispatchers.IO) {
             databaseRepository.deleteFile(file)
         }
+    }
+
+     fun getAllFilesInStorageFolder(filePath: String): Flow<List<ConvertedFile>> {
+        return databaseRepository.getAllDirectoryFilesWithFilePath(filePath)
     }
 
     fun deleteFilesAndFoldersFromPath(path: String) {
@@ -122,6 +128,7 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
                 file.path,
                 "Directory",
                 file.toUri(),
+                null,
                 null,
                 isFavorite = false,
                 isSelected = false,
@@ -398,6 +405,7 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
             dst,
             file.fileType,
             newFileUri,
+            null,
             thumbNailUri,
             isFavorite = false,
             isSelected = false,
@@ -449,6 +457,7 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
             dst,
             file.fileType,
             newFileUri,
+            null,
             thumbNailUri,
             isFavorite = false,
             isSelected = false,
