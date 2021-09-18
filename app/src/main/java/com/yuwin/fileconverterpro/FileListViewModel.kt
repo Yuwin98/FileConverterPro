@@ -9,6 +9,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.yuwin.fileconverterpro.db.AppDatabase
 import com.yuwin.fileconverterpro.db.Repository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.File
@@ -30,10 +31,13 @@ class FileListViewModel(private val app: Application) : AndroidViewModel(app) {
                 it.forEach { file ->
                     if (!file.isDirectory && file.publicUri != null || file.publicUri != Uri.EMPTY) {
                         file.publicUri?.let { it1 ->
-                            Util.deleteFileFromPublicStorage(
-                                app.applicationContext,
-                                it1
-                            )
+                            viewModelScope.launch(Dispatchers.IO) {
+                                Util.deleteFileFromPublicStorage(
+                                    app.applicationContext,
+                                    it1
+                                )
+                            }
+
                         }
                     }
                 }

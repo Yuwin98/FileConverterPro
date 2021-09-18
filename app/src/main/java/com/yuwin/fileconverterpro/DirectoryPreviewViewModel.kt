@@ -28,7 +28,9 @@ class DirectoryPreviewViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
     private fun deleteSelectedFiles(file: ConvertedFile) {
-        Util.deleteFileFromStorage(file, app.applicationContext)
+        viewModelScope.launch(Dispatchers.IO) {
+            Util.deleteFileFromStorage(file, app.applicationContext)
+        }
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteFile(file)
         }

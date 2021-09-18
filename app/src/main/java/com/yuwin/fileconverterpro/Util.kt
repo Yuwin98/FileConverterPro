@@ -24,6 +24,7 @@ import com.yuwin.fileconverterpro.db.ConvertedFile
 import java.io.File
 import java.io.IOException
 import java.io.OutputStream
+import java.lang.Exception
 import java.lang.String.format
 import java.text.CharacterIterator
 import java.text.SimpleDateFormat
@@ -186,7 +187,11 @@ class Util {
         }
 
         fun deleteFileFromPublicStorage(context: Context?, publicUri: Uri) {
-            context?.contentResolver?.delete(publicUri, null, null)
+            try {
+                context?.contentResolver?.delete(publicUri, null, null)
+            }catch (e: Exception) {
+
+            }
         }
 
         fun startShareSheetSingle(

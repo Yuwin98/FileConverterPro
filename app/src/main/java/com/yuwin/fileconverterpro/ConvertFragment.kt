@@ -15,7 +15,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -50,7 +52,7 @@ class ConvertFragment : Fragment() {
     private var mimeType = ""
 
     private val convertViewModel: ConvertViewModel by viewModels()
-    private val mainViewModel: MainViewModel by viewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
 
     private val convertAdapter by lazy { ConvertAdapter() }
     private var itemTouchHelperCallBack: SimpleItemTouchCallBack? =
@@ -203,36 +205,24 @@ class ConvertFragment : Fragment() {
         }
 
         binding?.convertButton?.setOnClickListener {
-            val data = ConvertInfoList(convertAdapter.getAdapterData())
-            if (data.items.isNotEmpty()) {
-                if (args.isPdfMerge && data.items.size < 2) {
-                    Toast.makeText(
-                        requireContext(),
-                        "2 Files needed for merging",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                } else {
-                    val action = ConvertFragmentDirections.actionConvertToConvertProgressFragment(
-                        data,
-                        qualityInt,
-                        fileQuality,
-                        args.isPdfMerge,
-                        args.mergeImagesIntoPdf,
-                        args.convertInto,
-                        convertAll,
-                        args.singleImageToPdf,
-                        args.pdfIntoImages,
-                        args.pageInfoList,
-                        paddingPage,
-                        pageSize
-                    )
-                    findNavController().navigate(action)
+            mainViewModel.readIsPremium.observe(viewLifecycleOwner, {isPremium ->
+                if(isPremium == 0) {
+                    (activity as MainActivity).showInterstitial()
+                }else {
+                    (activity as MainActivity).mainViewModel?.setIsLoading(false)
                 }
-            } else {
-                Toast.makeText(requireContext(), "Add files to convert", Toast.LENGTH_SHORT).show()
-            }
+            })
+
         }
+
+        (activity as MainActivity).mainViewModel?.isLoading?.observe(viewLifecycleOwner, {isLoading ->
+            if(!isLoading) {
+                startConverting()
+            }
+        })
+
+
+
 
         return binding?.root
     }
@@ -374,6 +364,37 @@ class ConvertFragment : Fragment() {
         return data
     }
 
+    private fun startConverting() {
+        val data = ConvertInfoList(convertAdapter.getAdapterData())
+        if (data.items.isNotEmpty()) {
+            if (args.isPdfMerge && data.items.size < 2) {
+                Toast.makeText(
+                    requireContext(),
+                    "2 Files needed for merging",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+            } else {
+                val action = ConvertFragmentDirections.actionConvertToConvertProgressFragment(
+                    data,
+                    qualityInt,
+                    fileQuality,
+                    args.isPdfMerge,
+                    args.mergeImagesIntoPdf,
+                    args.convertInto,
+                    convertAll,
+                    args.singleImageToPdf,
+                    args.pdfIntoImages,
+                    args.pageInfoList,
+                    paddingPage,
+                    pageSize
+                )
+                findNavController().navigate(action)
+            }
+        } else {
+            Toast.makeText(requireContext(), "Add files to convert", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private fun isPdfConversion(): Boolean {
         return args.isPdfMerge || args.pdfIntoImages

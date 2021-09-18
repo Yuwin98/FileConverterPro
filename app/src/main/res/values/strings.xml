@@ -33,8 +33,9 @@
     <string name="favorite_button">Move to favourite</string>
     <string name="open_in_another_pdf_viewing_app_button">Open In another PDF viewing app button</string>
     <string name="opened_image_file">Opened Image File</string>
-    <string name="appInterstitialAdId" translatable="false">ca-app-pub-3940256099942544/1033173712</string>
-    <string name="appBannerAdId" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="appInterstitialAdId" translatable="false">ca-app-pub-3061451454890036/6254824452</string>
+    <string name="appBannerAdId" translatable="false">ca-app-pub-3061451454890036/1194069467</string>
+    <string name="appBigBannerAdId" translatable="false">ca-app-pub-3061451454890036/8404568310</string>
     <string name="moveFileText">Move</string>
     <string name="copyTextView">Copy</string>
     <string name="shareText">Share</string>
@@ -90,7 +91,7 @@
     <string name="convert_pdf_into_webp_images">Convert Pdf into webp images</string>
     <string name="convert_pdf_into_jpg_images">Convert Pdf into Jpg images</string>
     <string name="pdf_preview_page" translatable="false">Pdf Preview Page</string>
-    <string name="version">Version - 17.2 V</string>
+    <string name="version">Version - 17.6 V</string>
     <string name="_50" translatable="false">50</string>
     <string name="padding_pdf_page">Page Padding:</string>
     <string name="value_0" translatable="false">0</string>
@@ -116,6 +117,8 @@
     <string name="type_created_at">Type-Created At</string>
     <string name="filter">Filter</string>
     <string name="next">Next</string>
+    <string name="document_path" translatable="false">Documents/Image Converter</string>
+    <string name="image_path" translatable="false">Pictures/Image Converter</string>
 
     <string-array name="file_types">
         <item>PNG</item>

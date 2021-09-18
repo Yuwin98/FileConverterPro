@@ -31,7 +31,7 @@
                 android:layout_marginEnd="16dp"
                 android:fontFamily="@font/allerta"
                 android:text="@{item.selectedPagesText}"
-                android:textSize="18dp"
+                android:textSize="14dp"
                 android:visibility="@{item.selectedPagesOperation ? View.VISIBLE: View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/allFileConvertTextView" />
@@ -54,8 +54,8 @@
 
             <ImageView
                 android:id="@+id/arrowRightImageVIew"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:layout_marginStart="24dp"
                 android:contentDescription="@string/arrow_right_image_view"
                 app:layout_constraintBottom_toBottomOf="@+id/mimeTypeTextView"
@@ -74,7 +74,7 @@
                 android:fontFamily="@font/allerta"
                 android:maxLines="1"
                 android:text="@{item.convertInto.toUpperCase().substring(1)}"
-                android:textSize="20dp"
+                android:textSize="16dp"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@+id/arrowRightImageVIew"
                 app:layout_constraintStart_toEndOf="@+id/arrowRightImageVIew"
@@ -88,7 +88,7 @@
                 android:layout_marginBottom="8dp"
                 android:fontFamily="@font/allerta"
                 android:text="@{item.fileType}"
-                android:textSize="20dp"
+                android:textSize="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/fileSizeTextView"
                 app:layout_constraintTop_toBottomOf="@+id/fileSizeTextView" />

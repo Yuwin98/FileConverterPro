@@ -411,26 +411,37 @@ abstract class ActionModeBaseFragment : Fragment() {
 
                     selectedFiles.forEach {
                         if (!it.isDirectory) {
-                            lifecycleScope.launch {
-                                mainViewModel.deleteSelectedFiles(it, context)
+
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                try {
+                                    mainViewModel.deleteSelectedFiles(it, context)
+                                } catch (e: SecurityException) {
+
+                                }
                             }
                         } else {
-                            lifecycleScope.launch {
-                                mainViewModel.getAllFilesInStorageFolder(it.filePath)
-                                    .collect { fileList ->
-                                        fileList.forEach { file ->
-                                            if (!file.isDirectory && file.publicUri != null || file.publicUri != Uri.EMPTY) {
-                                                file.publicUri?.let { it1 ->
-                                                    Util.deleteFileFromPublicStorage(
-                                                        context,
-                                                        it1
-                                                    )
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                try {
+                                    mainViewModel.getAllFilesInStorageFolder(it.filePath)
+                                        .collect { fileList ->
+                                            mainViewModel.deleteFilesAndFoldersFromPath(it.filePath)
+                                            File(it.filePath).deleteRecursively()
+                                            fileList.forEach { file ->
+                                                if (!file.isDirectory && file.publicUri != null || file.publicUri != Uri.EMPTY) {
+                                                    file.publicUri?.let { it1 ->
+                                                        Util.deleteFileFromPublicStorage(
+                                                            context,
+                                                            it1
+                                                        )
+                                                    }
                                                 }
                                             }
+
                                         }
-                                        mainViewModel.deleteFilesAndFoldersFromPath(it.filePath)
-                                        File(it.filePath).deleteRecursively()
-                                    }
+                                } catch (e: SecurityException) {
+
+                                }
+
                             }
 
                         }

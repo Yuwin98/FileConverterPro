@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.content.ContextCompat
@@ -21,7 +20,6 @@ import java.lang.Exception
 import java.lang.NumberFormatException
 import java.math.RoundingMode
 import java.text.DecimalFormat
-import kotlin.math.floor
 
 
 class ConvertProgressFragment : BaseFragment() {
@@ -111,11 +109,15 @@ class ConvertProgressFragment : BaseFragment() {
                     binding.backHomeButton.visibility = View.GONE
                     lifecycleScope.launch {
                         delay(300)
+                        (activity as MainActivity).mainViewModel?.setIsLoading(true)
                         findNavController().navigate(R.id.action_convertProgressFragment_to_home)
                         mainViewModel.readIsPremium.observe(viewLifecycleOwner, {isPremium ->
                             if(isPremium == 0) {
+                                (activity as MainActivity).hideBigBanner()
                                 (activity as MainActivity).showInterstitial()
+                                (activity as MainActivity).showSmallBanner()
                             }
+
                         })
                     }
 
@@ -142,11 +144,7 @@ class ConvertProgressFragment : BaseFragment() {
         binding.backHomeButton.setOnClickListener {
             binding.backHomeButton.visibility = View.GONE
             findNavController().navigate(R.id.action_convertProgressFragment_to_home)
-            mainViewModel.readIsPremium.observe(viewLifecycleOwner, {isPremium ->
-                if(isPremium == 0) {
-                    (activity as MainActivity).showInterstitial()
-                }
-            })
+
         }
 
 
@@ -157,6 +155,13 @@ class ConvertProgressFragment : BaseFragment() {
 
 
     private fun startConversion() {
+
+        mainViewModel.readIsPremium.observe(viewLifecycleOwner, {isPremium ->
+            if(isPremium == 0) {
+                (activity as MainActivity).hideSmallBanner()
+                (activity as MainActivity).showBigBanner()
+            }
+        })
 
         when {
             args.pdfMerge -> {

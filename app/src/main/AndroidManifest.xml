@@ -31,6 +31,7 @@
 
         <activity android:name=".MainActivity"
             android:screenOrientation="portrait"
+            android:hardwareAccelerated="true"
             android:exported="true"
             android:theme="@style/SplashScreenTheme">
             <intent-filter>
@@ -45,8 +46,7 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3061451454890036~1385641154"/>
-<!--ca-app-pub-3940256099942544~3347511713-->
-<!-- My App ID - ca-app-pub-9767087107670640~1322013271 -->
+
     </application>
 
 </manifest>

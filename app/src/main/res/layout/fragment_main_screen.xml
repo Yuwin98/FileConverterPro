@@ -43,10 +43,11 @@
             app:layout_constraintTop_toBottomOf="@+id/noFilesImageView" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:contentDescription="@string/my_converted_files_list"
             android:id="@+id/filesRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
+            android:contentDescription="@string/my_converted_files_list"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -1,5 +1,6 @@
 package com.yuwin.fileconverterpro
 
+import android.R.attr
 import android.app.Application
 import android.graphics.*
 import android.graphics.pdf.PdfDocument
@@ -15,12 +16,28 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.Glide
 import com.yuwin.fileconverterpro.db.AppDatabase
 import com.yuwin.fileconverterpro.db.ConvertedFile
 import com.yuwin.fileconverterpro.db.Repository
 import kotlinx.coroutines.*
 import java.io.*
 import java.util.*
+import android.graphics.Bitmap
+
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
+
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
+import java.security.MessageDigest
+
+import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
+
+import android.media.ExifInterface
+import android.os.Build
+import android.R.attr.path
+
+
+
 
 
 class ConvertProgressViewModel(
@@ -462,76 +479,83 @@ class ConvertProgressViewModel(
                 Toast.makeText(app, "File Not Found", Toast.LENGTH_SHORT).show()
                 continue
             }
-            pdfRenderer = withContext(Dispatchers.IO) { PdfRenderer(fileDescriptor) }
+            try {
 
-            val pageCount = pdfRenderer.pageCount
-            for (i in 0 until pageCount) {
 
-                if (!selectedPagesList.contains(i)) {
-                    continue
-                }
+                pdfRenderer = withContext(Dispatchers.IO) { PdfRenderer(fileDescriptor) }
 
-                val job = scope.async {
-                    val currentPage = pdfRenderer.openPage(i)
+                val pageCount = pdfRenderer.pageCount
+                for (i in 0 until pageCount) {
 
-                    val bitmap = currentPage?.let { _ ->
-                        Bitmap.createBitmap(
-                            pageWidth, pageHeight,
-                            Bitmap.Config.ARGB_8888
-                        )
+                    if (!selectedPagesList.contains(i)) {
+                        continue
                     }
 
+                    val job = scope.async {
+                        val currentPage = pdfRenderer.openPage(i)
 
-                    if (bitmap != null) {
-                        bitmap.eraseColor(Color.WHITE)
-                        val canvas = Canvas(bitmap)
-                        canvas.drawBitmap(bitmap, 0f, 0f, null)
-
-                        currentPage.render(
-                            bitmap,
-                            null,
-                            null,
-                            PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
-                        )
-
-                        val convertToExtension = convertInto
-                        val fileName =
-                            "${realFileName.substringBeforeLast('.')}-img-$currentFilePageNum"
-                        val fileSavePath = getFileSavePath(folderPath, fileName, convertToExtension)
-                        performConvert(bitmap, convertToExtension, quality, fileSavePath)
-                        val mimeType = getMimeType(convertToExtension)
-                        val compressType = getCompressFormat(convertToExtension)
-                        val publicUri = Util.saveBitmap(
-                            app,
-                            bitmap,
-                            compressType,
-                            mimeType,
-                            fileName,
-                            Environment.DIRECTORY_PICTURES + File.separator + "Image Converter" + File.separator + folderName)
-
-                        val currentImageFile = createConvertedImageFile(
-                            fileSavePath,
-                            convertToExtension,
-                            publicUri
-                        )
-                        currentImageFile.apply {
-                            inDirectory = true
+                        val bitmap = currentPage?.let { _ ->
+                            Bitmap.createBitmap(
+                                pageWidth, pageHeight,
+                                Bitmap.Config.ARGB_8888
+                            )
                         }
-                        saveConvertedFile(currentImageFile)
-                        _convertedProgressMessage.postValue("$pageNum of $itemCount files converted")
-                        _convertedFileName.postValue("$fileName Converting...")
-                    }
-                    pageNum += 1
-                    currentFilePageNum += 1
-                    currentPage.close()
-                    increasePercentage(itemIncreasePercentage)
-                }
-                job.join()
-            }
 
-            pdfRenderer.close()
-            withContext(Dispatchers.IO) {
-                fileDescriptor.close()
+
+                        if (bitmap != null) {
+                            bitmap.eraseColor(Color.WHITE)
+                            val canvas = Canvas(bitmap)
+                            canvas.drawBitmap(bitmap, 0f, 0f, null)
+
+                            currentPage.render(
+                                bitmap,
+                                null,
+                                null,
+                                PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+                            )
+
+                            val convertToExtension = convertInto
+                            val fileName =
+                                "${realFileName.substringBeforeLast('.')}-img-$currentFilePageNum"
+                            val fileSavePath =
+                                getFileSavePath(folderPath, fileName, convertToExtension)
+                            performConvert(bitmap, convertToExtension, quality, fileSavePath)
+                            val mimeType = getMimeType(convertToExtension)
+                            val compressType = getCompressFormat(convertToExtension)
+                            val publicUri = Util.saveBitmap(
+                                app,
+                                bitmap,
+                                compressType,
+                                mimeType,
+                                fileName,
+                                Environment.DIRECTORY_PICTURES + File.separator + "Image Converter" + File.separator + folderName
+                            )
+
+                            val currentImageFile = createConvertedImageFile(
+                                fileSavePath,
+                                convertToExtension,
+                                publicUri
+                            )
+                            currentImageFile.apply {
+                                inDirectory = true
+                            }
+                            saveConvertedFile(currentImageFile)
+                            _convertedProgressMessage.postValue("$pageNum of $itemCount files converted")
+                            _convertedFileName.postValue("$fileName Converting...")
+                        }
+                        pageNum += 1
+                        currentFilePageNum += 1
+                        currentPage.close()
+                        increasePercentage(itemIncreasePercentage)
+                    }
+                    job.join()
+                }
+
+                pdfRenderer.close()
+                withContext(Dispatchers.IO) {
+                    fileDescriptor.close()
+                }
+            } catch (e: Exception) {
             }
         }
     }
@@ -553,13 +577,22 @@ class ConvertProgressViewModel(
             ).show()
         }
 
+
         try {
             val options = BitmapFactory.Options()
             options.inPreferredConfig = Bitmap.Config.ARGB_8888
             options.inScaled = false
-            if (inputStream == null) return
-            val inputBitmap = BitmapFactory.decodeStream(inputStream, null, options)
-            Log.d("Spinnervalues", fileQuality.toString())
+            if (inputStream == null) {
+                return
+            }
+
+
+            val inputBitmap: Bitmap = Glide.with(app).asBitmap()
+                .load(BitmapFactory.decodeStream(inputStream, null, options))
+                .submit()
+                .get()
+
+
             val getImageSize = inputBitmap?.let { getImageSize(it, fileQuality) }
             val bitmap =
                 inputBitmap?.let {
@@ -1235,4 +1268,41 @@ class ConvertProgressViewModel(
         scope.cancel()
     }
 
+    class RotateTransformation(private val orientation: Int) :
+        BitmapTransformation() {
+
+        override fun updateDiskCacheKey(messageDigest: MessageDigest) {
+
+        }
+
+        override fun transform(
+            pool: BitmapPool,
+            toTransform: Bitmap,
+            outWidth: Int,
+            outHeight: Int
+        ): Bitmap {
+            return when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(toTransform, 90f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(toTransform, 180f)
+                ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(toTransform, 270f)
+                ExifInterface.ORIENTATION_NORMAL -> toTransform
+                ExifInterface.ORIENTATION_UNDEFINED -> toTransform
+                else -> toTransform
+            }
+        }
+
+
+        private fun rotateImage(source: Bitmap, angle: Float): Bitmap {
+            val matrix = Matrix()
+            matrix.postRotate(angle)
+            return Bitmap.createBitmap(
+                source, 0, 0, source.width, source.height,
+                matrix, true
+            )
+        }
+    }
+
+
 }
+
+

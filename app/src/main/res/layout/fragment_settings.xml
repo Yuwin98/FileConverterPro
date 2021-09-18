@@ -141,17 +141,19 @@
                 <TextView
                     android:id="@+id/currentStoragePath"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="26dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="24dp"
+                    android:background="?attr/selectableItemBackground"
                     android:ellipsize="end"
                     android:maxLines="3"
-                    android:text="Pictures/Image Converter"
+                    android:text="@string/image_path"
                     android:textSize="18dp"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="@+id/folderLocationCardView"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/folderLocationCardView" />
+                    app:layout_constraintStart_toEndOf="@+id/folderLocationCardView"
+                    app:layout_constraintTop_toTopOf="@+id/folderLocationCardView" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/folderLocationCardView"
@@ -184,17 +186,19 @@
                 <TextView
                     android:id="@+id/currentStoragePathPDF"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="26dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="24dp"
+                    android:background="?attr/selectableItemBackground"
                     android:ellipsize="end"
                     android:maxLines="3"
-                    android:text="Documents/Image Converter"
+                    android:text="@string/document_path"
                     android:textSize="18dp"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="@+id/folderLocationCardViewPDF"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/folderLocationCardViewPDF" />
+                    app:layout_constraintStart_toEndOf="@+id/folderLocationCardViewPDF"
+                    app:layout_constraintTop_toTopOf="@+id/folderLocationCardViewPDF" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/folderLocationCardViewPDF"
@@ -242,7 +246,7 @@
                 <TextView
                     android:id="@+id/rateUsTextView"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="32dp"
                     android:layout_marginStart="16dp"
                     android:background="?attr/selectableItemBackground"
                     android:fontFamily="@font/allerta"
@@ -256,7 +260,7 @@
                 <TextView
                     android:id="@+id/goPremiumTextView"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="32dp"
                     android:layout_marginStart="16dp"
                     android:background="?attr/selectableItemBackground"
                     android:fontFamily="@font/allerta"
@@ -270,7 +274,7 @@
                 <TextView
                     android:id="@+id/sendBugReportTextView"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="32dp"
                     android:layout_marginStart="16dp"
                     android:background="?attr/selectableItemBackground"
                     android:fontFamily="@font/allerta"

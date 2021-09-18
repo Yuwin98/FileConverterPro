@@ -13,6 +13,8 @@ import com.yuwin.fileconverterpro.db.Repository
 import com.yuwin.fileconverterpro.repository.DataStoreRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.*
 import java.nio.channels.FileChannel
@@ -276,6 +278,12 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
+    private val _isLoading = MutableLiveData(true)
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    fun setIsLoading(loading: Boolean) {
+        _isLoading.value = loading
+    }
 
     // File Move and Copy Functionality
 

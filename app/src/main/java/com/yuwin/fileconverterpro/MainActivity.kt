@@ -49,12 +49,19 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     private var adRequest: AdRequest? = null
     private lateinit var adView: AdView
     private lateinit var adViewContainer: FrameLayout
+
+    private lateinit var adViewBig: AdView
+    private lateinit var adViewContainerBig: FrameLayout
+    private lateinit var divider1: View
+    private lateinit var divider2: View
+    private lateinit var divider3: View
+
     private var initialLayoutComplete = false
     private var parentView: ConstraintLayout? = null
 
     private var tag = "MainActivity"
 
-    private var mainViewModel: MainViewModel? = null
+    var mainViewModel: MainViewModel? = null
 
     private lateinit var manager: ReviewManager
     private lateinit var reviewInfo: ReviewInfo
@@ -82,17 +89,21 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
             return AdSize.getCurrentOrientationBannerAdSizeWithWidth(this, adWidth)
         }
 
+    private val adSizeBig: AdSize
+        get() = AdSize(300, 250)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(R.style.Theme_FileConverterPro)
         setContentView(R.layout.activity_main)
 
-        Log.d("adnotworking", "OnCreate Called")
-
-
         supportActionBar?.setBackgroundDrawable(
-            ColorDrawable(ContextCompat.getColor(this,R.color.navigationBarColor)))
+            ColorDrawable(ContextCompat.getColor(this, R.color.navigationBarColor))
+        )
+
+        divider1 = findViewById(R.id.divider)
+        divider2 = findViewById(R.id.divider2)
+        divider3 = findViewById(R.id.divider3)
 
         adRequest = AdRequest.Builder().build()
         currentUserDirectory =
@@ -140,12 +151,15 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
 
 
-        mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
+        mainViewModel?.readIsPremium?.observe(this, { isPremium ->
             if (isPremium == 1) {
                 this.imgLimit = PREMIUM_IMAGE_LIMIT
                 adViewContainer = findViewById(R.id.bannerAdView)
+                adViewContainerBig = findViewById(R.id.bigBannerAdView)
                 adViewContainer.visibility = View.GONE
-
+                adViewContainerBig.visibility = View.GONE
+                divider1.visibility =  View.GONE
+                divider2.visibility =  View.GONE
 
             } else {
                 this.imgLimit = FREE_IMAGE_LIMIT
@@ -153,9 +167,16 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
                 adViewContainer = findViewById(R.id.bannerAdView)
                 adView = AdView(this)
                 adViewContainer.addView(adView)
+
+                adViewContainerBig = findViewById(R.id.bigBannerAdView)
+                adViewContainerBig.visibility = View.GONE
+                adViewBig = AdView(this)
+                adViewContainerBig.addView(adViewBig)
+
                 adViewContainer.viewTreeObserver.addOnGlobalLayoutListener {
                     if (!initialLayoutComplete) {
                         initialLayoutComplete = true
+                        loadBigBanner()
                         loadBanner()
                     }
                 }
@@ -210,6 +231,31 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
         adView.loadAd(adRequest)
     }
 
+    fun hideSmallBanner() {
+        adViewContainer.visibility = View.GONE
+    }
+
+    fun showSmallBanner() {
+        adViewContainer.visibility = View.VISIBLE
+    }
+
+    private fun loadBigBanner() {
+        adViewBig.adUnitId = getString(R.string.appBigBannerAdId)
+        adViewBig.adSize = adSizeBig
+        val adRequest = AdRequest.Builder().build()
+        adViewBig.loadAd(adRequest)
+    }
+
+    fun showBigBanner() {
+        divider3.visibility = View.VISIBLE
+        adViewContainerBig.visibility = View.VISIBLE
+    }
+
+    fun hideBigBanner() {
+        divider3.visibility = View.GONE
+        adViewContainerBig.visibility = View.GONE
+    }
+
     fun requestInterstitial() {
         mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
             if (isPremium == 0) {
@@ -222,22 +268,30 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     private fun createInterstitial(adRequest: AdRequest) {
         val fullScreenCallback: FullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
+                mInterstitialAd = null
+                mainViewModel?.setIsLoading(false)
+                Log.d("ADS", "Dismissed")
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
+                mInterstitialAd = null
+                mainViewModel?.setIsLoading(false)
+                Log.d("ADS", "Load Failed")
             }
 
             override fun onAdShowedFullScreenContent() {
                 mInterstitialAd = null
+                Log.d("ADS", "Ad showed")
             }
         }
         val adCallBack: InterstitialAdLoadCallback = object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
-                Log.d(tag, adError.message)
                 mInterstitialAd = null
+                mainViewModel?.setIsLoading(false)
             }
 
             override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                Log.d("ADS", "Loaded Ad")
                 mInterstitialAd = interstitialAd
                 mInterstitialAd?.fullScreenContentCallback = fullScreenCallback
             }
@@ -246,6 +300,7 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     }
 
     fun showInterstitial() {
+        mainViewModel?.setIsLoading(true)
         mainViewModel?.readIsPremium?.observeOnce(this, { isPremium ->
             if (mInterstitialAd != null && isPremium == 0) {
                 mInterstitialAd?.show(this)
@@ -255,8 +310,11 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
     }
 
     override fun onPause() {
-        if(this::adView.isInitialized) {
+        if (this::adView.isInitialized) {
             adView.pause()
+        }
+        if (this::adViewBig.isInitialized) {
+            adViewBig.pause()
         }
         super.onPause()
 
@@ -267,11 +325,17 @@ open class MainActivity : AppCompatActivity(), PurchasesUpdatedListener {
         if (this::adView.isInitialized) {
             adView.resume()
         }
+        if (this::adViewBig.isInitialized) {
+            adViewBig.resume()
+        }
     }
 
     override fun onDestroy() {
-        if(this::adView.isInitialized) {
+        if (this::adView.isInitialized) {
             adView.destroy()
+        }
+        if (this::adViewBig.isInitialized) {
+            adViewBig.destroy()
         }
         mainViewModel = null
         mInterstitialAd = null
