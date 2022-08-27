@@ -1,6 +1,6 @@
 # FileConverterPro - Android App ![Build status](https://github.com/wallabag/android-app/workflows/CI/badge.svg?branch=master)
 
-<img src="/screenshots/app_banner.jpeg" align="center"
+<img src="/screenshots/app_banner.jpg" align="center"
  hspace="10" vspace="10">
 
 FileConverterPro is a pdf and image conversion app.  
