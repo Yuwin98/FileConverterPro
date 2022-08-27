@@ -45,21 +45,7 @@ Steps to convert image file format are:
 
 ## Screenshots
 
-[<img src="/screenshots/1.1.png" align="left"
-width="200"
-    hspace="10" vspace="10">]
-[<img src="/screenshots/5.png" align="center"
-width="200"
-    hspace="10" vspace="10">]
-[<img src="/screenshots/6.png" align="center"
-width="200"
-    hspace="10" vspace="10">]    
-[<img src="/screenshots/screen_2.png" align="center"
-width="200"
-    hspace="10" vspace="10">]
-[<img src="/screenshots/4.png" align="center"
-width="200"
-    hspace="10" vspace="10">]
+![Alt text](/screenshots/6.png?raw=true "Optional Title")
 
 ## Permissions
 
