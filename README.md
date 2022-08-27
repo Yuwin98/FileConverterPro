@@ -45,7 +45,7 @@ Steps to convert image file format are:
 
 ## Screenshots
 
-![Alt text](/screenshots/6.png?raw=true "Optional Title")
+<img src="/screenshots/1.1.png" width="300"> <img src="/screenshots/screen_2.png" width="300"> <img src="/screenshots/4.png" width="300"> <img src="/screenshots/5.png" width="300">
 
 ## Permissions
 
