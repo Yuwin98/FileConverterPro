@@ -1,13 +1,13 @@
 # FileConverterPro - Android App ![Build status](https://github.com/wallabag/android-app/workflows/CI/badge.svg?branch=master)
 
-<img src="/screenshots/app_icon.png" align="center"
-width="200" hspace="10" vspace="10">
+<img src="/screenshots/app_banner.jpeg" align="center"
+ hspace="10" vspace="10">
 
 FileConverterPro is a pdf and image conversion app.  
 The app provide many services for free and you can upgrade ti to pro version for additional features.  
 wallabag for Android is a companion app for [wallabag](https://www.wallabag.org). You need a wallabag account first, which you are going to use in this app.
 
-wallabag is available on the Google Play Store and F-Droid.
+FileConverterPro is available on the Google Play Store.
 
 <p align="left">
 <a href="https://play.google.com/store/apps/details?id=com.yuwin.fileconverterpro">
