@@ -31,21 +31,34 @@ wallabag is a creation from Nicolas Lœuillet released under the MIT License (Ex
 ## Features
 
 The android app lets you:
-- Connect to your self-hosted wallabag instance or connect to your [wallabag.it](https://wallabag.it) account.
-- Supports wallabag 2.0 and higher.
-- Completely ad-free.
-- Increase and decrease the size of the font and also switch between a serif or sans-serif font for a more comfortable reading experience.
-- Switch between numerous themes.
-- Possibility to cache images locally for offline reading.
-- Get articles read via Text-to-Speech feature.
-- Needs no special permissions on Android 6.0+.
+You can select any type of image (JPG, PNG, PDF, BMP or JPEG, WEBP) to convert file format to JPG, JPEG or PNG & WEBP.
+
+Some application needs specific photo file format JPG or PNG. You can now easily convert photos from JPG/JPEG to PNG or PNG to JPG/JPEG.
+
+Image Converter App Features :
+- JPG, PNG, GIF, BMP and JPEG all images types are supported by this tool.
+- Converts files from JPG/JPEG to PNG , PNG to JPG/JPEG & PDF into JPEG/PNG/WEBP & PNG/JPEG/WEBP into PDF.
+- Simple and Easy to use.
+- Conversion happens within couple of milliseconds.
+- Converts photos with good quality.
+- Resize photos into any custom size
+- Adjust Image quality
+- Convert PDF files and convert into PDF files
+- Merge PDF files
+
+Steps to convert image file format are:
+
+1) Select any type of Photo to convert into image
+2) Save as JPG, JPEG, PNG, WEBP file format
+3) Converted Image file Info
+4) Converted Image Gallery (including Share & Delete)
 
 ## Screenshots
 
-[<img src="/readme/Wallabag%20Reading%20List.png" align="left"
+[<img src="/screenshots/1.1.png" align="left"
 width="200"
     hspace="10" vspace="10">](/readme/Wallabag%20Reading%20List.png)
-[<img src="/readme/Wallabag%20Article%20View.png" align="center"
+[<img src="/screenshots/5.png" align="center"
 width="200"
     hspace="10" vspace="10">](/readme/Wallabag%20Article%20View.png)
 
