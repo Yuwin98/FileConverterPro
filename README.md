@@ -1,10 +1,10 @@
-# wallabag - Android App ![Build status](https://github.com/wallabag/android-app/workflows/CI/badge.svg?branch=master)
+# FileConverterPro - Android App ![Build status](https://github.com/wallabag/android-app/workflows/CI/badge.svg?branch=master)
 
-<img src="/readme/wallabag logo.png" align="left"
+<img src="/readme/wallabag logo.png" align="center"
 width="200" hspace="10" vspace="10">
 
-wallabag is a self-hosted read-it-later app.  
-Unlike other services, wallabag is free and open source.  
+FileConverterPro is a pdf and image conversion app.  
+The app provide many services for free and you can upgrade ti to pro version for additional features.  
 wallabag for Android is a companion app for [wallabag](https://www.wallabag.org). You need a wallabag account first, which you are going to use in this app.
 
 wallabag is available on the Google Play Store and F-Droid.
